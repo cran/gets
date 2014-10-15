@@ -1,0 +1,14 @@
+Package: gets
+Type: Package
+Title: General-to-Specific (GETS) Model Selection
+Version: 0.1
+Depends: R (>= 2.4.1), zoo, lgarch
+Date: 2014-10-14
+Author: Genaro Sucarrat
+Maintainer: Genaro Sucarrat <genaro.sucarrat@bi.no>
+Description: Automated multi-path General-to-Specific (GETS) model selection of either an AR-X model with log-ARCH-X errors, or a log-ARCH-X model of the log-variance. The three main functions of the package are arx, getsm and getsv. The first function estimates an AR-X model with log-ARCH-X errors. The second function undertakes GETS model selection of the mean specification of an arx object, whereas the third function undertakes GETS model selection of the log-variance specification of an arx object.
+License: GPL-2
+Packaged: 2014-10-15 09:28:20 UTC; admin
+NeedsCompilation: no
+Repository: CRAN
+Date/Publication: 2014-10-15 13:16:36
