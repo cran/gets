@@ -3,13 +3,12 @@ function(object, std=NULL, ...)
 {
   #determine type:
   if(is.null(std)){
-    if(as.character(object$call)[1]=="getsm"){ std <- FALSE }
-    if(as.character(object$call)[1]=="getsv"){ std <- TRUE }
-  }#else{
-#    std.type <- c(FALSE, TRUE)
-#    which.type <- charmatch(spec, spec.type)
-#    spec <- spec.type[which.type]
-#  }
+    std <- switch(object$gets.type, getsm=FALSE, getsv=TRUE,
+      isat=FALSE)
+#OLD:
+#    std <- switch(as.character(object$call)[1],
+#      getsm=FALSE, getsv=TRUE)
+  }
 
   if(std){
     result <- object$resids.std

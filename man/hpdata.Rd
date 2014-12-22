@@ -4,7 +4,7 @@
 
 \title{Hoover and Perez (1999) data}
 
-\description{The data were used by Hoover and Perez (1999) in their evaluation of General-to-Specific (GETS) model selection. A detailed description of the data is found in their Table 1 (page 172).
+\description{Data used by Hoover and Perez (1999) in their evaluation of General-to-Specific (GETS) modelling. A detailed description of the data is found in their Table 1 (page 172).
 
  The data are quarterly, comprise 20 variables and runs from 1959:1 to 1995:1. This corresponds to 145 observations. The source of the data is Citibank}
 \usage{data(hpdata)}
@@ -33,7 +33,7 @@
   }
 }
 \details{
-The data have been used for comparison and illustration of GETS model selection in several studies. Including: Hendry and Krolzig (1999, 2005), Doornik (2009) and Sucarrat and Escribano (2012).
+The data have been used for comparison and illustration of GETS model selection in several studies of the GETS methodology, including Hendry and Krolzig (1999, 2005), Doornik (2009) and Sucarrat and Escribano (2012).
 }
 \source{
 Retrieved 14 October 2014 from:
@@ -52,7 +52,7 @@ Jurgen Doornik (2009): 'Autometrics', in Jennifer L. Castle and Neil
   Shephard (eds), 'The Methodology and Practice of Econometrics: A
   Festschrift in Honour of David F. Hendry', Oxford University Press,
   Oxford, pp. 88-121
-  
+
 Genaro Sucarrat and Alvaro Escribano (2012): 'Automated Financial
   Model Selection: General-to-Specific Modelling of the Mean and
   Volatility Specifications', Oxford Bulletin of Economics and
@@ -69,10 +69,12 @@ newhpdata <- zooreg(hpdata[,-1], start=c(1959,1), end=c(1995,1), frequency=4)
 plot(newhpdata)
 
 ##transform data to log-differences in percent:
-dloghpdata <- gdiff(log(newhpdata))*100
+dloghpdata <- diff(log(newhpdata))*100
 
 ##plot log-differenced data:
 plot(dloghpdata)
 
 }
 \keyword{datasets}
+\keyword{Time Series}
+\keyword{Financial Econometrics}

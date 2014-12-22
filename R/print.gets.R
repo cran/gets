@@ -2,23 +2,27 @@ print.gets <-
 function(x, ...)
 {
   #determine type:
-  if(as.character(x$call)[1]=="getsm"){ spec <- "mean" }
-  if(as.character(x$call)[1]=="getsv"){ spec <- "variance" }
+  spec <- switch(x$gets.type, getsm="mean", getsv="variance",
+    isat="mean")
 
   #header:
   cat("\n")
   cat("Date:", x$date, "\n")
   cat("Method: Ordinary Least Squares (OLS)\n")
   if(spec=="mean"){
-    cat("No. of observations (mean eq.):", length(na.trim(x$resids)), "\n")
+    cat("Variance-Covariance:", switch(x$aux$vcov.type,
+      ordinary = "Ordinary", white = "White (1980)"), "\n")
+    cat("No. of observations (mean eq.):", x$aux$y.n, "\n")
     cat("Sample (mean eq.):",
-      as.character(index(na.trim(x$resids))[1]), "to",
-      as.character(index(na.trim(x$resids))[length(na.trim(x$resids))]), "\n")
-  }else{
-    cat("No. of observations (variance eq.):", length(na.trim(x$gum.resids.std)), "\n")
-    cat("Sample (variance eq.):",
-      as.character(index(na.trim(x$gum.resids.std))[1]), "to",
-      as.character(index(na.trim(x$gum.resids.std))[length(na.trim(x$gum.resids.std))]), "\n")
+      as.character(x$aux$y.index[1]), "to",
+      as.character(x$aux$y.index[x$aux$y.n]), "\n")
+  }
+  if(spec=="variance"){
+    cat("No. of observations (variance eq.):", x$aux$loge2.n, "\n")
+#needs updating!!!:
+#    cat("Sample (variance eq.):",
+#      as.character(index(na.trim(x$gum.resids.std))[1]), "to",
+#      as.character(index(na.trim(x$gum.resids.std))[length(na.trim(x$gum.resids.std))]), "\n")
   }
 
   #gum:
@@ -28,10 +32,12 @@ function(x, ...)
     cat("\n")
     print(x$gum.mean)
   }
-  cat("\n")
-  cat("GUM log-variance equation:\n")
-  cat("\n")
-  print(x$gum.variance)
+  if(!is.null(x$gum.variance)){
+    cat("\n")
+    cat("GUM log-variance equation:\n")
+    cat("\n")
+    print(x$gum.variance)
+  }
   cat("\n")
   cat("Diagnostics:\n")
   cat("\n")
@@ -62,20 +68,24 @@ function(x, ...)
   print(x$terminals.results)
 
   #specific model:
-  if(spec=="mean"){
+  if(spec=="mean" && !is.null(x$specific.mean)){
     cat("\n")
     cat("SPECIFIC mean equation:\n")
     cat("\n")
     print(x$specific.mean)
   }
-  cat("\n")
-  cat("SPECIFIC log-variance equation:\n")
-  cat("\n")
-  print(x$specific.variance)
-  cat("\n")
-  cat("Diagnostics:\n")
-  cat("\n")
-  print(x$specific.diagnostics)
+  if(!is.null(x$specific.variance)){
+    cat("\n")
+    cat("SPECIFIC log-variance equation:\n")
+    cat("\n")
+    print(x$specific.variance)
+  }
+  if(!is.null(x$specific.diagnostics)){
+    cat("\n")
+    cat("Diagnostics:\n")
+    cat("\n")
+    print(x$specific.diagnostics)
+  }
 
   #notes:
   if(!is.null(x$notes)){

@@ -1,6 +1,6 @@
 eqwma <-
 function(x, length=5, lag=1, start=1, p=1,
-  log=FALSE, abs=FALSE)
+  log=FALSE, abs=FALSE, as.vector=TRUE)
 {
 #zoo related:
 if(is.zoo(x)){
@@ -54,8 +54,10 @@ if(log){
   colnames(out) <- paste("EqWMA(", length, ")", sep="")
 }
 if(nachk) out <- rbind( matrix(NA, I(xn-xnadj), dim(out)[2]), out)
-if( dim(out)[2]==1 ) out <- as.vector(out)
-if(zoochk) out <- zoo(out, order.by=xindex)
+if(as.vector){
+  if( dim(out)[2]==1 ){ out <- as.vector(out) }
+}
+if(zoochk){ out <- zoo(out, order.by=xindex) }
 
 return(out)
 }

@@ -5,9 +5,15 @@ function(x, ...)
   cat("\n")
   cat("Date:", x$date, "\n")
   cat("Method: Ordinary Least Squares (OLS)\n")
-  cat("No. of observations (mean eq.):", length(na.trim(x$resids)), "\n")
-  cat("No. of observations (variance eq.):", length(na.trim(x$resids.std)), "\n")
-  cat("Sample (mean eq.):",
+  if(!is.null(x$mean.results)){
+    cat("Variance-Covariance:", switch(x$aux$vcov.type,
+      ordinary = "Ordinary", white = "White (1980)"), "\n")
+    cat("No. of observations (mean eq.):", length(na.trim(x$resids)), "\n")
+  }
+  if(!is.null(x$variance.results)){
+    cat("No. of observations (variance eq.):", length(na.trim(x$resids.std)), "\n")
+  }
+  cat("Sample:",
     as.character(index(na.trim(x$resids))[1]), "to",
     as.character(index(na.trim(x$resids))[length(na.trim(x$resids))]), "\n")
   if(!is.null(x$mean.results)){
@@ -16,10 +22,12 @@ function(x, ...)
     cat("\n")
     print(x$mean.results)
   }
-  cat("\n")
-  cat("Log-variance equation:\n")
-  cat("\n")
-  print(x$variance.results)
+  if(!is.null(x$variance.results)){
+    cat("\n")
+    cat("Log-variance equation:\n")
+    cat("\n")
+    print(x$variance.results)
+  }
   cat("\n")
   cat("Diagnostics:\n")
   cat("\n")

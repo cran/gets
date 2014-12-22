@@ -2,50 +2,63 @@
 \alias{coef.gets}
 \alias{fitted.gets}
 \alias{paths}
+\alias{plot.gets}
 \alias{print.gets}
 \alias{residuals.gets}
 \alias{summary.gets}
 \alias{terminals}
 \alias{vcov.gets}
 
-\title{ Extraction functions for 'gets' objects }
+\title{Extraction functions for 'gets' objects}
 
-\description{ Extraction functions for objects of class 'gets' }
+\description{Extraction functions for objects of class 'gets'}
 
 \usage{
-\method{coef}{gets}(object, spec = NULL, ...)
-\method{fitted}{gets}(object, spec = NULL, ...)
+\method{coef}{gets}(object, spec=NULL, ...)
+\method{fitted}{gets}(object, spec=NULL, ...)
 ## extraction function for class 'gets'
 paths(object, ...)
+\method{plot}{gets}(x, y=NULL, col=c("red","blue"), lty=c("solid","solid"),
+  lwd=c(1,1), coef.path=TRUE, ...)
 \method{print}{gets}(x, ...)
-\method{residuals}{gets}(object, std = NULL, ...)
+\method{residuals}{gets}(object, std=NULL, ...)
 \method{summary}{gets}(object, ...)
 ## extraction function for class 'gets'
 terminals(object, ...)
-\method{vcov}{gets}(object, spec = NULL, ...)
+\method{vcov}{gets}(object, spec=NULL, ...)
 }
 
 \arguments{
   \item{object}{an object of class 'gets'}
   \item{x}{an object of class 'gets'}
-  \item{spec}{NULL (default), "mean" or "variance". Determines whether values associated with the mean or variance specification should be extracted. If NULL, then it is automatically determined whether \code{\link{getsm}} or \code{\link{getsv}} has been used (getsm returns values pertaining to the mean specification, getsv returns values pertaining to the variance specification)}
-  \item{std}{NULL (default), FALSE or TRUE. If std = FALSE, then the mean residuals are returned. If std = TRUE, then the standardised residuals are returned. If std = NULL, then it is automatically determined whether \code{\link{getsm}} or \code{\link{getsv}} has been used (getsm returns the residuals, getsv returns the standardised residuals) }
+  \item{spec}{NULL, "mean", "variance" or, except \code{vcov.gets}, "both". If NULL, then it is automatically determined whether information pertaining to the mean or variance specification should be returned. This can be overridden by either "mean", "variance" or, except for \code{vcov.arx}, "both"}
+  \item{std}{logical. If FALSE (default), then the mean residuals are returned. If TRUE, then the standardised residuals are returned}
+  \item{y}{unused}
+  \item{col}{colours of fitted (default=red) and actual (default=blue) lines}
+  \item{lty}{types of fitted (default=solid) and actual (default=solid) lines}
+  \item{lwd}{widths of fitted (default=1) and actual (default=1) lines}
+  \item{coef.path}{logical. Only applicable if there are retained indicators after the application of \code{isat}}
   \item{\dots}{additional arguments}
 }
 
 \value{
-  \item{coef:}{A numeric vector containing the parameter estimates}
-  \item{fitted:}{A \code{\link{zoo}} object}
-  \item{paths:}{A \code{\link{list}} with the paths searched (each number refers to the regressor ordering in the GUM) }
-  \item{print:}{Prints the most important parts of the search and estimation results}
-  \item{residuals:}{A \code{\link{zoo}} object with the residuals}
-  \item{summary:}{A print of the items in the \code{\link{gets}} object}
-  \item{terminals:}{A \code{\link{list}} with the terminal models (each number refers to the regressor ordering in the GUM)}
-  \item{vcov:}{The variance-covariance matrix}
+  \item{coef:}{a numeric vector containing parameter estimates}
+  \item{fitted:}{a \code{\link{zoo}} object with fitted values}
+  \item{paths:}{a \code{\link{list}} with the paths searched (each number refers to a regressor in the GUM)}
+  \item{plot:}{a plot of the fitted values and the residuals}
+  \item{print:}{a print of the estimation results}
+  \item{residuals:}{a \code{\link{zoo}} object with the residuals}
+  \item{summary:}{a print of the items in the \code{\link{gets}} object}
+  \item{terminals:}{a \code{\link{list}} with the terminal models (each number refers to a regressor in the GUM)}
+  \item{vcov:}{a variance-covariance matrix}
 }
 
-\author{Genaro Sucarrat, \url{http://www.sucarrat.net/}}
-\seealso{ \code{\link{getsm}}, \code{\link{getsv}} }
+\author{
+James Reade, \url{https://sites.google.com/site/jjamesreade/},\cr
+Genaro Sucarrat, \url{http://www.sucarrat.net/}
+}
+
+\seealso{ \code{\link{getsm}}, \code{\link{getsv}}, \code{\link{isat}} }
 
 \examples{
 ##Simulate from an AR(1):
@@ -56,67 +69,61 @@ y <- arima.sim(list(ar=0.4), 100)
 xregs <- matrix(rnorm(4*100), 100, 4)
 
 ##estimate an AR(2) with intercept and four conditioning
-##regressors in the mean, and log-ARCH(3) in the variance:
+##regressors in the mean, and a log-ARCH(3) in the variance:
 mymod <- arx(y, mc=TRUE, ar=1:2, mxreg=xregs, arch=1:3)
 
-##undertake General-to-Specific (GETS) model selection of
-##the mean:
+##General-to-Specific (GETS) model selection of the mean:
 meanmod <- getsm(mymod)
 
-##undertake General-to-Specific (GETS) model selection of
-##the log-variance:
-varmod01 <- getsv(mymod)
-
-##undertake General-to-Specific (GETS) model selection of
-##the log-variance (simplified model):
-varmod02 <- getsv(meanmod)
+##General-to-Specific (GETS) model selection of the variance:
+varmod <- getsv(mymod)
 
 ##print results:
 print(meanmod)
-print(varmod01)
-print(varmod02)
+print(varmod)
+
+##plot the fitted vs. actual values, and the residuals:
+plot(meanmod)
+plot(varmod)
 
 ##print the entries of object 'gets':
 summary(meanmod)
-summary(varmod01)
-summary(varmod02)
+summary(varmod)
 
 ##extract coefficients of the simplified (specific) model:
 coef(meanmod) #mean spec
-coef(varmod01) #log-variance spec 1
-coef(varmod02) #log-variance spec 2
+coef(varmod) #variance spec
 
 ##extract the paths searched:
 paths(meanmod) #mean
-paths(varmod01) #log-variance spec 1
-paths(varmod02) #log-variance spec 2
+paths(varmod) #variance spec
 
 ##extract the terminal models:
 terminals(meanmod) #mean
-terminals(varmod01) #log-variance spec 1
-terminals(varmod02) #log-variance spec 2
+terminals(varmod) #variance spec
 
 ##extract variance-covariance matrix of simplified
 ##(specific) model:
 vcov(meanmod) #mean spec
-vcov(varmod01) #log-variance spec 1
-vcov(varmod02) #log-variance spec 2
+vcov(varmod) #variance spec
 
 ##extract and plot the fitted values:
 mfit <- fitted(meanmod) #mean fit
 plot(mfit)
-vfit01 <- fitted(varmod01) #variance fit
-plot(vfit01)
-vfit02 <- fitted(varmod02) #variance fit
-plot(vfit02)
+vfit <- fitted(varmod) #variance fit
+plot(vfit)
 
 ##extract and plot residuals:
 epshat <- residuals(meanmod) #mean residuals
 plot(epshat)
-zhat01 <- residuals(varmod01) #standardised residuals
-plot(zhat01)
-zhat02 <- residuals(varmod02) #standardised residuals
-plot(zhat02)
+zhat <- residuals(varmod) #standardised residuals
+plot(zhat)
+
+##impulse indicator saturation:
+set.seed(123)
+y <- rnorm(30)
+isatmod <- isat(y)
+print(isatmod)
 
 }
 

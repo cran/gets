@@ -3,8 +3,11 @@ function(object, spec=NULL,  ...)
 {
   #determine type:
   if(is.null(spec)){
-    if(as.character(object$call)[1]=="getsm"){ spec <- "mean" }
-    if(as.character(object$call)[1]=="getsv"){ spec <- "variance" }
+    spec <- switch(object$gets.type, getsm="mean",
+      getsv="variance", isat="mean")
+#OLD:
+#    spec <- switch(as.character(object$call)[1],
+#      getsm="mean", getsv="variance")
   }else{
     spec.type <- c("mean", "variance")
 #    spec.type <- c("mean", "variance", "both")

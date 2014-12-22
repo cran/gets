@@ -1,9 +1,37 @@
+Version 0.2 (22 December 2014):
+===============================
+
+The main change to version 0.2 is the addition of the isat function, which is a result of an initiative from Felix Pretis and James Reade. The isat function provides indicator saturation methods (impulses, steps) and is a major new feature of the gets package. To accommodate the new feature numerous minor and major changes have been made throughout. Some of these are:
+
+- plot.arx, plot.gets: new S3 functions
+
+- isatvar: new auxiliary function called by plot.gets when applied to a gets object resulting from isat
+
+- dropvar: new function. The function removes the regressors in a regressor matrix that cause exact multicolinearity. The code is based on the drop.coef function from the ordinal package by Rune Haubo Bojesen Christensen
+
+- diagnostics: new function
+
+- deleted functions: glog.ep, regs.mean, regs.var
+
+- getsm: major speed improvements when the log-variance specification is empty
+
+- getsm/getsv/arx: new arguments, including plot for all three, and print.searchinfo and include.gum for the first two
+
+Bugfixes:
+
+- arx: bugfix of mxreg and vxreg arguments. The bug consisted in erroneous regressor labelling whenever mxreg and/or vxreg were 1-column matrices (or vectors). The bug also affected the getsm and getsv functions
+
+- getsm:
+  * bugfix in vcov.type argument which occurred for shortened versions of "ordinary" and "white", e.g. "o" or "w"
+  * bugfix in do.pet argument, which occurred when it was set to FALSE
+
+
 Version 0.1 (14 October 2014):
-================================================
+==============================
 
-All versions until 1.0 should be considered as Beta-versions.
+All versions until 1.0 should be considered Beta-versions.
 
-The package is based on code from AutoSEARCH (also available on the CRAN), but entails a shift in the underlying development principles. The main motivation behind gets is improved user-friendliness, faster code and a package that is easier to extend. The most important differences are:
+The package is based on code from AutoSEARCH (also available on the CRAN), but entails a shift in the underlying development principles. The main motivation behind gets is improved user-friendliness, faster and simpler code, and a package that is easier to extend. The most important differences are:
  
 - the sm function has been replaced with the arx function:
   * creator of objects of class 'arx'
@@ -11,15 +39,14 @@ The package is based on code from AutoSEARCH (also available on the CRAN), but e
   * several arguments have been changed and/or removed
   * numerous minor (and some major) changes throughout the code
 
-- gets.mean and gets.vol have been replaced with getsm and getsv functions, respectively:
+- gets.mean and gets.vol have been replaced with the getsm and getsv functions, respectively:
   * both return objects of class 'gets'
-  * the main argument is an object of class arx (this improves the user-
-    friendliness considerably)
+  * the main argument is an object of class arx (this improves user-friendliness considerably compared with AutoSEARCH)
   * extraction functions (some of them S3 methods) have been added
   * several arguments have been changed and/or removed
   * numerous minor (and some major) changes throughout the code
 
-- gedlogl and gedestp functions have been deleted
+- gedlogl and gedestp functions deleted
  
 - all model comparisons are now in terms of the normal log-likelihood made up of the residuals and the fitted variance
 

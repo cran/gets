@@ -6,6 +6,7 @@
 \description{Jarque-Bera test for normality}
 
 \usage{jb.test(x)}
+
 \arguments{
   \item{x}{a numeric vector}
 }

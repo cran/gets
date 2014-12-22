@@ -1,12 +1,12 @@
 \name{ols}
 \alias{ols}
 
-\title{Accurate, robust and fast OLS estimation with the QR decomposition}
+\title{OLS estimation with the QR decomposition}
 
 \description{Accurate, robust and fast OLS estimation with the QR decomposition}
 
 \usage{
-ols(y, x, tol = 1e-07, LAPACK = FALSE, method = 1)
+ols(y, x, tol=1e-07, LAPACK=FALSE, method=1)
 }
 
 \arguments{

@@ -2,36 +2,46 @@
 \alias{gets-package}
 \alias{gets}
 \docType{package}
-\title{General-to-Specific (GETS) Model Selection}
+\title{General-to-Specific (GETS) Modelling and Indicator Saturation Methods}
 
 \description{
-Automated multi-path General-to-Specific (GETS) model selection of an AR-X model with log-ARCH-X errors.
+Automated multi-path General-to-Specific (GETS) modelling of the mean and variance of a regression, and indicator saturation methods for detecting structural breaks in the mean. The mean can be specified as an autoregressive model with covariates (an 'AR-X' model), and the variance can be specified as a log-variance model with covariates (a 'log-ARCH-X' model).
 
-The three main functions of the package are \code{\link{arx}}, \code{\link{getsm}} and \code{\link{getsv}}. The \code{arx} function returns an object of the 'arx' class, i.e. a model with an AR-X specification in the mean and a log-ARCH-X specification of the log-variance. The second function \code{getsm} undertakes GETS model selection of the mean specification of an \code{arx} object, and returns an object of the 'gets' class. The third function \code{getsv} undertakes GETS model selection of the log-variance specification of an \code{arx} object (or alternatively of a \code{gets} object obtained with the \code{getsm} function), and returns an object of the 'gets' class.
+The four main functions of the package are \code{\link{arx}}, \code{\link{getsm}}, \code{\link{getsv}} and \code{\link{isat}}. The first function, \code{arx}, estimates an AR-X model with log-ARCH-X errors. The second function, \code{getsm}, undertakes GETS model selection of the mean specification of an \code{arx} object. The third function, \code{getsv}, undertakes GETS model selection of the log-variance specification of an \code{arx} object. The fourth function, \code{isat}, undertakes GETS model selection of an indicator saturated mean specification.
 
-The package also provides auxiliary functions used by \code{arx}, \code{getsm} and \code{getsv}, in addition to extraction functions (mainly S3 methods) that can be applied to objects of the 'arx' and 'gets' classes.
+The package also provides auxiliary functions used by the main functions, in addition to extraction functions (mainly S3 methods).
 }
+
 \details{
 \tabular{ll}{
 Package: \tab gets\cr
 Type: \tab Package\cr
-Version: \tab 0.1\cr
-Date: \tab 2014-10-14\cr
+Version: \tab 2.0\cr
+Date: \tab 2014-12-22\cr
 License: \tab GPL-2\cr
 }
-The code was originally developed in relation with G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility
-Specifications', Oxford Bulletin of Economics and Statistics 74, Issue 5 (October), pp. 716-735.
+Most of the code was originally developed in relation with G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility
+Specifications', Oxford Bulletin of Economics and Statistics 74, Issue 5 (October), pp. 716-735. Subsequently, Felix Pretis and James Reade joined for the development of the \code{\link{isat}} code and related functions
 }
 
-\author{Genaro Sucarrat, \url{http://www.sucarrat.net/}}
+\author{
+Felix Pretis, \url{http://www.felixpretis.org/}\cr
+James Reade,  \url{https://sites.google.com/site/jjamesreade/}\cr
+Genaro Sucarrat, \url{http://www.sucarrat.net/}\cr\cr
+Maintainer: Genaro Sucarrat
+}
 
 \references{
-G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility
-Specifications', Oxford Bulletin of Economics and Statistics 74, Issue 5 (October), pp. 716-735
+G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility Specifications', Oxford Bulletin of Economics and Statistics 74, Issue 5 (October), pp. 716-735
+
+Carlos Santos, Hendry, David, F. and Johansen, Soren (2007):  'Automatic selection of indicators in a fully saturated regression'. Computational Statistics, vol 23:1, pp.317-335
+
+Jurgen, A. Doornik, Hendry, David F., and Pretis, Felix (2013): 'Step Indicator Saturation', Oxford Economics Discussion Paper, 658.
+
 }
 
 \seealso{
-\code{\link{arx}}, \code{\link{getsm}}, \code{\link{getsv}}
+\code{\link{arx}}, \code{\link{getsm}}, \code{\link{getsv}}, \code{\link{isat}}
 }
 
 \examples{
@@ -46,11 +56,16 @@ myModel <- arx(y, mc=TRUE, ar=1:2, arch=1:4)
 ##GETS model selection of the mean of myModel:
 simpleMean <- getsm(myModel)
 
-##GETS model selection of the log-variance of simpleMean:
-simpleVar <- getsv(simpleMean)
+##GETS model selection of the log-variance of myModel:
+simpleVar <- getsv(myModel)
 
 ##results:
 print(simpleMean)
 print(simpleVar)
+
+##impulse indicator saturation of an iid normal series:
+set.seed(123)
+y <- rnorm(30)
+isat(y)
 
 }

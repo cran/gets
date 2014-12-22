@@ -2,10 +2,10 @@ coef.gets <-
 function(object, spec=NULL,
   ...)
 {
-  gets.type <- as.character(object$call)[1]
+  gets.type <- object$gets.type
   if(is.null(spec)){
-    if(gets.type=="getsm"){ spec <- "mean" }
-    if(gets.type=="getsv"){ spec <- "variance" }
+    spec <- switch(gets.type, getsm="mean", getsv="variance",
+      isat="mean")
   }else{
     spec.type <- c("mean", "variance", "both")
     which.type <- charmatch(spec, spec.type)
@@ -13,14 +13,14 @@ function(object, spec=NULL,
   }
 
   #if(getsm):
-  if(gets.type=="getsm"){
+  if(gets.type=="getsm" || gets.type=="isat"){
 
     #mean:
     result1 <- NULL
     if(is.null(spec) || spec=="mean" || spec=="both"){
       if( !is.null(object$specific.mean)
         && object$specific.mean!="empty" ){
-        result1 <- object$specific.mean[,2]
+        result1 <- object$specific.mean[,"coef"]
         names(result1) <- rownames(object$specific.mean)
       }
     } #end is.null(spec)
@@ -29,7 +29,7 @@ function(object, spec=NULL,
     result2 <- NULL
     if(spec=="variance" || spec=="both"){
       if(!is.null(object$specific.variance)){
-        result2 <- c(object$specific.variance[,1],
+        result2 <- c(object$specific.variance[,"coef"],
           object$Elnz2)
         names(result2) <- c(rownames(object$specific.variance),
           "Elnz2")
@@ -49,7 +49,7 @@ function(object, spec=NULL,
     result2 <- NULL
     if(is.null(spec) || spec=="variance" || spec=="both"){
       if(!is.null(object$specific.variance)){
-        result2 <- c(object$specific.variance[,2],
+        result2 <- c(object$specific.variance[,"coef"],
           object$Elnz2)
         names(result2) <- c(rownames(object$specific.variance),
           "Elnz2")
