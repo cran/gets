@@ -72,6 +72,8 @@ function(object, t.pval=0.05, wald.pval=0.05,
   ### INITIALISE ##########
 
   out <- list()
+  out$time.started <- date()
+  out$time.finished <- NA
   out$call <- sys.call()
   notes <- list()
   spec <- list()
@@ -377,7 +379,7 @@ if( gum.chk!=0 && delete.n>1 ){
 
   #if paths = 0:
   if(n.paths == 0){
-    notes <- c(notes, c("No insignificant regressors in VGUM"))
+    notes <- c(notes, c("All regressors significant in GUM variance equation"))
   }
 
   #if paths > 0:
@@ -658,6 +660,7 @@ if( gum.chk!=0 && delete.n>1 ){
   out$aux$vXnames.gum <- object$aux$vXnames
   if(is.null(out$aux$vcov.type)){ out$aux$vcov.type <- vcov.type }
   out <- c(list(date=date(), gets.type="getsv"), out)
+  out$time.finished <- date()
   class(out) <- "gets"
 
   if(alarm){ alarm() }

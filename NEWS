@@ -1,3 +1,37 @@
+Version 0.3 (25 November 2015):
+===============================
+
+- arx, getsm, isat:
+
+ * logLik.arx: new extraction function (S3 method) for arx objects
+
+ * vcov.type accepts a new option, "newey-west", i.e. the covariance matrix of Newey and West (1987)
+
+ * plot.arx: the order of the arguments have been changed (spec is now the second argument)
+
+- isat:
+
+ * The default block-determining rule, i.e. when blocks=NULL, has been changed in order to avoid large blocks in large samples (the change speeds up selection notably)
+
+ * The argument tis, with default FALSE, has been added. If TRUE, then search over trend-indicators is undertaken.
+
+ * The argument uis, with default FALSE, has been added. It permits the user to provide a user-specified matrix, or list of matrices, to search over
+
+ * The argument blocks, whose default value is NULL, now also accepts a user-specified list of the blocks to search over
+
+- iim, sim, tim: new utility functions. The first creates a matrix of impulse indicators, the second a matrix of step indicators and the third a matrix of trend indicators
+
+- isatvar: 
+
+ * Now reports the coefficient path (against the full sample coefficient and the intercept path itself)
+
+ * Reports the long-run mean with its variance and standard deviation if specified and the input includes AR terms
+
+- biascorr, isattest: new auxiliary functions; called when the output from an isat object is plotted
+
+- deleted function: skewness.test. This function was required by AutoSEARCH (i.e. the predecessor of gets), but is not used by gets. As of April 2015, AutoSEARCH does not depend on gets anymore, so the function is redundant.
+
+
 Version 0.2 (22 December 2014):
 ===============================
 

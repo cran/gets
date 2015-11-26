@@ -69,4 +69,5 @@ leqwma(x, length=c(4,8))
 
 \keyword{Statistical Models}
 \keyword{Time Series}
+\keyword{Econometrics}
 \keyword{Financial Econometrics}

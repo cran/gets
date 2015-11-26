@@ -1,11 +1,11 @@
 plot.arx <-
-function(x, y=NULL, col=c("red","blue"),
-  lty=c("solid","solid"), lwd=c(1,1), spec=NULL, ...)
+function(x, spec=NULL, col=c("red","blue"),
+  lty=c("solid","solid"), lwd=c(1,1), ...)
 {
-  ##add comment?
+  ##if fitted mean (always non-NULL??):
   if(!is.null(x$mean.fit)){
 
-    ##checks on any line width, line type or colour specifications
+    ##lwd argument:
     if(length(lwd)==1){
       print("lwd needs two arguments, but only one provided. Single argument applied to all lines plotted.")
       lwd=rep(lwd,2)
@@ -14,7 +14,7 @@ function(x, y=NULL, col=c("red","blue"),
       lwd=lwd[1:2]
     }
 
-    ##add comment?
+    ##lty argument:
     if(length(lty)==1){
       print("lty needs two arguments, but only one provided. Single argument applied to all lines plotted.")
       lty=rep(lty,2)
@@ -23,7 +23,7 @@ function(x, y=NULL, col=c("red","blue"),
       lty=lty[1:2]
     }
 
-    ##add comment?
+    ##col argument:
     if(length(col)!=2){
 
       #####randomcol - returns random combination of colours of length 2
@@ -44,7 +44,7 @@ function(x, y=NULL, col=c("red","blue"),
         col<-rgb(runif(2),runif(2),runif(2))
         return(col)
       } #end randomcol
-      
+
       ###clashcol function - returns clashing (opposite) combination of colours
       clashcol <- function()
       {
@@ -66,7 +66,7 @@ function(x, y=NULL, col=c("red","blue"),
         print("Wrong number of colours specified; using random set of colours instead.")
         col<-randomcol()
       }
-    } #if length(col!=1)
+    } #if length(col!=2)
 
     ##spec argument:
     if(is.null(spec)){
@@ -87,90 +87,97 @@ function(x, y=NULL, col=c("red","blue"),
       spec <- spec.type[which.type]
     }
 
-    ##if variance modelled, plot square root of fitted variance and absolute residuals against time
-    if(spec=="variance" || spec=="both") {
-      vfitted <- sqrt(x$var.fit)
-      vactual <- abs(x$resids)
+    ##plot if spec is not NULL:
+    if(!is.null(spec)){
 
-    }##if mean modelled, plot fitted and actual values against time
-    if(spec=="mean" || spec=="both") {
-      mfitted <- x$mean.fit
-      mactual <- zoo(x$aux$y, order.by=x$aux$y.index)
-    }
-    actual.name <- x$aux$y.name
-    residuals <- x$resids.std
+      ##if variance modelled, plot square root of fitted variance and absolute residuals against time
+      if(spec=="variance" || spec=="both"){
+        vfitted <- sqrt(x$var.fit)
+        vactual <- abs(x$resids)
+      }
 
-    #get current par-values:
-    def.par <- par(no.readonly=TRUE)
+      ##if mean modelled, plot fitted and actual values against time
+      if(spec=="mean" || spec=="both"){
+        mfitted <- x$mean.fit
+        mactual <- zoo(x$aux$y, order.by=x$aux$y.index)
+      }
+      actual.name <- x$aux$y.name
+      residuals <- x$resids.std
 
-    #set new par values for plot
-    if(spec=="both") {##if both mean and variance modelled, plot both
-      par(mfrow=c(3,1))
-    }else {##else just plot the one specified
-      par(mfrow=c(2,1))
-    }
+      ##get current par-values:
+      def.par <- par(no.readonly=TRUE)
 
-    ##comment?
-    par(mar=c(2,2,0.5,0.5))
-    if(spec=="mean" || spec=="both") {##plotting mean variables
+      ##set new par values for plot
+      if(spec=="both") {##if both mean and variance modelled, plot both
+        par(mfrow=c(3,1))
+      }else {##else just plot the one specified
+        par(mfrow=c(2,1))
+      }
 
-      ##check whether ?? zoo object is regular, then plot:
-      if(is.regular(mactual)) {
-        plot(mactual, main = "",
+      ##add comment: what is happening here?
+      par(mar=c(2,2,0.5,0.5))
+      if(spec=="mean" || spec=="both") {##plotting mean variables
+
+        ##check whether ?? zoo object is regular, then plot:
+        if(is.regular(mactual)) {
+          plot(mactual, main = "",
              ylim=range(min(mactual,mfitted),max(mactual,mfitted)),
              type="l",ylab="",xlab="",col=col[2])
-      } else {##if irregular, plot manually
-        plot(as.Date(index(mactual)),coredata(mactual), main = "",
+        } else {##if irregular, plot manually
+          plot(as.Date(index(mactual)),coredata(mactual), main = "",
              ylim=range(min(mactual,mfitted),max(mactual,mfitted)),
              type="l",ylab="",xlab="",col=col[2])
-      }
+        }
 
-      ##check whether ?? zoo object is regular, then plot:
-      if(is.regular(mfitted)) {
-        lines(mfitted,col=col[1])
-      } else {
-        lines(as.Date(index(mfitted)),coredata(mfitted),col=col[1])
-      }
-      legend("topleft",lty=lty,lwd=lwd,ncol=2,col=col[c(2,1)],legend=c(actual.name,"Fitted"),bty="n")
+        ##check whether ?? zoo object is regular, then plot:
+        if(is.regular(mfitted)) {
+          lines(mfitted,col=col[1])
+        } else {
+          lines(as.Date(index(mfitted)),coredata(mfitted),col=col[1])
+        }
+        legend("topleft",lty=lty,lwd=lwd,ncol=2,col=col[c(2,1)],legend=c(actual.name,"fitted"),bty="n")
 
-    } #close what?
+      } #close ##comment? what is happening here?
 
-    ##plotting variance parts:
-    if(spec=="variance" || spec=="both") {
+      ##plotting variance parts:
+      if(spec=="variance" || spec=="both") {
 
-      ##add comment?
-      if(is.regular(vactual)) {
-        plot(vactual, main = "",
+        ##add comment?
+        if(is.regular(vactual)) {
+          plot(vactual, main = "",
              ylim=range(min(vactual,vfitted,na.rm=TRUE),max(vactual,vfitted,na.rm=TRUE)),
              type="l",ylab="",xlab="",col=col[2])
-      } else {
-        plot(as.Date(index(vactual)),coredata(vactual), main = "",
+        } else {
+          plot(as.Date(index(vactual)),coredata(vactual), main = "",
              ylim=range(min(vactual,vfitted,na.rm=TRUE),max(vactual,vfitted,na.rm=TRUE)),
              type="l",ylab="",xlab="",col=col[2])
-      }
+        }
+
+        ##add comment?
+        if(is.regular(vfitted)) {
+          lines(vfitted,col=col[1])
+        } else {
+          lines(as.Date(index(vfitted)),coredata(vfitted),col=col[1])
+        }
+        legend("topleft",lty=lty,lwd=lwd,ncol=2,col=col[c(2,1)],
+          legend=c("abs(residuals)","fitted sd"),bty="n")
+
+      } #close plotting variance parts
 
       ##add comment?
-      if(is.regular(vfitted)) {
-        lines(vfitted,col=col[1])
+      if(is.regular(residuals)) {
+        plot(residuals,type="h",col=col[2])
       } else {
-        lines(as.Date(index(vfitted)),coredata(vfitted),col=col[1])
+        plot(as.Date(index(residuals)),coredata(residuals),type="h",col=col[2])
       }
-      legend("topleft",lty=lty,lwd=lwd,ncol=2,col=col[c(2,1)],legend=c("abs (residuals)","sd"),bty="n")
+      abline(0,0)
+      legend("topleft",lty=1,col=col[2],legend=c("standardised residuals"),bty="n")
 
-    } #close ..
+      #return to old par-values:
+      par(def.par)
 
-    ##add comment?
-    if(is.regular(residuals)) {
-      plot(residuals,type="h",col=col[2])
-    } else {
-      plot(as.Date(index(residuals)),coredata(residuals),type="h",col=col[2])
-    }
-    abline(0,0)
-    legend("topleft",lty=1,col=col[2],legend=c("standardised residuals"),bty="n")
+    } #close if(!is.null(spec))
 
-    #return to old par-values:
-    par(def.par)
-
-  } #close ..
+  } #close if(!is.null(x$mean.fit))
 
 }

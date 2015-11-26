@@ -75,6 +75,8 @@ dloghpdata <- diff(log(newhpdata))*100
 plot(dloghpdata)
 
 }
+
 \keyword{datasets}
 \keyword{Time Series}
+\keyword{Econometrics}
 \keyword{Financial Econometrics}

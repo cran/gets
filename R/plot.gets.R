@@ -1,5 +1,6 @@
 plot.gets <-
-function(x,y=NULL,col=c("red","blue"),lty=c("solid","solid"),lwd=c(1,1), coef.path=TRUE, ...)
+function(x, col=c("red","blue"),
+  lty=c("solid","solid"), lwd=c(1,1), coef.path=TRUE, ...)
 {
   ##if fitted mean:
   if(!is.null(x$mean.fit)){
@@ -101,7 +102,7 @@ function(x,y=NULL,col=c("red","blue"),lty=c("solid","solid"),lwd=c(1,1), coef.pa
       lines(as.Date(index(fitted)),coredata(fitted),col=col[1])
     }
 
-    legend("topleft",lty=lty,lwd=lwd,ncol=2,col=col[c(2,1)],legend=c(actual.name,"Fitted"),bty="n")
+    legend("topleft",lty=lty,lwd=lwd,ncol=2,col=col[c(2,1)],legend=c(actual.name,"fitted"),bty="n")
     if(is.regular(residuals)) {
       plot(residuals,type="h",col=col[1])
     }
@@ -110,22 +111,36 @@ function(x,y=NULL,col=c("red","blue"),lty=c("solid","solid"),lwd=c(1,1), coef.pa
     }
 
     abline(0,0)
-    legend("topleft",lty=1,col=col[1],legend=c(paste(actual.name,"standardised residuals",sep=": ")),bty="n")
+    legend("topleft",lty=1,col=col[1],legend="standardised residuals",bty="n")
+#    legend("topleft",lty=1,col=col[1],legend=c(paste(actual.name,"standardised residuals",sep=": ")),bty="n")
 
-    ##comment
+    ##coefficient path
     if( (x$gets.type=="isat" | coef.path==TRUE) & length(x$ISnames)!=0 ) {
-      coef.path.v <- isatvar(x)
-      if(is.regular(coef.path.0)) {
-        plot(coef.path.0,type="l",col=col[1],
-             ylim=range(min(coef.path.0-qt(0.975, NROW(coef.path.0))*coef.path.v[,2]),
-                        max(coef.path.0+qt(0.975, NROW(coef.path.0))*coef.path.v[,2])))
-        lines(coef.path.0+qt(0.975, NROW(coef.path.0))*coef.path.v[,2],type="l",col=col[1],lty=3)
-        lines(coef.path.0-qt(0.975, NROW(coef.path.0))*coef.path.v[,2],type="l",col=col[1],lty=3)
-      }else{
-        plot(as.Date(index(coef.path.0)),coredata(coef.path.0),type="l",col=col[1])
-        lines(as.Date(index(coef.path.0)),coredata(coef.path.0)+qt(0.975, NROW(coef.path.0))*coef.path.v[,2],type="l",col=col[1],lty=3)
-        lines(as.Date(index(coef.path.0)),coredata(coef.path.0)-qt(0.975, NROW(coef.path.0))*coef.path.v[,2],type="l",col=col[1],lty=3)
+      ## we only get standard error bars if TIS *not* run
+      if(is.null(x$call$tis)){
+        coef.path.v <- isatvar(x)
+        if(is.regular(coef.path.0)) {
+          ylim.values <- range(min(coef.path.0-qt(0.975, NROW(coef.path.0))*coef.path.v$const.se),
+                               max(coef.path.0+qt(0.975, NROW(coef.path.0))*coef.path.v$const.se))
+          plot(coef.path.0,type="l",col=col[1],
+               ylim=ylim.values)
+          lines(coef.path.0+qt(0.975, NROW(coef.path.0))*coef.path.v$const.se,type="l",col=col[1],lty=3)
+          lines(coef.path.0-qt(0.975, NROW(coef.path.0))*coef.path.v$const.se,type="l",col=col[1],lty=3)
+        }else{
+          plot(as.Date(index(coef.path.0)),coredata(coef.path.0),type="l",col=col[1],ylim=ylim.values)
+          lines(as.Date(index(coef.path.0)),coredata(coef.path.0)+qt(0.975, NROW(coef.path.0))*coef.path.v$const.se,type="l",col=col[1],lty=3)
+          lines(as.Date(index(coef.path.0)),coredata(coef.path.0)-qt(0.975, NROW(coef.path.0))*coef.path.v$const.se,type="l",col=col[1],lty=3)
 
+        }
+      } else {
+        cat("\nNB: Because TIS selected, coefficient standard errors invalid hence not plotted\n", sep="")
+        ylim.values <- range(coef.path.0)
+        if(is.regular(coef.path.0)) {
+          ylim.values <- range(coef.path.0)
+          plot(coef.path.0,type="l",col=col[1],ylim=ylim.values)
+        }else{
+          plot(as.Date(index(coef.path.0)),coredata(coef.path.0),type="l",col=col[1],ylim=ylim.values)
+        }
       }
       abline(0,0,lty=3)
       legend("topleft",lty=1,col=col[1],legend=c(paste(actual.name,"Coefficient Path",sep=": ")),bty="n")

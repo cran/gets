@@ -1,6 +1,7 @@
 \name{coef.arx}
 \alias{coef.arx}
 \alias{fitted.arx}
+\alias{logLik.arx}
 \alias{plot.arx}
 \alias{print.arx}
 \alias{residuals.arx}
@@ -14,8 +15,9 @@
 \usage{
 \method{coef}{arx}(object, spec=NULL, ...)
 \method{fitted}{arx}(object, spec=NULL, ...)
-\method{plot}{arx}(x, y=NULL, col=c("red","blue"), lty=c("solid","solid"),
-  lwd=c(1,1), spec=NULL, ...)
+\method{logLik}{arx}(object, ...)
+\method{plot}{arx}(x, spec=NULL, col=c("red","blue"),
+  lty=c("solid","solid"), lwd=c(1,1), ...)
 \method{print}{arx}(x, ...)
 \method{residuals}{arx}(object, std=FALSE, ...)
 \method{summary}{arx}(object, ...)
@@ -27,16 +29,16 @@
   \item{x}{an object of class 'arx'}
   \item{spec}{NULL, "mean", "variance" or, except \code{vcov.arx}, "both". If NULL, then it is automatically determined whether information pertaining to the mean or variance specification should be returned. This can be overridden by either "mean", "variance" or, except for \code{vcov.arx}, "both"}
   \item{std}{logical. If FALSE (default), then the mean residuals are returned. If TRUE, then the standardised residuals are returned}
-  \item{y}{unused}
-  \item{col}{colours of fitted (default=red) and actual (default=blue) lines}
-  \item{lty}{types of fitted (default=solid) and actual (default=solid) lines}
-  \item{lwd}{widths of fitted (default=1) and actual (default=1) lines}
+  \item{col}{colours of actual (default=blue) and fitted (default=red) lines}
+  \item{lty}{types of actual (default=solid) and fitted (default=solid) lines}
+  \item{lwd}{widths of actual (default=1) and fitted (default=1) lines}
   \item{\dots}{additional arguments}
 }
 
 \value{
   \item{coef:}{a numeric vector containing parameter estimates}
   \item{fitted:}{a \code{\link{zoo}} object with fitted values}
+  \item{logLik:}{log-likelihood (normal density)}
   \item{plot:}{a plot of the fitted values and the residuals}
   \item{print:}{a print of the estimation results}
   \item{residuals:}{a \code{\link{zoo}} object with the residuals}
@@ -84,6 +86,9 @@ coef(mymod, spec="variance")
 ##extract all coefficient estimates:
 coef(mymod, spec="both")
 
+##extract log-likelihood:
+logLik(mymod)
+
 ##extract variance-covariance matrix of mean equation:
 vcov(mymod)
 
@@ -118,4 +123,5 @@ plot(zhat)
 
 \keyword{Statistical Models}
 \keyword{Time Series}
+\keyword{Econometrics}
 \keyword{Financial Econometrics}

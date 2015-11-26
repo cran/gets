@@ -1,7 +1,8 @@
 arx <-
 function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   vc=FALSE, arch=NULL, asym=NULL, log.ewma=NULL, vxreg=NULL,
-  zero.adj=0.1, vc.adj=TRUE, vcov.type=c("ordinary", "white"),
+  zero.adj=0.1, vc.adj=TRUE,
+  vcov.type=c("ordinary", "white", "newey-west"),
   qstat.options=NULL, tol=1e-07, LAPACK=FALSE, verbose=TRUE,
   plot=TRUE)
 {
@@ -9,18 +10,20 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   ##regressand:
   y.name <- deparse(substitute(y))
-  y <- as.zoo(y)
+  y <- as.zoo(cbind(y))
   y <- cbind(y)
+  if(NCOL(y) > 1) stop("Dependent variable not 1-dimensional")
   if( is.null(y.name)){ y.name <- colnames(y)[1] }
-  if( y.name =="" ){ y.name <- "y" }
+  if( y.name[1] =="" ){ y.name <- "y" }
   y <- na.trim(y)
   y.n <- NROW(y)
   y.index <- index(y)
-  y <- coredata(y[,1])
   t1 <- y.index[1]
   t2 <- y.index[y.n]
+  y <- coredata(y)
+  y <- y[,1]
 
-  ##regressor matrix:
+  ##regressors:
   mX <- NULL
   mXnames <- NULL
 
@@ -83,7 +86,6 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
       }
     }
     vxreg <- window(vxreg, start=t1, end=t2)
-    vxreg.index <- index(vxreg)
     vxreg <- cbind(coredata(vxreg))
     colnames(vxreg) <- NULL
 #OLD:
@@ -106,7 +108,8 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     if(!is.null(mX)){mX <- cbind(mX[c(max.ar+1):y.n,])}
     if(!is.null(vxreg)){
       vxreg <- cbind(vxreg[c(max.ar+1):y.n,])
-      vxreg.index <- vxreg.index[c(max.ar+1):y.n]
+#OLD:
+#      vxreg.index <- vxreg.index[c(max.ar+1):y.n]
     }
     y.n <- length(y) #new length
   }
@@ -155,10 +158,32 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
       s.e. <- sqrt(as.vector(diag(varcovmat)))
     }
     if(vcov.type == "white"){
-      matResids2 <- matrix(0, y.n, y.n)
-      diag(matResids2) <- resids2
-      omega.hat <- t(mX)%*%matResids2%*%mX
-      varcovmat <- est.m$xtxinv%*%omega.hat%*%est.m$xtxinv
+      omega.hat <- crossprod(mX, mX*resids2)
+#OLD:
+#      matResids2 <- matrix(0, y.n, y.n)
+#      diag(matResids2) <- resids2
+#      omega.hat <- t(mX) %*% matResids2 %*% mX
+      varcovmat <- est.m$xtxinv %*% omega.hat %*% est.m$xtxinv
+      coef.var <- as.vector(diag(varcovmat))
+      s.e. <- sqrt(coef.var)
+    }
+    if(vcov.type == "newey-west"){
+      iL <- round(y.n^(1/4), digits=0)
+      vW <- 1 - 1:iL/(iL+1)
+      vWsqrt <- sqrt(vW)
+      mXadj <- resids*mX
+      mS0 <- crossprod(mXadj)
+
+      mSum <- 0
+      for(l in 1:iL){
+        mXadjw <- mXadj*vWsqrt[l]
+        mXadjwNo1 <- mXadjw[-c(1:l),]
+        mXadjwNo2 <- mXadjw[-c(c(y.n-l+1):y.n),]
+        mSum <- mSum + crossprod(mXadjwNo1, mXadjwNo2) + crossprod(mXadjwNo2, mXadjwNo1)
+      }
+
+      omega.hat <- mS0 + mSum
+      varcovmat <- est.m$xtxinv %*% omega.hat %*% est.m$xtxinv
       coef.var <- as.vector(diag(varcovmat))
       s.e. <- sqrt(coef.var)
     }
@@ -250,6 +275,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     if(pstar > 0){
       loge2 <- loge2[c(pstar+1):y.n]
       vX <- cbind(vX[c(pstar+1):y.n,])
+      vX.index <- y.index[c(pstar+1):y.n]
     }
     loge2.n <- length(loge2)
 
@@ -263,9 +289,10 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     aux$asym <- asym
     aux$log.ewma <- log.ewma
     aux$vxreg <- vxreg #note: NROW(vxreg)!=NROW(vX) is possible
-    if(!is.null(vxreg)){
-      aux$vxreg.index <- vxreg.index
-    }
+#OLD:
+#    if(!is.null(vxreg)){
+#      aux$vxreg.index <- vxreg.index
+#    }
 
     #estimate:
     est.v <- ols(loge2, vX, tol=tol, LAPACK=LAPACK,
@@ -281,8 +308,6 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     colnames(varcovmat.v) <- vXnames
     rownames(varcovmat.v) <- vXnames
     vcov.var <- varcovmat.v[-1,-1]
-#OLD:
-#    vcov.var <- varcovmat.v
     t.stat <- est.v$coefficients/s.e.
     p.val <- pt(abs(t.stat), d.f.v., lower.tail=FALSE)*2
 

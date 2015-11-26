@@ -108,4 +108,5 @@ varmod03 <- getsv(gum01, keep=2:4)
 
 \keyword{Statistical Models}
 \keyword{Time Series}
+\keyword{Econometrics}
 \keyword{Financial Econometrics}

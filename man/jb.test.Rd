@@ -22,3 +22,6 @@
 \author{Genaro Sucarrat, \url{http://www.sucarrat.net/}}
 
 \keyword{Statistical Models}
+\keyword{Time Series}
+\keyword{Econometrics}
+\keyword{Financial Econometrics}

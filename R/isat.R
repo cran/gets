@@ -1,16 +1,16 @@
 isat <-
 function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
-  iis=TRUE, sis=FALSE, blocks=NULL, ratio.threshold=0.8,
-  max.block.size=30, vcov.type=c("ordinary", "white"),
+  iis=TRUE, sis=FALSE, tis=FALSE, uis=FALSE, blocks=NULL,
+  ratio.threshold=0.8, max.block.size=30,
+  vcov.type=c("ordinary", "white", "newey-west"),
   t.pval=0.001, do.pet=FALSE, wald.pval=0.001, ar.LjungB=NULL,
   arch.LjungB=NULL, normality.JarqueB=NULL,
   info.method=c("sc", "aic", "hq"), include.gum=FALSE,
-  include.empty=FALSE, tol=1e-07, LAPACK=FALSE, max.regs=NULL,
-  verbose=TRUE, print.searchinfo=TRUE, alarm=FALSE, plot=TRUE)
+  include.empty=FALSE, tol=1e-07, LAPACK=FALSE, max.regs=NULL, verbose=TRUE,
+  print.searchinfo=TRUE, alarm=FALSE, plot=TRUE)
 {
 
   ##arguments:
-  tis=FALSE #for the future!
   isat.call <- sys.call()
   vcov.type <- match.arg(vcov.type)
   info.method <- match.arg(info.method)
@@ -28,84 +28,142 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   mXncol <- mod$aux$mXncol
   vcov.type <- mod$aux$vcov.type
   qstat.options <- mod$aux$qstat.options
+  if(is.null(mX)){ mxkeep <- NULL }else{ mxkeep <- 1:mXncol }
 
   #indicator saturation matrices:
-  listIS <- list()
-  if(is.null(mX)){ mxkeep <- NULL}else{ mxkeep <- 1:mXncol }
+  ISmatrices <- list()
 
-  if(iis){
+  if(iis){ #impulse indicators
     mIIS <- matrix(0,y.n,y.n)
     diag(mIIS) <- 1
     colnames(mIIS) <- paste("iis", y.index.as.char, sep="")
-    listIS <- c(listIS,list(mIIS=mIIS))
-  }else{
-    mIIS <- NULL
+    ISmatrices <- c(ISmatrices,list(IIS=mIIS))
   }
 
-  if(sis){
+  if(sis){ #step-shift indicators
     mSIS <-matrix(0,y.n,y.n)
     loop.indx <- 1:y.n
     tmp <- function(i){ mSIS[i,1:i] <<- 1 }
     tmp <- sapply(loop.indx,tmp)
     colnames(mSIS) <- paste("sis", y.index.as.char, sep="")
     mSIS <- mSIS[,-1]
-    listIS <- c(listIS,list(mSIS=mSIS))
-  }else{
-    mSIS <- NULL
+    ISmatrices <- c(ISmatrices,list(SIS=mSIS))
   }
 
-  if(tis){
-#NOTE: This part has to be changed and adapted for TIS labels!
-    mTIS <- NULL
+  if(tis){ #trend indicators
+    mTIS <- matrix(0,y.n,y.n)
     v1n <- seq(1,y.n)
-    zeros <- rep(0,y.n)
-    loop.indx <- 1:c(y.n-1)
+    loop.indx <- 1:y.n
     tmp <- function(i){
-      mTIS <<- cbind(mTIS,c(zeros[1:i],v1n[1:c(y.n-i)]))
+      mTIS[c(i:y.n),i] <<- v1n[1:c(y.n-i+1)]
     }
     tmp <- sapply(loop.indx,tmp)
-    colnames(mTIS) <- paste("tis", 2:c(NCOL(mTIS)+1), sep="")
-    listIS <- c(listIS,list(mTIS=mTIS))
+    colnames(mTIS) <- paste("tis", y.index.as.char, sep="")
+    mTIS <- mTIS[,-1]
+    ISmatrices <- c(ISmatrices,list(TIS=mTIS))
+  }
+
+  ##user-defined indicators:
+  #if uis is a matrix:
+  if(!is.list(uis) && !identical(as.numeric(uis),0)){
+    #check nrow(uis):
+    uis <- as.matrix(coredata(as.zoo(uis)))
+    if(nrow(uis) != y.n) stop("nrow(uis) is unequal to no. of observations")
+    ISmatrices <- c(ISmatrices,list(UIS=uis))
+  }
+  #if uis is a list of matrices:
+  if(is.list(uis)){
+    #check nrow(uis[[i]]):
+    for(i in 1:length(uis)){
+      uis[[i]] <- as.matrix(coredata(as.zoo(uis[[i]])))
+      if(nrow(uis[[i]]) != y.n){
+        stop(paste("nrow(uis[[",i,"]]) is unequal to no. of observations",
+          sep=""))
+      }
+    }
+    if(is.null(names(uis))){
+      uis.names <- paste("UIS", 1:length(uis), sep="")
+      names(uis) <- uis.names
+    }else{
+      uis.names <- paste("UIS", 1:length(uis), sep="")
+      for(i in 1:length(uis)){
+        if(names(uis)[i]==""){ names(uis)[i] <- uis.names[i] }
+      }
+    }
+    ISmatrices <- c(ISmatrices,uis)
+  }
+
+  ##check blocks:
+  if(is.list(blocks)){
+    if(length(ISmatrices)!=length(blocks)){
+      stop("No. of IS matrices is unequal to length(blocks)")
+    }
+    blocks.is.list <- TRUE
+    ISblocks <- blocks
   }else{
-    mTIS <- NULL
+    blocks.is.list <- FALSE
+    ISblocks <- list()
   }
 
-  #determine no. of blocks:
-  if(is.null(blocks)){
-    blockratio.value <- y.n/(ratio.threshold*y.n - NCOL(mX))
-    blocksize.value <- y.n/max.block.size
-    blocks <- max(2,blockratio.value,blocksize.value)
-    blocks <- ceiling(blocks)
-  }
-
-  #loop on listIS (i.e. mIIS, mSIS, mTIS):
+  #loop on ISmatrices:
   ISfinalmodels <- list()
-  for(i in 1:length(listIS)){
+  for(i in 1:length(ISmatrices)){
 
-    #make partitions:
-    smplsize <- floor(y.n/blocks)
-    partitions.t2 <- rep(NA,blocks)
-    partitions.t2[blocks] <- NCOL(listIS[[i]]) #y.n
-    for(j in 1:c(blocks-1)){ partitions.t2[j] <- smplsize*j }
-    partitions.t1 <- partitions.t2 + 1
-    partitions.t1 <- c(1,partitions.t1[-blocks])
+    #blocks:
+    if(!blocks.is.list){
+
+      ncol.adj <- NCOL(ISmatrices[[i]])
+
+      if(is.null(blocks)){
+        blockratio.value <- ncol.adj/(ratio.threshold*ncol.adj - NCOL(mX))
+        blocksize.value <- ncol.adj/max.block.size
+        no.of.blocks <- max(2,blockratio.value,blocksize.value)
+        no.of.blocks <- ceiling(no.of.blocks)
+      }else{
+        no.of.blocks <- blocks
+      }
+
+      blocksize <- ceiling(ncol.adj/no.of.blocks)
+      partitions.t2 <- blocksize
+      for(j in 1:no.of.blocks){
+        if( blocksize*j <= ncol.adj ){
+          partitions.t2[j] <- blocksize*j
+        }
+      }
+      #check if last block contains last indicator:
+      if(partitions.t2[length(partitions.t2)] < ncol.adj){
+        partitions.t2 <- c(partitions.t2, ncol.adj)
+      }
+      blocksadj <- length(partitions.t2)
+      partitions.t1 <- partitions.t2 + 1
+      partitions.t1 <- c(1,partitions.t1[-blocksadj])
+
+      tmp <- list()
+      for(j in 1:blocksadj){
+        tmp[[j]] <- partitions.t1[j]:partitions.t2[j]
+      }
+      ISblocks[[i]] <- tmp
+
+    } #end if(!blocks.is.list)
 
     #gets on each block:
     ISspecific.models <- list()
-#    ISgums <- list()
-#    ISpaths <- list()
-#    ISterminals.results <- list()
-    for(j in 1:blocks){
+    #for the future?: ISgums <- list(); ISpaths <- list(); ISterminals.results <- list()
+    for( j in 1:length(ISblocks[[i]]) ){
 
       #print info:
       if(print.searchinfo){
         cat("\n")
-        cat(substr(names(listIS)[i],2,4),
-          " block ", j, " of ", blocks, "...\n", sep="")
+        cat(names(ISmatrices)[i],
+          " block ", j, " of ", length(ISblocks[[i]]), "...\n", sep="")
         cat("\n")
       }
 
-      mXis <- cbind(mX,listIS[[i]][,partitions.t1[j]:partitions.t2[j]])
+      mXis <- cbind(mX,ISmatrices[[i]][, ISblocks[[i]][[j]] ])
+#OLD:
+#      mXis <- cbind(mX,ISmatrices[[i]][, tmpBlocks[[j]] ])
+#      mXis <- cbind(mX,ISmatrices[[i]][,partitions.t1[j]:partitions.t2[j]])
+      #future?: mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK)
       mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
         qstat.options=qstat.options, tol=tol, LAPACK=LAPACK,
         verbose=TRUE, plot=FALSE)
@@ -120,18 +178,19 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         ISspecific.models[[j]] <- NULL
       }else{
         ISspecific.models[[j]] <- names(getsis$specific.spec)
+#For the future?:
 #        ISgums[[j]] <- getsis$gum.mean
 #        ISpaths[[j]] <- getsis$paths
 #        ISterminals.results[[j]] <- getsis$terminals.results
       }
 
-    } #end for(j in 1:blocks)
+    } #end for(j in 1:length(ISblocks[[i]]))
 
     #print info:
     if(print.searchinfo){
       cat("\n")
       cat("GETS of union of retained ",
-        substr(names(listIS)[i],2,4), " indicators... \n",
+        names(ISmatrices)[i], " indicators... \n",
         sep="")
       cat("\n")
     }
@@ -159,9 +218,9 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
       #redo gets with union of retained indicators:
       mXisNames <- c(mXnames,isNames)
-      mXis <- cbind(mX,listIS[[i]][,isNames])
+      mXis <- cbind(mX,ISmatrices[[i]][,isNames])
       colnames(mXis) <- mXisNames
-      mXis <- dropvar(mXis)
+      mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK)
       mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
         qstat.options=NULL, tol=tol, LAPACK=LAPACK,
         verbose=TRUE, plot=FALSE)
@@ -174,9 +233,12 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         plot=FALSE)
       ISfinalmodels[[i]] <- names(getsis$specific.spec)
 
-    } #end if(length(IS..)>0
+    } #end if(length(ISspecific.models > 0)
 
-  } #end for(i) loop (on listIS)
+  } #end for(i) loop (on ISmatrices)
+
+  #add names to ISblocks:
+  names(ISblocks) <- names(ISmatrices)
 
   #gets of union of retained impulses:
   if(print.searchinfo){
@@ -207,13 +269,13 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         isNames <- setdiff(ISfinalmodels[[i]], mXnames)
       }
       if(length(isNames)>0){
-        tmp <- cbind(listIS[[i]][, isNames ])
+        tmp <- cbind(ISmatrices[[i]][, isNames ])
         colnames(tmp) <- isNames
         mIS <- cbind(mIS, tmp)
       }
     } #end for loop
 
-    mXis <- dropvar(cbind(mX,mIS))
+    mXis <- dropvar(cbind(mX,mIS), tol=tol, LAPACK=LAPACK)
     mXis <- zoo(mXis, order.by=y.index)
   } #end if(length(ISfinalmodels)>0)
 

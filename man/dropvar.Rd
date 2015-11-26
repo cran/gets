@@ -19,11 +19,11 @@ dropvar(x, tol=1e-07, LAPACK=FALSE, silent=FALSE)
 \value{a matrix whose regressors linearly independent}
 
 \details{
-Original function \code{drop.coef} developed by Rune Haubo B. Christensen in package \code{ordinal}, \url{http://www.cran.r-project.org/web/packages/ordinal/index.html}.
+Original function \code{drop.coef} developed by Rune Haubo B. Christensen in package \code{ordinal}, \url{https://cran.r-project.org/package=ordinal}.
 }
 
 \references{
-Rune H.B. Christensen (2014): 'ordinal: Regression Models for Ordinal Data'. \url{http://cran.r-project.org/web/packages/ordinal/}
+Rune H.B. Christensen (2014): 'ordinal: Regression Models for Ordinal Data'. \url{https://cran.r-project.org/package=ordinal}
 }
 
 \author{
@@ -43,4 +43,5 @@ dropvar(x) #less than full rank, last column dropped
 
 \keyword{Statistical Models}
 \keyword{Time Series}
+\keyword{Econometrics}
 \keyword{Financial Econometrics}

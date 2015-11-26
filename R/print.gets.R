@@ -11,7 +11,8 @@ function(x, ...)
   cat("Method: Ordinary Least Squares (OLS)\n")
   if(spec=="mean"){
     cat("Variance-Covariance:", switch(x$aux$vcov.type,
-      ordinary = "Ordinary", white = "White (1980)"), "\n")
+      ordinary = "Ordinary", white = "White (1980)",
+      "newey-west" = "Newey and West (1987)"), "\n")
     cat("No. of observations (mean eq.):", x$aux$y.n, "\n")
     cat("Sample (mean eq.):",
       as.character(x$aux$y.index[1]), "to",

@@ -9,10 +9,11 @@ The AR-X mean specification can contain an intercept, AR-terms, lagged moving av
 }
 
 \usage{
-arx(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL, vc=FALSE, arch=NULL,
-  asym=NULL, log.ewma=NULL, vxreg=NULL, zero.adj=0.1, vc.adj=TRUE,
-  vcov.type=c("ordinary", "white"), qstat.options=NULL, tol=1e-07,
-  LAPACK=FALSE, verbose=TRUE, plot=TRUE)
+arx(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL, vc=FALSE,
+  arch=NULL, asym=NULL, log.ewma=NULL, vxreg=NULL, zero.adj=0.1,
+  vc.adj=TRUE, vcov.type=c("ordinary", "white", "newey-west"),
+  qstat.options=NULL, tol=1e-07, LAPACK=FALSE, verbose=TRUE,
+  plot=TRUE)
 }
 
 \arguments{
@@ -20,12 +21,12 @@ arx(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL, vc=FALSE, arch=NULL,
   \item{mc}{logical. TRUE includes an intercept in the mean specification, whereas FALSE (default) does not}
   \item{ar}{integer vector, say, c(2,4) or 1:4. The AR-lags to include in the mean specification}
   \item{ewma}{either NULL (default) or a list with arguments sent to the \code{\link{eqwma}} function. In the latter case a lagged moving average of y is included as a regressor}
-  \item{mxreg}{numeric vector or matrix, say, a \code{\link{zoo}} object, of conditioning variables. Note that missing values in the beginning or at the end of the series is allowed, as they are removed with the \code{\link{na.trim}} command from the \code{\link{zoo}}. Note also that, if both y and mxreg are zoo objects, then their samples are chose to match}
+  \item{mxreg}{numeric vector or matrix, say, a \code{\link{zoo}} object, of conditioning variables. Note that, if both y and mxreg are \code{zoo} objects, then their samples are chosen to match}
   \item{vc}{logical. TRUE includes an intercept in the log-variance specification, whereas FALSE (default) does not. If the log-variance specification contains any other item but the log-variance intercept, then vc is set to TRUE}
   \item{arch}{integer vector, say, c(1,3) or 2:5. The log-ARCH lags to include in the log-variance specification}
   \item{asym}{integer vector, say, c(1) or 1:3. The asymmetry (i.e. 'leverage') terms to include in the log-variance specification}
   \item{log.ewma}{either NULL (default) or a list with arguments sent to the \code{\link{leqwma}} function. In the latter case the log of a lagged moving average of the residuals (essentially the log of a volatility proxy) is included as a regressor}
-  \item{vxreg}{numeric vector or matrix, say, a \code{\link{zoo}} object, of conditioning variables. If both y and mxreg are \code{\link{zoo}} objects, then their samples are chosen to match}
+  \item{vxreg}{numeric vector or matrix, say, a \code{\link{zoo}} object, of conditioning variables. If both y and mxreg are \code{zoo} objects, then their samples are chosen to match}
   \item{zero.adj}{numeric value between 0 and 1. The quantile adjustment for zero values. The default 0.1 means the zero residuals are replaced by the 10 percent quantile of the absolute residuals before taking the logarithm}
   \item{vc.adj}{logical. If TRUE (default), then the log-variance intercept is adjusted by the estimate of E[ln(z^2)]. This adjustment is needed for the conditional scale of e to be equal to the conditional standard deviation. If FALSE, then the log-variance intercept is not adjusted}
   \item{vcov.type}{character vector, "ordinary" (default) or "white". If "ordinary", then the ordinary variance-covariance matrix is used for inference. Otherwise the White (1980) heteroscedasticity robust matrix is used}
@@ -94,4 +95,5 @@ arx(y, mc=TRUE, ar=1:2, mxreg=xregs, arch=1:4, asym=1,
 }
 \keyword{Statistical Models}
 \keyword{Time Series}
+\keyword{Econometrics}
 \keyword{Financial Econometrics}

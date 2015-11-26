@@ -1,9 +1,9 @@
 \name{ols}
 \alias{ols}
 
-\title{OLS estimation with the QR decomposition}
+\title{OLS estimation}
 
-\description{Accurate, robust and fast OLS estimation with the QR decomposition}
+\description{OLS estimation with the QR decomposition}
 
 \usage{
 ols(y, x, tol=1e-07, LAPACK=FALSE, method=1)
@@ -33,3 +33,6 @@ ols(y, x, tol=1e-07, LAPACK=FALSE, method=1)
 \seealso{\code{\link{qr}}, \code{\link{solve.qr}}}
 
 \keyword{Statistical Models}
+\keyword{Time Series}
+\keyword{Econometrics}
+\keyword{Financial Econometrics}

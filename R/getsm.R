@@ -16,7 +16,7 @@ function(object, t.pval=0.05, wald.pval=0.05,
   if(is.null(vcov.type)){
     vcov.type <- object$aux$vcov.type
   }else{
-    types <- c("ordinary", "white")
+    types <- c("ordinary", "white", "newey-west")
     which.type <- charmatch(vcov.type, types)
     vcov.type <- types[which.type]
   }
@@ -36,6 +36,7 @@ function(object, t.pval=0.05, wald.pval=0.05,
 
   out <- list()
   out$time.started <- date()
+  out$time.finished <- NA
   out$call <- sys.call()
   notes <- list()
   spec <- list()
@@ -75,10 +76,32 @@ function(object, t.pval=0.05, wald.pval=0.05,
     s.e. <- sqrt(coef.var)
   }
   if(vcov.type == "white"){
-    matResids2 <- matrix(0, object$aux$y.n, object$aux$y.n)
-    diag(matResids2) <- resids2
-    omega.hat <- t(mXadj)%*%matResids2%*%mXadj
-    varcovmat <- est$xtxinv%*%omega.hat%*%est$xtxinv
+      omega.hat <- crossprod(mXadj, mXadj*resids2)
+#OLD:
+#    matResids2 <- matrix(0, object$aux$y.n, object$aux$y.n)
+#    diag(matResids2) <- resids2
+#    omega.hat <- t(mXadj)%*%matResids2%*%mXadj
+    varcovmat <- est$xtxinv %*% omega.hat %*% est$xtxinv
+    coef.var <- as.vector(diag(varcovmat))
+    s.e. <- sqrt(coef.var)
+  }
+  if(vcov.type == "newey-west"){
+    iL <- round(object$aux$y.n^(1/4), digits=0)
+    vW <- 1 - 1:iL/(iL+1)
+    vWsqrt <- sqrt(vW)
+    mXadjj <- object$resids*mXadj
+    mS0 <- crossprod(mXadjj)
+
+    mSum <- 0
+    for(l in 1:iL){
+      mXadjjw <- mXadjj*vWsqrt[l]
+      mXadjjwNo1 <- mXadjjw[-c(1:l),]
+      mXadjjwNo2 <- mXadjjw[-c(c(object$aux$y.n-l+1):object$aux$y.n),]
+      mSum <- mSum + crossprod(mXadjjwNo1, mXadjjwNo2) + crossprod(mXadjjwNo2, mXadjjwNo1)
+    }
+
+    omega.hat <- mS0 + mSum
+    varcovmat <- est$xtxinv %*% omega.hat %*% est$xtxinv
     coef.var <- as.vector(diag(varcovmat))
     s.e. <- sqrt(coef.var)
   }
@@ -351,7 +374,7 @@ if( gum.chk!=0 && delete.n>1 ){
 
   #if paths = 0:
   if(n.paths == 0){
-    notes <- c(notes, c("No insignificant regressors in MGUM"))
+    notes <- c(notes, c("All regressors significant in GUM mean equation"))
   }
 
   #if paths > 0:
@@ -445,13 +468,36 @@ if( gum.chk!=0 && delete.n>1 ){
             } #end "ordinary"
 
             if(vcov.type == "white"){
-              matResids2 <- matrix(0, object$aux$y.n, object$aux$y.n)
-              diag(matResids2) <- resids2
-              omega.hat <- t(mXadj)%*%matResids2%*%mXadj
-              varcovmat <- est$xtxinv%*%omega.hat%*%est$xtxinv
+              omega.hat <- crossprod(mXadj, mXadj*resids2)
+#OLD:
+#              matResids2 <- matrix(0, object$aux$y.n, object$aux$y.n)
+#              diag(matResids2) <- resids2
+#              omega.hat <- t(mXadj)%*%matResids2%*%mXadj
+              varcovmat <- est$xtxinv %*% omega.hat %*% est$xtxinv
               coef.var <- as.vector(diag(varcovmat))
               s.e. <- sqrt(coef.var)
             } #end "white"
+
+            if(vcov.type == "newey-west"){
+              iL <- round(object$aux$y.n^(1/4), digits=0)
+              vW <- 1 - 1:iL/(iL+1)
+              vWsqrt <- sqrt(vW)
+              mXadjj <- resids*mXadj
+              mS0 <- crossprod(mXadjj)
+
+              mSum <- 0
+              for(l in 1:iL){
+                mXadjjw <- mXadjj*vWsqrt[l]
+                mXadjjwNo1 <- mXadjjw[-c(1:l),]
+                mXadjjwNo2 <- mXadjjw[-c(c(object$aux$y.n-l+1):object$aux$y.n),]
+                mSum <- mSum + crossprod(mXadjjwNo1, mXadjjwNo2) + crossprod(mXadjjwNo2, mXadjjwNo1)
+              }
+
+              omega.hat <- mS0 + mSum
+              varcovmat <- est$xtxinv %*% omega.hat %*% est$xtxinv
+              coef.var <- as.vector(diag(varcovmat))
+              s.e. <- sqrt(coef.var)
+            } #end newey-west
 
             #t-tests:
             t.stat <- est$coefficients/s.e.
@@ -539,6 +585,7 @@ if( gum.chk!=0 && delete.n>1 ){
       } #end if(chk.spec==FALSE)
 
     } #end multi-path search: for(i in 1:n.paths) loop
+
   } #end if paths > 0
 } #end if( gum.chk!=0 && delete.n>1 )
 
@@ -595,9 +642,6 @@ if( gum.chk!=0 && delete.n>1 ){
     if(include.empty==FALSE && length(where.empty) > 0){
       row.labels[where.empty] <- paste("spec ", where.empty,
         " (empty):", sep="")
-#OLD:
-#      row.labels[where.empty] <- paste(row.labels[where.empty],
-#        " (empty)", sep="")
     }
     rownames(spec.results) <- row.labels
     out$terminals.results <- spec.results
@@ -634,7 +678,7 @@ if( gum.chk!=0 && delete.n>1 ){
           vxregAdj <- NULL
         }else{
           vxregAdj <- zoo(object$aux$vxreg,
-            order.by=object$aux$vxreg.index)
+            order.by=object$aux$y.index)
         }
         est <- arx(yadj, mxreg=mXadj, vc=object$aux$vc,
           arch=object$aux$arch, asym=object$aux$asym,
@@ -677,6 +721,7 @@ if( gum.chk!=0 && delete.n>1 ){
   if(is.null(out$aux$vcov.type)){ out$aux$vcov.type <- vcov.type }
   #if(is.null(out$aux$y.n)){ out$aux$y.n <- object$aux$y.n }
   out <- c(list(date=date(), gets.type="getsm"), out)
+  out$time.finished <- date()
   class(out) <- "gets"
 
   if(alarm){ alarm() }

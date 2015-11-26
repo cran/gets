@@ -27,4 +27,7 @@ info.criterion(logl, n=NULL, k=NULL, method=c("sc", "aic", "aicc", "hq"))
 
 \author{Genaro Sucarrat, \url{http://www.sucarrat.net/}}
 
-\keyword{Statistical Models}
+\keyword{datasets}
+\keyword{Time Series}
+\keyword{Econometrics}
+\keyword{Financial Econometrics}
