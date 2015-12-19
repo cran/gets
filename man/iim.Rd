@@ -43,16 +43,16 @@ A \code{\link{zoo}} matrix containing the impulses
 }
 \examples{
 ##generate series:
-y <- rnorm(50)
+y <- rnorm(40)
 
 ##make matrix of impulse indicators:
-mIIM <- iim(50)
+mIIM <- iim(40)
 
 ##make matrix of step indicators:
 mSIM <- sim(y)
 
 ##make matrix of trend indicators, but only every third:
-mTIM <- tim(y, which.ones=seq(1,50,3))
+mTIM <- tim(y, which.ones=seq(1,40,3))
 }
 
 \keyword{Statistical Models}

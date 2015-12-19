@@ -658,59 +658,69 @@ if( gum.chk!=0 && delete.n>1 ){
 
     if(estimate.specific){
 
-      if(best.spec[1]==0){
-        resids <- zoo(cbind(object$aux$y), order.by=object$aux$y.index)
-        colnames(resids) <- object$aux$y.name
-        specific.mean <- "empty"
-        Rsquared <- 0
-        vcov.mean <- NULL
-      }else{
+#      if(best.spec[1]==0){
+#        resids <- zoo(cbind(object$aux$y), order.by=object$aux$y.index)
+#        colnames(resids) <- object$aux$y.name
+#        specific.mean <- "empty"
+#        Rsquared <- 0
+#        vcov.mean <- NULL
+#      }else{
 
-        ##estimate specific model:
-        yadj <- zoo(cbind(object$aux$y),
-          order.by=object$aux$y.index)
-        colnames(yadj) <- object$aux$y.name
-        specific <- sort(best.spec)
+      ##prepare for estimation:
+      yadj <- zoo(cbind(object$aux$y),
+        order.by=object$aux$y.index)
+      colnames(yadj) <- object$aux$y.name
+      specific <- sort(best.spec)
+      if(specific[1]==0){
+        mXadj <- NULL
+      }else{
         mXadj <- cbind(object$aux$mX[,specific])
         colnames(mXadj) <- object$aux$mXnames[specific]
         mXadj <- zoo(mXadj, order.by=object$aux$y.index)
-        if(is.null(object$aux$vxreg)){
-          vxregAdj <- NULL
-        }else{
-          vxregAdj <- zoo(object$aux$vxreg,
-            order.by=object$aux$y.index)
-        }
-        est <- arx(yadj, mxreg=mXadj, vc=object$aux$vc,
-          arch=object$aux$arch, asym=object$aux$asym,
-          log.ewma=object$aux$log.ewma, vxreg=vxregAdj,
-          zero.adj=object$aux$zero.adj,
-          vc.adj=object$aux$vc.adj, vcov.type=vcov.type,
-          qstat.options=c(ar.LjungB[1],arch.LjungB[1]),
-          tol=object$aux$tol, LAPACK=object$aux$LAPACK,
-          verbose=TRUE, plot=FALSE)
+      }
+      if(is.null(object$aux$vxreg)){
+        vxregAdj <- NULL
+      }else{
+        vxregAdj <- zoo(object$aux$vxreg,
+          order.by=object$aux$y.index)
+      }
+      if(is.null(ar.LjungB)){
+        ar.LjungB <- object$aux$qstat.options[1]
+      }
+      if(is.null(arch.LjungB)){
+        arch.LjungB <- object$aux$qstat.options[2]
+      }
 
-        ##rename various stuff:
-        est$call <- est$date <- NULL
-        where.mean.results <- which(names(est)=="mean.results")
-        if(length(where.mean.results)>0){
-          names(est)[where.mean.results] <- "specific.mean"
-        }
-        where.variance.results <- which(names(est)=="variance.results")
-        if(length(where.variance.results)>0){
-          names(est)[where.variance.results] <- "specific.variance"
-        }
-        where.diagnostics <- which(names(est)=="diagnostics")
-        est$diagnostics <- est$diagnostics[1:3,]
-        if(length(where.diagnostics)>0){
-          names(est)[where.diagnostics] <- "specific.diagnostics"
-        }
-        est$aux$y.name <- object$aux$y.name
-        est <- unclass(est)
-        names(specific) <- colnames(mXadj)
-        out$specific.spec <- specific
-        out <- c(out,est)
+      ##estimate specific model:
+      est <- arx(yadj, mxreg=mXadj, vc=object$aux$vc,
+        arch=object$aux$arch, asym=object$aux$asym,
+        log.ewma=object$aux$log.ewma, vxreg=vxregAdj,
+        zero.adj=object$aux$zero.adj,
+        vc.adj=object$aux$vc.adj, vcov.type=vcov.type,
+        qstat.options=c(ar.LjungB[1],arch.LjungB[1]),
+        tol=object$aux$tol, LAPACK=object$aux$LAPACK,
+        verbose=TRUE, plot=FALSE)
 
-      } #end if(..)else(..)
+      ##rename various stuff:
+      est$call <- est$date <- NULL
+#        where.mean.results <- which(names(est)=="mean.results")
+#        if(length(where.mean.results)>0){
+#          names(est)[where.mean.results] <- "specific.mean"
+#        }
+#        where.variance.results <- which(names(est)=="variance.results")
+#        if(length(where.variance.results)>0){
+#          names(est)[where.variance.results] <- "specific.variance"
+#        }
+      where.diagnostics <- which(names(est)=="diagnostics")
+      est$diagnostics <- est$diagnostics[1:3,]
+      if(length(where.diagnostics)>0){
+        names(est)[where.diagnostics] <- "specific.diagnostics"
+      }
+      est$aux$y.name <- object$aux$y.name
+      est <- unclass(est)
+      names(specific) <- colnames(mXadj)
+      out$specific.spec <- specific
+      out <- c(out,est)
 
     } #end if(estimate.specific)
 

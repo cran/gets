@@ -2,6 +2,12 @@ plot.gets <-
 function(x, col=c("red","blue"),
   lty=c("solid","solid"), lwd=c(1,1), coef.path=TRUE, ...)
 {
+
+#  ##check if mean quation:
+#  if( is.null(x$mean.results) ){
+#    cat("No mean equation to plot\n")
+#  }
+
   ##if fitted mean:
   if(!is.null(x$mean.fit)){
 
@@ -117,7 +123,22 @@ function(x, col=c("red","blue"),
     ##coefficient path
     if( (x$gets.type=="isat" | coef.path==TRUE) & length(x$ISnames)!=0 ) {
       ## we only get standard error bars if TIS *not* run
-      if(is.null(x$call$tis)){
+
+
+      ###if tis is there and it is not null, then don't plot, else
+
+
+      if(!is.null(as.list(x$call)$tis) && as.list(x$call)$tis==TRUE){
+        cat("\nNB: Because TIS selected, coefficient standard errors invalid hence not plotted\n", sep="")
+        ylim.values <- range(coef.path.0)
+        if(is.regular(coef.path.0)) {
+          ylim.values <- range(coef.path.0)
+          plot(coef.path.0,type="l",col=col[1],ylim=ylim.values)
+        }else{
+          plot(as.Date(index(coef.path.0)),coredata(coef.path.0),type="l",col=col[1],ylim=ylim.values)
+        }
+      }   else {
+
         coef.path.v <- isatvar(x)
         if(is.regular(coef.path.0)) {
           ylim.values <- range(min(coef.path.0-qt(0.975, NROW(coef.path.0))*coef.path.v$const.se),
@@ -132,16 +153,9 @@ function(x, col=c("red","blue"),
           lines(as.Date(index(coef.path.0)),coredata(coef.path.0)-qt(0.975, NROW(coef.path.0))*coef.path.v$const.se,type="l",col=col[1],lty=3)
 
         }
-      } else {
-        cat("\nNB: Because TIS selected, coefficient standard errors invalid hence not plotted\n", sep="")
-        ylim.values <- range(coef.path.0)
-        if(is.regular(coef.path.0)) {
-          ylim.values <- range(coef.path.0)
-          plot(coef.path.0,type="l",col=col[1],ylim=ylim.values)
-        }else{
-          plot(as.Date(index(coef.path.0)),coredata(coef.path.0),type="l",col=col[1],ylim=ylim.values)
-        }
+
       }
+
       abline(0,0,lty=3)
       legend("topleft",lty=1,col=col[1],legend=c(paste(actual.name,"Coefficient Path",sep=": ")),bty="n")
     }

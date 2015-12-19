@@ -1,11 +1,11 @@
 print.gets <-
 function(x, ...)
 {
-  #determine type:
+  ##determine type:
   spec <- switch(x$gets.type, getsm="mean", getsv="variance",
     isat="mean")
 
-  #header:
+  ##header:
   cat("\n")
   cat("Date:", x$date, "\n")
   cat("Method: Ordinary Least Squares (OLS)\n")
@@ -26,7 +26,7 @@ function(x, ...)
 #      as.character(index(na.trim(x$gum.resids.std))[length(na.trim(x$gum.resids.std))]), "\n")
   }
 
-  #gum:
+  ##gum:
   if(spec=="mean"){
     cat("\n")
     cat("GUM mean equation:\n")
@@ -44,7 +44,7 @@ function(x, ...)
   cat("\n")
   print(x$gum.diagnostics)
 
-  #paths:
+  ##paths:
   cat("\n")
   cat("Paths searched: \n")
   cat("\n")
@@ -56,7 +56,7 @@ function(x, ...)
     }
   } #end if(is.null(x$paths))
 
-  #terminal models and results:
+  ##terminal models and results:
   cat("\n")
   cat("Terminal models: \n")
   if(!is.null(x$terminals)){
@@ -68,18 +68,27 @@ function(x, ...)
   cat("\n")
   print(x$terminals.results)
 
-  #specific model:
-  if(spec=="mean" && !is.null(x$specific.mean)){
+  ##specific model:
+  if(spec=="mean" && !is.null(x$specific.spec)){
     cat("\n")
     cat("SPECIFIC mean equation:\n")
     cat("\n")
-    print(x$specific.mean)
+    if(!is.null(x$mean.results)){
+      print(x$mean.results)
+    }
+    if(x$specific.spec[1]==0){
+      cat("empty\n")
+    }
+##in the future: use estimate.specific=FALSE more directly?
+    if(x$specific.spec[1]!=0 && is.null(x$mean.results)){
+      cat("Not estimated\n")
+    }
   }
-  if(!is.null(x$specific.variance)){
+  if(!is.null(x$variance.results)){
     cat("\n")
     cat("SPECIFIC log-variance equation:\n")
     cat("\n")
-    print(x$specific.variance)
+    print(x$variance.results)
   }
   if(!is.null(x$specific.diagnostics)){
     cat("\n")

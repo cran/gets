@@ -60,8 +60,6 @@ Pretis, F. (2015): 'Testing for time-varying predictive accuracy using bias-corr
 #isattest(ys, hnull=2, lr=TRUE, ci.pval = 0.99, plot.turn = TRUE, biascorr=FALSE)
 }
 
-
-
 \keyword{Statistical Models}
 \keyword{Time Series}
 \keyword{Econometrics}

@@ -1,6 +1,5 @@
 vcov.arx <-
-function(object, spec=NULL,
-  ...)
+function(object, spec=NULL, ...)
 {
 
   ##spec argument:

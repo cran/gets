@@ -1,6 +1,6 @@
 isat <-
 function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
-  iis=TRUE, sis=FALSE, tis=FALSE, uis=FALSE, blocks=NULL,
+  iis=FALSE, sis=TRUE, tis=FALSE, uis=FALSE, blocks=NULL,
   ratio.threshold=0.8, max.block.size=30,
   vcov.type=c("ordinary", "white", "newey-west"),
   t.pval=0.001, do.pet=FALSE, wald.pval=0.001, ar.LjungB=NULL,
@@ -30,7 +30,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   qstat.options <- mod$aux$qstat.options
   if(is.null(mX)){ mxkeep <- NULL }else{ mxkeep <- 1:mXncol }
 
-  #indicator saturation matrices:
+  ##indicator saturation matrices:
   ISmatrices <- list()
 
   if(iis){ #impulse indicators
@@ -105,11 +105,11 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     ISblocks <- list()
   }
 
-  #loop on ISmatrices:
+  ##loop on ISmatrices:
   ISfinalmodels <- list()
   for(i in 1:length(ISmatrices)){
 
-    #blocks:
+    ##blocks:
     if(!blocks.is.list){
 
       ncol.adj <- NCOL(ISmatrices[[i]])
@@ -186,7 +186,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
     } #end for(j in 1:length(ISblocks[[i]]))
 
-    #print info:
+    ##print info:
     if(print.searchinfo){
       cat("\n")
       cat("GETS of union of retained ",
@@ -195,13 +195,13 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       cat("\n")
     }
 
-    #if no indicators retained from the blocks:
+    ##if no indicators retained from the blocks:
     if(length(ISspecific.models)==0){
       isNames <- NULL
       ISfinalmodels[[i]] <- NULL
     }
 
-    #when indicators retained from the blocks:
+    ##when indicators retained from the blocks:
     if(length(ISspecific.models)>0){
 
       isNames <- NULL
@@ -237,17 +237,17 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   } #end for(i) loop (on ISmatrices)
 
-  #add names to ISblocks:
+  ##add names to ISblocks:
   names(ISblocks) <- names(ISmatrices)
 
-  #gets of union of retained impulses:
+  ##gets of union of retained impulses:
   if(print.searchinfo){
     cat("\n")
     cat("GETS of union of ALL retained indicators...\n")
     cat("\n")
   }
 
-  #no final models estimated:
+  ##no final models estimated:
   if(length(ISfinalmodels)==0){
     ISfinalmodels <- NULL
     if(is.null(mX)){ mXis <- NULL }else{
@@ -256,7 +256,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     }
   }
 
-  #final models estimated:
+  ##final models estimated:
   if(length(ISfinalmodels)>0){
 
     mIS <- NULL #matrix
@@ -279,7 +279,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     mXis <- zoo(mXis, order.by=y.index)
   } #end if(length(ISfinalmodels)>0)
 
-  #gum and gets:
+  ##gum and gets:
   y <- zoo(y, order.by=y.index)
   mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
     qstat.options=qstat.options, tol=tol,
@@ -291,11 +291,11 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     max.regs=max.regs, print.searchinfo=print.searchinfo,
     plot=FALSE)
 
-  #names of retained impulses:
+  ##names of retained impulses:
   ISnames <- setdiff(getsis$aux$mXnames, mXnames)
   if(length(ISnames)==0){ ISnames <- NULL }
 
-  #return:
+  ##return:
   getsis$gets.type <- "isat"
   getsis$call <- isat.call
   getsis <- c(list(ISfinalmodels=ISfinalmodels,

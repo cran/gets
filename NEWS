@@ -1,35 +1,51 @@
+Version 0.4 (18 December 2015):
+===============================
+
+* recursive: new exctraction function for arx-objects. The function returns the recursive coefficient estimates together with their standard errors, and plots the recursive estimates. The function can also be applied to gets and isat objects, as long as a final model is estimated
+
+* eviews, stata: new utility functions that can be applied on arx, gets and isat objects. Provides utilities and generates code that facilitates exporting the estimation results to EViews and Stata, respectively.
+
+* ols: four new estimation methods have been added. Three of them correspond to different variance-covariance matrices, whereas the fourth can be user-specifid
+
+* isat: step-indicator saturation is now the default. That is, the default value of iis was changed to FALSE, and the default value of sis was changed to TRUE.
+
+* Fixes:
+
+- getsm, getsv: ar.LjungB=NULL and arch.LjungB=NULL did not work in version 0.3 (but they did in versions 0.2 and 0.1).
+
+
 Version 0.3 (25 November 2015):
 ===============================
 
-- arx, getsm, isat:
+* arx, getsm, isat:
 
- * logLik.arx: new extraction function (S3 method) for arx objects
+- logLik.arx: new extraction function (S3 method) for arx objects
 
- * vcov.type accepts a new option, "newey-west", i.e. the covariance matrix of Newey and West (1987)
+- vcov.type accepts a new option, "newey-west", i.e. the covariance matrix of Newey and West (1987)
 
- * plot.arx: the order of the arguments have been changed (spec is now the second argument)
+- plot.arx: the order of the arguments have been changed (spec is now the second argument)
 
-- isat:
+* isat:
 
- * The default block-determining rule, i.e. when blocks=NULL, has been changed in order to avoid large blocks in large samples (the change speeds up selection notably)
+- The default block-determining rule, i.e. when blocks=NULL, has been changed in order to avoid large blocks in large samples (the change speeds up selection notably)
 
- * The argument tis, with default FALSE, has been added. If TRUE, then search over trend-indicators is undertaken.
+- The argument tis, with default FALSE, has been added. If TRUE, then search over trend-indicators is undertaken.
 
- * The argument uis, with default FALSE, has been added. It permits the user to provide a user-specified matrix, or list of matrices, to search over
+- The argument uis, with default FALSE, has been added. It permits the user to provide a user-specified matrix, or list of matrices, to search over
 
- * The argument blocks, whose default value is NULL, now also accepts a user-specified list of the blocks to search over
+- The argument blocks, whose default value is NULL, now also accepts a user-specified list of the blocks to search over
 
-- iim, sim, tim: new utility functions. The first creates a matrix of impulse indicators, the second a matrix of step indicators and the third a matrix of trend indicators
+* iim, sim, tim: new utility functions. The first creates a matrix of impulse indicators, the second a matrix of step indicators and the third a matrix of trend indicators
 
-- isatvar: 
+* isatvar: 
 
- * Now reports the coefficient path (against the full sample coefficient and the intercept path itself)
+- Now reports the coefficient path (against the full sample coefficient and the intercept path itself)
 
- * Reports the long-run mean with its variance and standard deviation if specified and the input includes AR terms
+- Reports the long-run mean with its variance and standard deviation if specified and the input includes AR terms
 
-- biascorr, isattest: new auxiliary functions; called when the output from an isat object is plotted
+* biascorr, isattest: new auxiliary functions; called when the output from an isat object is plotted
 
-- deleted function: skewness.test. This function was required by AutoSEARCH (i.e. the predecessor of gets), but is not used by gets. As of April 2015, AutoSEARCH does not depend on gets anymore, so the function is redundant.
+* deleted function: skewness.test. This function was required by AutoSEARCH (i.e. the predecessor of gets), but is not used by gets. As of April 2015, AutoSEARCH does not depend on gets anymore, so the function is redundant.
 
 
 Version 0.2 (22 December 2014):
@@ -37,27 +53,31 @@ Version 0.2 (22 December 2014):
 
 The main change to version 0.2 is the addition of the isat function, which is a result of an initiative from Felix Pretis and James Reade. The isat function provides indicator saturation methods (impulses, steps) and is a major new feature of the gets package. To accommodate the new feature numerous minor and major changes have been made throughout. Some of these are:
 
-- plot.arx, plot.gets: new S3 functions
+* plot.arx, plot.gets: new S3 functions
 
-- isatvar: new auxiliary function called by plot.gets when applied to a gets object resulting from isat
+* isatvar: new auxiliary function called by plot.gets when applied to a gets object resulting from isat
 
-- dropvar: new function. The function removes the regressors in a regressor matrix that cause exact multicolinearity. The code is based on the drop.coef function from the ordinal package by Rune Haubo Bojesen Christensen
+* dropvar: new function. The function removes the regressors in a regressor matrix that cause exact multicolinearity. The code is based on the drop.coef function from the ordinal package by Rune Haubo Bojesen Christensen
 
-- diagnostics: new function
+* diagnostics: new function
 
-- deleted functions: glog.ep, regs.mean, regs.var
+* deleted functions: glog.ep, regs.mean, regs.var
 
-- getsm: major speed improvements when the log-variance specification is empty
+* broken dependency: the gets package does not depend on lgarch anymore (regs.mean and regs.var called functions in the lgarch package)
 
-- getsm/getsv/arx: new arguments, including plot for all three, and print.searchinfo and include.gum for the first two
+* getsm: major speed improvements when the log-variance specification is empty
 
-Bugfixes:
+* getsm/getsv/arx: new arguments, including plot for all three, and print.searchinfo and include.gum for the first two
 
-- arx: bugfix of mxreg and vxreg arguments. The bug consisted in erroneous regressor labelling whenever mxreg and/or vxreg were 1-column matrices (or vectors). The bug also affected the getsm and getsv functions
+Fixes:
 
-- getsm:
-  * bugfix in vcov.type argument which occurred for shortened versions of "ordinary" and "white", e.g. "o" or "w"
-  * bugfix in do.pet argument, which occurred when it was set to FALSE
+* arx: bugfix of mxreg and vxreg arguments. The bug consisted in erroneous regressor labelling whenever mxreg and/or vxreg were 1-column matrices (or vectors). The bug also affected the getsm and getsv functions
+
+* getsm:
+
+- bugfix in vcov.type argument which occurred for shortened versions of "ordinary" and "white", e.g. "o" or "w"
+
+- bugfix in do.pet argument, which occurred when it was set to FALSE
 
 
 Version 0.1 (14 October 2014):
@@ -67,29 +87,38 @@ All versions until 1.0 should be considered Beta-versions.
 
 The package is based on code from AutoSEARCH (also available on the CRAN), but entails a shift in the underlying development principles. The main motivation behind gets is improved user-friendliness, faster and simpler code, and a package that is easier to extend. The most important differences are:
  
-- the sm function has been replaced with the arx function:
-  * creator of objects of class 'arx'
-  * extraction functions (S3 methods) have been added
-  * several arguments have been changed and/or removed
-  * numerous minor (and some major) changes throughout the code
+* the sm function has been replaced with the arx function:
 
-- gets.mean and gets.vol have been replaced with the getsm and getsv functions, respectively:
-  * both return objects of class 'gets'
-  * the main argument is an object of class arx (this improves user-friendliness considerably compared with AutoSEARCH)
-  * extraction functions (some of them S3 methods) have been added
-  * several arguments have been changed and/or removed
-  * numerous minor (and some major) changes throughout the code
+- creator of objects of class 'arx'
 
-- gedlogl and gedestp functions deleted
+- extraction functions (S3 methods) have been added
+
+- several arguments have been changed and/or removed
+
+- numerous minor (and some major) changes throughout the code
+
+* gets.mean and gets.vol have been replaced with the getsm and getsv functions, respectively:
+
+- both return objects of class 'gets'
+
+- the main argument is an object of class arx (this improves user-friendliness considerably compared with AutoSEARCH)
+
+- extraction functions (some of them S3 methods) have been added
+
+- several arguments have been changed and/or removed
+
+- numerous minor (and some major) changes throughout the code
+
+* gedlogl and gedestp functions deleted
  
-- all model comparisons are now in terms of the normal log-likelihood made up of the residuals and the fitted variance
+* all model comparisons are now in terms of the normal log-likelihood made up of the residuals and the fitted variance
 
-- gLag has been deleted; instead, glag from the lgarch package is used
+* gLag has been deleted; instead, glag from the lgarch package is used
 
-- ols.fit1 and ols.fit2 have been deleted and replaced with the function ols
+* ols.fit1 and ols.fit2 have been deleted and replaced with the function ols
 
-- regs.mean.sm and regs.vol.sm have changed names to regs.mean and regs.var, respectively
+* regs.mean.sm and regs.vol.sm have changed names to regs.mean and regs.var, respectively
 
-- bug fix in eqwma and leqwma (ocurred when p=1)
+* bug fix in eqwma and leqwma (ocurred when p=1)
 
-- numerous minor, and some major, changes have been made throughout the code
+* numerous minor, and some major, changes have been made throughout the code

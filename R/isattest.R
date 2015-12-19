@@ -1,7 +1,6 @@
 isattest <-
 function(x, hnull=0, lr=FALSE, ci.pval = 0.99, plot=TRUE, plot.turn = FALSE, biascorr=FALSE){
 
-
   trend.incl <- FALSE
   if(!is.null(as.list(x$call)$tis)){
     if (as.list(x$call)$tis) {

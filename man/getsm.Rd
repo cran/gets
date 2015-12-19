@@ -4,7 +4,7 @@
 
 \title{General-to-Specific (GETS) Modelling of an AR-X model with log-ARCH-X errors}
 
-\description{The starting model, an object of the 'arx' class, is referred to as the General Unrestricted Model (GUM). The \code{getsm} function undertakes multi-path GETS modelling of the mean specification, whereas \code{getsv} does the same for the log-variance specification. The diagnostic tests are undertaken on the standardised residuals, and the \code{keep} option enables regressors to be excluded from possible removal}
+\description{The starting model, an object of the 'arx' class, is referred to as the General Unrestricted Model (GUM). The \code{getsm} function undertakes multi-path GETS modelling of the mean specification, whereas \code{getsv} does the same for the log-variance specification. The diagnostic tests are undertaken on the standardised residuals, and the \code{keep} option enables regressors to be excluded from possible removal.}
 \usage{
 ##gets of mean specification:
 getsm(object, t.pval=0.05, wald.pval=0.05, vcov.type=NULL, do.pet=TRUE,

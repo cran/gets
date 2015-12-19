@@ -621,6 +621,12 @@ if( gum.chk!=0 && delete.n>1 ){
         colnames(vXadj) <- object$aux$vXnames[specificadj]
         vXadj <- zoo(vXadj, order.by=eadj.index)
       }
+      if(is.null(ar.LjungB)){
+        ar.LjungB <- object$aux$qstat.options[1]
+      }
+      if(is.null(arch.LjungB)){
+        arch.LjungB <- object$aux$qstat.options[2]
+      }
 
       est <- arx(e, vc=TRUE, vxreg=vXadj,
         zero.adj=object$aux$zero.adj, vc.adj=object$aux$vc.adj,
@@ -630,10 +636,10 @@ if( gum.chk!=0 && delete.n>1 ){
 
       ##rename various stuff:
       est$call <- est$date <- NULL
-      where.variance.results <- which(names(est)=="variance.results")
-      if(length(where.variance.results)>0){
-        names(est)[where.variance.results] <- "specific.variance"
-      }
+#      where.variance.results <- which(names(est)=="variance.results")
+#      if(length(where.variance.results)>0){
+#        names(est)[where.variance.results] <- "specific.variance"
+#      }
       est$diagnostics <- est$diagnostics[1:3,]
       where.diagnostics <- which(names(est)=="diagnostics")
       if(length(where.diagnostics)>0){

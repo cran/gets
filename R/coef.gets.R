@@ -1,6 +1,5 @@
 coef.gets <-
-function(object, spec=NULL,
-  ...)
+function(object, spec=NULL, ...)
 {
   gets.type <- object$gets.type
   if(is.null(spec)){
@@ -18,20 +17,20 @@ function(object, spec=NULL,
     #mean:
     result1 <- NULL
     if(is.null(spec) || spec=="mean" || spec=="both"){
-      if( !is.null(object$specific.mean)
-        && object$specific.mean!="empty" ){
-        result1 <- object$specific.mean[,"coef"]
-        names(result1) <- rownames(object$specific.mean)
+      if( !is.null(object$mean.results)
+        && object$mean.results!="empty" ){
+        result1 <- object$mean.results[,"coef"]
+        names(result1) <- rownames(object$mean.results)
       }
     } #end is.null(spec)
 
     #variance:
     result2 <- NULL
     if(spec=="variance" || spec=="both"){
-      if(!is.null(object$specific.variance)){
-        result2 <- c(object$specific.variance[,"coef"],
+      if(!is.null(object$variance.results)){
+        result2 <- c(object$variance.results[,"coef"],
           object$Elnz2)
-        names(result2) <- c(rownames(object$specific.variance),
+        names(result2) <- c(rownames(object$variance.results),
           "Elnz2")
       } #end if(!is.null(..))
     }
@@ -48,10 +47,10 @@ function(object, spec=NULL,
     #variance:
     result2 <- NULL
     if(is.null(spec) || spec=="variance" || spec=="both"){
-      if(!is.null(object$specific.variance)){
-        result2 <- c(object$specific.variance[,"coef"],
+      if(!is.null(object$variance.results)){
+        result2 <- c(object$variance.results[,"coef"],
           object$Elnz2)
-        names(result2) <- c(rownames(object$specific.variance),
+        names(result2) <- c(rownames(object$variance.results),
           "Elnz2")
       }
     } #end is.null(spec)

@@ -23,10 +23,9 @@
 \value{Returns a Kx3 matrix, where the first column lists the original coefficients, the second column the one-step corrected coefficients, and the third column the two-step bias-corrected coefficients.}
 
 \references{
-  
-  Hendry, D.F. and Krolzig, H.M. (2005): 'The properties of automatic Gets modelling'. Economic Journal, 115, C32-C61.
- Pretis, F. (2015): 'Testing for time-varying predictive accuracy using bias-corrected indicator saturation'. Oxford Department of Economics Discussion Paper.
-  
+Hendry, D.F. and Krolzig, H.M. (2005): 'The properties of automatic Gets modelling'. Economic Journal, 115, C32-C61.
+
+Pretis, F. (2015): 'Testing for time-varying predictive accuracy using bias-corrected indicator saturation'. Oxford Department of Economics Discussion Paper.
 }
 
 \author{
@@ -54,9 +53,7 @@
 #ys <- isat(y, sis=TRUE, iis=FALSE, t.pval=0.01)
 #var <- isatvar(ys)
 #biascorr(b=var$const.path, b.se=var$const.se, p.alpha=0.01, T=length(var$const.path))
-
 }
-
 
 \keyword{Statistical Models}
 \keyword{Time Series}

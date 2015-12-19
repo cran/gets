@@ -1,7 +1,7 @@
 coef.arx <-
 function(object, spec=NULL, ...)
 {
-  #spec argument:
+  ##spec argument:
   if(is.null(spec)){
     spec <- "both"
   }else{

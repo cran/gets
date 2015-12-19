@@ -16,11 +16,11 @@ The package also provides auxiliary functions used by the main functions, in add
 \tabular{ll}{
 Package: \tab gets\cr
 Type: \tab Package\cr
-Version: \tab 3.0\cr
-Date: \tab 2015-11-25\cr
+Version: \tab 0.4\cr
+Date: \tab 2015-12-18\cr
 License: \tab GPL-2\cr
 }
-Most of the code was originally developed in relation with G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility
+Most of the code originated in relation with G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility
 Specifications', Oxford Bulletin of Economics and Statistics 74, Issue 5 (October), pp. 716-735. Subsequently, Felix Pretis and James Reade joined for the development of the \code{\link{isat}} code and related functions
 }
 
@@ -37,7 +37,6 @@ G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: Gener
 Carlos Santos, Hendry, David, F. and Johansen, Soren (2007):  'Automatic selection of indicators in a fully saturated regression'. Computational Statistics, vol 23:1, pp.317-335
 
 Jurgen, A. Doornik, Hendry, David F., and Pretis, Felix (2013): 'Step Indicator Saturation', Oxford Economics Discussion Paper, 658.
-
 }
 
 \seealso{
@@ -63,7 +62,7 @@ simpleVar <- getsv(myModel)
 print(simpleMean)
 print(simpleVar)
 
-##impulse indicator saturation of an iid normal series:
+##step indicator saturation of an iid normal series:
 set.seed(123)
 y <- rnorm(30)
 isat(y)

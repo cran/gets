@@ -8,7 +8,7 @@ The \code{\link{isat}} function undertakes multi-path indicator saturation to de
 }
 
 \usage{
-isat(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL, iis=TRUE, sis=FALSE,
+isat(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL, iis=FALSE, sis=TRUE,
   tis=FALSE, uis=FALSE, blocks=NULL, ratio.threshold=0.8, max.block.size=30,
   vcov.type=c("ordinary", "white", "newey-west"), t.pval=0.001, do.pet=FALSE,
   wald.pval=0.001, ar.LjungB=NULL, arch.LjungB=NULL, normality.JarqueB=NULL,
@@ -54,11 +54,9 @@ isat(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL, iis=TRUE, sis=FALSE,
 \value{A list of class 'gets'}
 
 \references{
-
-Carlos Santos, Hendry, David, F. and Johansen, Soren (2007):  'Automatic selection of indicators in a fully saturated regression'. Computational Statistics, vol 23:1, pp.317-335
+Carlos Santos, Hendry, David, F. and Johansen, Soren (2007):  'Automatic selection of indicators in a fully saturated regression'. Computational Statistics, vol 23:1, pp.317-335.
 
 Castle, Jennifer, L., Doornik, Jurgen, A., Hendry, David F., and Pretis, Felix (2015): 'Detecting Location Shifts during Model Selection by Step-Indicator Saturation', Econometrics, vol 3:2, 240-264.
-
 }
 
 \author{
