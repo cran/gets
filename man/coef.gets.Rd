@@ -1,6 +1,7 @@
 \name{coef.gets}
 \alias{coef.gets}
 \alias{fitted.gets}
+\alias{logLik.gets}
 \alias{paths}
 \alias{plot.gets}
 \alias{print.gets}
@@ -16,14 +17,15 @@
 \usage{
 \method{coef}{gets}(object, spec=NULL, ...)
 \method{fitted}{gets}(object, spec=NULL, ...)
-## extraction function for class 'gets':
+\method{logLik}{gets}(object, ...)
+## extraction function for class 'gets' and 'isat':
 paths(object, ...)
-\method{plot}{gets}(x, col=c("red","blue"), lty=c("solid","solid"),
-  lwd=c(1,1), coef.path=TRUE, ...)
+\method{plot}{gets}(x, spec=NULL, col=c("red","blue"),
+  lty=c("solid","solid"), lwd=c(1,1), ...)
 \method{print}{gets}(x, ...)
 \method{residuals}{gets}(object, std=NULL, ...)
 \method{summary}{gets}(object, ...)
-## extraction function for class 'gets':
+## extraction function for class 'gets' and 'isat':
 terminals(object, ...)
 \method{vcov}{gets}(object, spec=NULL, ...)
 }
@@ -36,13 +38,13 @@ terminals(object, ...)
   \item{col}{colours of fitted (default=red) and actual (default=blue) lines}
   \item{lty}{types of fitted (default=solid) and actual (default=solid) lines}
   \item{lwd}{widths of fitted (default=1) and actual (default=1) lines}
-  \item{coef.path}{logical. Only applicable if there are retained indicators after the application of \code{isat}}
   \item{\dots}{additional arguments}
 }
 
 \value{
   \item{coef:}{a numeric vector containing parameter estimates}
   \item{fitted:}{a \code{\link{zoo}} object with fitted values}
+  \item{logLik:}{a numeric, the log-likelihood (normal density)}
   \item{paths:}{a \code{\link{list}} with the paths searched (each number refers to a regressor in the GUM)}
   \item{plot:}{a plot of the fitted values and the residuals}
   \item{print:}{a print of the estimation results}
@@ -101,6 +103,9 @@ paths(varmod) #variance spec
 terminals(meanmod) #mean
 terminals(varmod) #variance spec
 
+##extract log-likelihood:
+logLik(mymod)
+
 ##extract variance-covariance matrix of simplified
 ##(specific) model:
 vcov(meanmod) #mean spec
@@ -117,12 +122,6 @@ epshat <- residuals(meanmod) #mean residuals
 plot(epshat)
 zhat <- residuals(varmod) #standardised residuals
 plot(zhat)
-
-##impulse indicator saturation:
-set.seed(123)
-y <- rnorm(30)
-isatmod <- isat(y)
-print(isatmod)
 
 }
 

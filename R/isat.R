@@ -3,7 +3,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   iis=FALSE, sis=TRUE, tis=FALSE, uis=FALSE, blocks=NULL,
   ratio.threshold=0.8, max.block.size=30,
   vcov.type=c("ordinary", "white", "newey-west"),
-  t.pval=0.001, do.pet=FALSE, wald.pval=0.001, ar.LjungB=NULL,
+  t.pval=0.001, do.pet=FALSE, wald.pval=t.pval, ar.LjungB=NULL,
   arch.LjungB=NULL, normality.JarqueB=NULL,
   info.method=c("sc", "aic", "hq"), include.gum=FALSE,
   include.empty=FALSE, tol=1e-07, LAPACK=FALSE, max.regs=NULL, verbose=TRUE,
@@ -146,12 +146,12 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
     } #end if(!blocks.is.list)
 
-    #gets on each block:
+    ##gets on each block:
     ISspecific.models <- list()
     #for the future?: ISgums <- list(); ISpaths <- list(); ISterminals.results <- list()
     for( j in 1:length(ISblocks[[i]]) ){
 
-      #print info:
+      ##print info:
       if(print.searchinfo){
         cat("\n")
         cat(names(ISmatrices)[i],
@@ -167,6 +167,8 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
         qstat.options=qstat.options, tol=tol, LAPACK=LAPACK,
         verbose=TRUE, plot=FALSE)
+#future?: keep=NULL instead of mxkeep?
+#      getsis <- getsm(mod, keep=NULL, t.pval=t.pval,
       getsis <- getsm(mod, keep=mxkeep, t.pval=t.pval,
         do.pet=do.pet, wald.pval=wald.pval, ar.LjungB=ar.LjungB,
         arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
@@ -300,8 +302,8 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   getsis$call <- isat.call
   getsis <- c(list(ISfinalmodels=ISfinalmodels,
     ISnames=ISnames), getsis)
-  class(getsis) <- "gets"
+  class(getsis) <- "isat" #"gets"
   if(alarm){ alarm() }
-  if(plot){ plot.gets(getsis, coef.path=TRUE) }
+  if(plot){ plot.isat(getsis, coef.path=TRUE) }
   return(getsis)
 }

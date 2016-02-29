@@ -36,8 +36,8 @@ function(object, file=NULL, print=TRUE,
     out$regress <- paste(out$regress, ",", cmdOptions, collapse="")
   }
 
-  ##if print=TRUE:
-  if(print){
+  ##if print=TRUE and is.null(file):
+  if(print && is.null(file)){
 
     ##Stata code to estimate the model:
     cat("Stata code to estimate the model:\n")
@@ -51,12 +51,23 @@ function(object, file=NULL, print=TRUE,
     cat(paste("  stata(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
     cat("\n")
 
-  } #close if(print)
+  } #close if(print && is.null(file))
 
   ##if save data:
   if(!is.null(file)){
     write.csv(out$data, file, row.names=FALSE)
-  }
+    ##if print=TRUE:
+    if(print){
+      cat("Data saved in:\n")
+      cat("\n")
+      cat("  ", file, "\n", sep="")
+      cat("\n")
+      cat("Stata code to estimate the model:\n")
+      cat("\n")
+      cat(" ", out$regress, "\n")
+      cat("\n")
+    }
+  } #end if(!is.null(file))
 
   ##out:
   if(return){ return(out) }

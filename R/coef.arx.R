@@ -3,7 +3,9 @@ function(object, spec=NULL, ...)
 {
   ##spec argument:
   if(is.null(spec)){
-    spec <- "both"
+    spec <- switch(as.character(object$call)[1],
+      arx="both", getsm="mean", getsv="variance")
+    #spec <- "both"
   }else{
     spec.type <- c("mean", "variance", "both")
     which.type <- charmatch(spec, spec.type)

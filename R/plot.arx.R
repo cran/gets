@@ -2,8 +2,8 @@ plot.arx <-
 function(x, spec=NULL, col=c("red","blue"),
   lty=c("solid","solid"), lwd=c(1,1), ...)
 {
-  ##if fitted mean (always non-NULL??):
-  if(!is.null(x$mean.fit)){
+  ##one is always non-NULL?:
+  if(!is.null(x$mean.fit) || !is.null(x$var.fit)){
 
     ##lwd argument:
     if(length(lwd)==1){
@@ -102,7 +102,7 @@ function(x, spec=NULL, col=c("red","blue"),
         mactual <- zoo(x$aux$y, order.by=x$aux$y.index)
       }
       actual.name <- x$aux$y.name
-      residuals <- x$resids.std
+      residsStd <- x$resids.std
 
       ##get current par-values:
       def.par <- par(no.readonly=TRUE)
@@ -114,7 +114,7 @@ function(x, spec=NULL, col=c("red","blue"),
         par(mfrow=c(2,1))
       }
 
-      ##add comment: what is happening here?
+      ##what is happening here (add comment)?:
       par(mar=c(2,2,0.5,0.5))
       if(spec=="mean" || spec=="both") {##plotting mean variables
 
@@ -165,13 +165,13 @@ function(x, spec=NULL, col=c("red","blue"),
       } #close plotting variance parts
 
       ##add comment?
-      if(is.regular(residuals)) {
-        plot(residuals,type="h",col=col[2])
+      if(is.regular(residsStd)) {
+        plot(residsStd,type="h",col=col[1])
       } else {
-        plot(as.Date(index(residuals)),coredata(residuals),type="h",col=col[2])
+        plot(as.Date(index(residsStd)),coredata(residsStd),type="h",col=col[1])
       }
       abline(0,0)
-      legend("topleft",lty=1,col=col[2],legend=c("standardised residuals"),bty="n")
+      legend("topleft",lty=1,col=col[1],legend=c("standardised residuals"),bty="n")
 
       #return to old par-values:
       par(def.par)

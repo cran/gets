@@ -14,10 +14,20 @@ function(x, which.ones=NULL, log.trend=FALSE)
     n <- NROW(x)
     x <- as.zoo(x)
     x.index <- index(x)
+    xIsRegular <- is.regular(x)
+    if(xIsRegular){
+      xIndexObs <- floor(as.numeric(x.index))
+      xCycle <- as.numeric(cycle(x))
+      xIndexAsChar <- paste(xIndexObs, "(", xCycle, ")", sep="")
+      xFrequency <- frequency(x)
+    }else{
+      xIndexAsChar <- as.character(x.index)
+    }
     if(is.null(which.ones)){
       where.indicators <- 2:n
     }else{
       where.indicators <- which(x.index %in% which.ones)
+      if(length(where.indicators)==0) stop("'which.ones' not in index")
     }
   }
   n.where.indicators <- length(where.indicators)
@@ -35,8 +45,9 @@ function(x, which.ones=NULL, log.trend=FALSE)
     mTIS <- as.zoo(mTIS)
   }else{
     colnames(mTIS) <- paste("tis",
-      as.character(x.index)[where.indicators], sep="")
+      xIndexAsChar[where.indicators], sep="")
     mTIS <- zoo(mTIS, order.by=x.index)
+    if(xIsRegular){ mTIS <- as.zooreg(mTIS) }
   }
   return(mTIS)
 }

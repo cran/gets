@@ -11,7 +11,7 @@ The \code{\link{isat}} function undertakes multi-path indicator saturation to de
 isat(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL, iis=FALSE, sis=TRUE,
   tis=FALSE, uis=FALSE, blocks=NULL, ratio.threshold=0.8, max.block.size=30,
   vcov.type=c("ordinary", "white", "newey-west"), t.pval=0.001, do.pet=FALSE,
-  wald.pval=0.001, ar.LjungB=NULL, arch.LjungB=NULL, normality.JarqueB=NULL,
+  wald.pval=t.pval, ar.LjungB=NULL, arch.LjungB=NULL, normality.JarqueB=NULL,
   info.method=c("sc", "aic", "hq"), include.gum=FALSE, include.empty=FALSE,
   tol=1e-07, LAPACK=FALSE, max.regs=NULL, verbose=TRUE, print.searchinfo=TRUE,
   alarm=FALSE, plot=TRUE)
@@ -32,7 +32,7 @@ isat(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL, iis=FALSE, sis=TRUE,
   \item{max.block.size}{Maximum size of block of variables to be selected over, default=30. Block size used is the maximum of given by either the ratio.threshold and max.block.size.}
   \item{vcov.type}{the type of variance-covariance matrix used. If NULL (default), then the type used is that of the 'arx' object. This can be overridden by either "ordinary" (i.e. the ordinary variance-covariance matrix) or "white" (i.e. the White (1980) heteroscedasticity robust variance-covariance matrix)}
   \item{t.pval}{numeric value between 0 and 1. The significance level used for the two-sided regressor significance t-tests}
-  \item{do.pet}{logical. If TRUE, then a Parsimonious Encompassing Test (PET) against the GUM is undertaken at each regressor removal for the joint significance of all the deleted regressors along the current path. If FALSE (default), then a PET is not undertaken at each regressor removal}
+  \item{do.pet}{logical. If TRUE, then a Parsimonious Encompassing Test (PET) against the GUM is undertaken at each regressor removal for the joint significance of all the deleted regressors along the current path. If FALSE (default), then a PET is not undertaken at each regressor removal. By default, the numeric value is the same as that of \code{t.pval}}
   \item{wald.pval}{numeric value between 0 and 1. The significance level used for the Parsimonious Encompassing Tests (PETs)}
   \item{ar.LjungB}{a two-item list with names \code{lag} and \code{pval}, or NULL (default). In the former case \code{lag} contains the order of the Ljung and Box (1979) test for serial correlation in the standardised residuals, and \code{pval} contains the significance level. If \code{lag=NULL} (default), then the order used is that of the estimated 'arx' object. If \code{ar.Ljungb=NULL}, then the standardised residuals are not checked for serial correlation}
   \item{arch.LjungB}{a two-item list with names \code{lag} and \code{pval}, or NULL (default). In the former case, \code{lag} contains the order of the Ljung and Box (1979) test for serial correlation in the squared standardised residuals, and \code{pval} contains the significance level. If \code{lag=NULL} (default), then the order used is that of the estimated 'arx' object. If \code{arch.Ljungb=NULL}, then the standardised residuals are not checked for ARCH}

@@ -27,8 +27,8 @@ function(object, file=NULL, print=TRUE,
   out$equation <- paste("equation ", out$object.name,
     ".ls", vcov.type, " ", tmp, sep="")
 
-  ##if print=TRUE:
-  if(print){
+  ##if print=TRUE and is.null(file):
+  if(print && is.null(file)){
 
     ##EViews code to estimate the model:
     cat("EViews code to estimate the model:\n")
@@ -47,7 +47,18 @@ function(object, file=NULL, print=TRUE,
   ##if save data:
   if(!is.null(file)){
     write.csv(out$data, file, row.names=FALSE)
-  } #close if(..)
+    ##if print=TRUE:
+    if(print){
+      cat("Data saved in:\n")
+      cat("\n")
+      cat("  ", file, "\n", sep="")
+      cat("\n")
+      cat("EViews code to estimate the model:\n")
+      cat("\n")
+      cat(" ", out$equation, "\n")
+      cat("\n")
+    }
+  } #end if(!is.null(file))
 
   ##out:
   if(return){ return(out) }

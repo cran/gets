@@ -3,6 +3,7 @@
 \alias{fitted.arx}
 \alias{logLik.arx}
 \alias{plot.arx}
+\alias{predict.arx}
 \alias{print.arx}
 \alias{residuals.arx}
 \alias{summary.arx}
@@ -18,6 +19,8 @@
 \method{logLik}{arx}(object, ...)
 \method{plot}{arx}(x, spec=NULL, col=c("red","blue"),
   lty=c("solid","solid"), lwd=c(1,1), ...)
+\method{predict}{arx}(object, spec=NULL, n.ahead=5, newmxreg = NULL,
+    newvxreg = NULL, n.sim = 1000, innov = NULL, plot = TRUE,...)
 \method{print}{arx}(x, ...)
 \method{residuals}{arx}(object, std=FALSE, ...)
 \method{summary}{arx}(object, ...)
@@ -27,8 +30,14 @@
 \arguments{
   \item{object}{an object of class 'arx'}
   \item{x}{an object of class 'arx'}
-  \item{spec}{NULL, "mean", "variance" or, except \code{vcov.arx}, "both". If NULL, then it is automatically determined whether information pertaining to the mean or variance specification should be returned. This can be overridden by either "mean", "variance" or, except for \code{vcov.arx}, "both"}
+  \item{spec}{NULL, "mean", "variance" or, in some instances, "both". When NULL is a valid value, then it is automatically determined whether information pertaining to the mean or variance specification should be returned}
   \item{std}{logical. If FALSE (default), then the mean residuals are returned. If TRUE, then the standardised residuals are returned}
+  \item{n.ahead}{generate forecasts up to n steps ahead (the default is 5)}
+  \item{newmxreg}{a matrix (\code{n.ahead} rows and NCOL(mxregs) columns) with the out-of-sample values of the \code{mxreg} regressors}
+  \item{newvxreg}{a matrix (\code{n.ahead} rows and NCOL(vxregs) columns) with the out-of-sample values of the \code{vxreg} regressors}
+  \item{n.sim}{integer, the number of bootstrap replications for the generation of the variance forecasts}
+  \item{innov}{\code{NULL} (default) or a vector containing the standardised errors to bootstrap from}
+  \item{plot}{logical. If \code{TRUE} (default), then the out-of-sample forecasts are plotted}
   \item{col}{colours of actual (default=blue) and fitted (default=red) lines}
   \item{lty}{types of actual (default=solid) and fitted (default=solid) lines}
   \item{lwd}{widths of actual (default=1) and fitted (default=1) lines}
@@ -40,6 +49,7 @@
   \item{fitted:}{a \code{\link{zoo}} object with fitted values}
   \item{logLik:}{log-likelihood (normal density)}
   \item{plot:}{a plot of the fitted values and the residuals}
+  \item{predict}{a vector containing the out-of-sample forecasts, and - if \code{plot=TRUE} - a plot of the forecasts}
   \item{print:}{a print of the estimation results}
   \item{residuals:}{a \code{\link{zoo}} object with the residuals}
   \item{summary:}{a print of the items in the \code{\link{arx}} object}

@@ -1,16 +1,18 @@
 recursive <-
-function(object, spec="mean",
+function(object, spec=c("mean","variance"),
   std.errors=TRUE, from=40, tol=1e-07, LAPACK=FALSE,
   plot=TRUE, return=TRUE)
 {
   ##which specification:
-  specType <- c("mean", "variance", "both")
-  whichType <- charmatch(spec, specType)
-  if(whichType==3){ stop("Sorry, 'both' not possible.") }
-  spec <- specType[whichType]
+  specType <- match.arg(spec)
+#OLD:
+#  specType <- c("mean", "variance", "both")
+#  whichType <- charmatch(spec, specType)
+#  if(whichType==3){ stop("Sorry, 'both' not possible.") }
+#  specType <- specType[whichType]
 
   ##if mean-specification:
-  if(spec=="mean"){
+  if(specType=="mean"){
     if(is.null(object$mean.results)){
       stop("No mean-equation")
     }
@@ -23,7 +25,7 @@ function(object, spec="mean",
   }
 
   ##if variance-specification:
-  if(spec=="variance"){
+  if(specType=="variance"){
     if(is.null(object$variance.results)){
       stop("No variance-equation")
     }
@@ -36,7 +38,7 @@ function(object, spec="mean",
   }
 
   ##determine ols method:
-  if(spec=="mean"){
+  if(specType=="mean"){
     if(std.errors){
       if(object$aux$vcov.type=="ordinary"){ olsMethod=3 }
       if(object$aux$vcov.type=="white"){ olsMethod=4 }
@@ -46,7 +48,7 @@ function(object, spec="mean",
     }
   } #close if(mean)
 
-  if(spec=="variance"){
+  if(specType=="variance"){
     if(std.errors){
       olsMethod=3
     }else{
@@ -57,6 +59,9 @@ function(object, spec="mean",
   ##initialise:
   colnames(mX) <- mXnames
   recursiveEstimates <- matrix(NA, yNrow, mXncol)
+  if(specType=="variance"){
+    recursiveEstimatesElnz2 <- rep(NA, yNrow)
+  }
   colnames(recursiveEstimates) <- mXnames
   if(std.errors){
     recursiveStdErrs <- recursiveEstimates
@@ -82,9 +87,10 @@ function(object, spec="mean",
     }
 
     ##if variance-specification:
-    if(spec=="variance"){
+    if(specType=="variance"){
       Elnz2est <- -log(mean(exp(tmpEst$residuals)))
-      recursiveEstimates[compute.at[i], "vconst"] <- Elnz2est + recursiveEstimates[compute.at[i], "vconst"]
+      recursiveEstimates[compute.at[i], "vconst"] <- recursiveEstimates[compute.at[i], "vconst"] - Elnz2est
+      recursiveEstimatesElnz2[compute.at[i]] <- Elnz2est
     }
 
   } #close for loop
@@ -96,7 +102,7 @@ function(object, spec="mean",
   }
 
   ##set vconstSE to NA:
-  if(std.errors==TRUE && spec=="variance"){
+  if(std.errors==TRUE && specType=="variance"){
     recursiveStdErrs[,1] <- NA
   }
 
@@ -109,9 +115,11 @@ function(object, spec="mean",
   }
   recursiveEstimates <- zoo(recursiveEstimates,
     order.by=zooIndx)
+  if(is.regular(recursiveEstimates)){ recursiveEstimates <- as.zooreg(recursiveEstimates) }
   if(std.errors){
     recursiveStdErrs <- zoo(recursiveStdErrs,
       order.by=zooIndx)
+    if(is.regular(recursiveStdErrs)){ recursiveStdErrs <- as.zooreg(recursiveStdErrs) }
   }
 
   ##if return=TRUE:
@@ -127,6 +135,8 @@ function(object, spec="mean",
   if(plot){
     recursiveEstimates <- na.trim(recursiveEstimates,
       is.na="all")
+#    recursiveEstimates <- zoo(coredata(recursiveEstimates),
+#      order.by=index(recursiveEstimates))
     plot(recursiveEstimates, main=mainlab, xlab="", col="blue")
   }
 

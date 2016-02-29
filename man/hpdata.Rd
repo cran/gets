@@ -4,9 +4,7 @@
 
 \title{Hoover and Perez (1999) data}
 
-\description{Data used by Hoover and Perez (1999) in their evaluation of General-to-Specific (GETS) modelling. A detailed description of the data is found in their Table 1 (page 172).
-
- The data are quarterly, comprise 20 variables and runs from 1959:1 to 1995:1. This corresponds to 145 observations. The source of the data is Citibank}
+\description{Data used by Hoover and Perez (1999) in their evaluation of General-to-Specific (GETS) modelling. A detailed description of the data is found in their Table 1 (page 172). The data are quarterly, comprise 20 variables and runs from 1959:1 to 1995:1. This corresponds to 145 observations. The source of the data is Citibank.}
 \usage{data(hpdata)}
 \format{
   \describe{
@@ -43,20 +41,20 @@ Retrieved 14 October 2014 from:
 \references{
 David F. Hendry and Hans-Martin Krolzig (1999): 'Improving on 'Data
   mining reconsidered' by K.D. Hoover and S.J Perez', Econometrics
-  Journal, Vol. 2, pp. 202-219
+  Journal, Vol. 2, pp. 202-219.
 
 David F. Hendry and Hans-Martin Krolzig (2005): 'The properties of
-  automatic Gets modelling', Economic Journal 115, C32-C61
+  automatic Gets modelling', Economic Journal 115, C32-C61.
 
 Jurgen Doornik (2009): 'Autometrics', in Jennifer L. Castle and Neil
   Shephard (eds), 'The Methodology and Practice of Econometrics: A
   Festschrift in Honour of David F. Hendry', Oxford University Press,
-  Oxford, pp. 88-121
+  Oxford, pp. 88-121.
 
 Genaro Sucarrat and Alvaro Escribano (2012): 'Automated Financial
   Model Selection: General-to-Specific Modelling of the Mean and
   Volatility Specifications', Oxford Bulletin of Economics and
-  Statistics 74, Issue no. 5 (October), pp. 716-735
+  Statistics 74, Issue no. 5 (October), pp. 716-735.
 }
 \examples{
 ##load Hoover and Perez (1999) data:

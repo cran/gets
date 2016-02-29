@@ -7,7 +7,7 @@
 \description{The starting model, an object of the 'arx' class, is referred to as the General Unrestricted Model (GUM). The \code{getsm} function undertakes multi-path GETS modelling of the mean specification, whereas \code{getsv} does the same for the log-variance specification. The diagnostic tests are undertaken on the standardised residuals, and the \code{keep} option enables regressors to be excluded from possible removal.}
 \usage{
 ##gets of mean specification:
-getsm(object, t.pval=0.05, wald.pval=0.05, vcov.type=NULL, do.pet=TRUE,
+getsm(object, t.pval=0.05, wald.pval=t.pval, vcov.type=NULL, do.pet=TRUE,
   ar.LjungB=list(lag=NULL, pval=0.025), arch.LjungB=list(lag=NULL, pval=0.025),
   normality.JarqueB=NULL, info.method=c("sc", "aic", "hq"), keep=NULL,
   include.gum=FALSE, include.empty=FALSE, max.regs=NULL, zero.adj=NULL,
@@ -15,7 +15,7 @@ getsm(object, t.pval=0.05, wald.pval=0.05, vcov.type=NULL, do.pet=TRUE,
   plot=TRUE, alarm=FALSE)
   
 ##gets of variance specification:
-getsv(object, t.pval=0.05, wald.pval=0.05, do.pet=TRUE,
+getsv(object, t.pval=0.05, wald.pval=t.pval, do.pet=TRUE,
   ar.LjungB=list(lag=NULL, pval=0.025), arch.LjungB=list(lag=NULL, pval=0.025),
   normality.JarqueB=NULL, info.method=c("sc", "aic", "hq"), keep=c(1),
   include.gum=FALSE, include.empty=FALSE, max.regs=NULL, zero.adj=NULL,
@@ -26,7 +26,7 @@ getsv(object, t.pval=0.05, wald.pval=0.05, do.pet=TRUE,
 \arguments{
   \item{object}{an object of class 'arx'}
   \item{t.pval}{numeric value between 0 and 1. The significance level used for the two-sided regressor significance t-tests}
-  \item{wald.pval}{numeric value between 0 and 1. The significance level used for the Parsimonious Encompassing Tests (PETs)}
+  \item{wald.pval}{numeric value between 0 and 1. The significance level used for the Parsimonious Encompassing Tests (PETs). By default, it is the same as \code{t.pval}}
   \item{vcov.type}{the type of variance-covariance matrix used. If NULL (default), then the type used in the estimation of the 'arx' object is used. This can be overridden by either "ordinary" (i.e. the ordinary variance-covariance matrix) or "white" (i.e. the White (1980) heteroscedasticity robust variance-covariance matrix)}
   \item{do.pet}{logical. If TRUE (default), then a Parsimonious Encompassing Test (PET) against the GUM is undertaken at each regressor removal for the joint significance of all the deleted regressors along the current path. If FALSE, then a PET is not undertaken at each regressor removal}
   \item{ar.LjungB}{a two-item list with names \code{lag} and \code{pval}, or NULL. In the former case \code{lag} contains the order of the Ljung and Box (1979) test for serial correlation in the standardised residuals, and \code{pval} contains the significance level. If \code{lag=NULL} (default), then the order used is that of the estimated 'arx' object. If \code{ar.Ljungb=NULL}, then the standardised residuals are not checked for serial correlation}
@@ -71,10 +71,10 @@ Related functions: \code{\link{arx}}, \code{\link{isat}}, \code{\link{eqwma}}, \
 \examples{
 ##Simulate from an AR(1):
 set.seed(123)
-y <- arima.sim(list(ar=0.4), 100)
+y <- arima.sim(list(ar=0.4), 80)
 
 ##Simulate four independent Gaussian regressors:
-xregs <- matrix(rnorm(4*100), 100, 4)
+xregs <- matrix(rnorm(4*80), 80, 4)
 
 ##estimate an AR(2) with intercept and four conditioning
 ##regressors in the mean, and a log-ARCH(3) with log(xregs^2) as

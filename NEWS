@@ -1,3 +1,33 @@
+Version 0.5 (29 February 2016):
+===============================
+
+* isat: isat-objects are now formally established as a separate class (formerly they were of class 'gets'). The S3-methods available for gets-objects are also available for isat-objects (i.e. coef, fitted, logLik, plot, print, residuals, summary and vcov). The gets-extraction functions paths and terminals, and the arx-extraction function recursive, can also be applied on isat-objects.
+
+* predict: new extraction function (S3-method) for arx-objects.
+
+* logLik: new extraction function (S3-method) for gets and isat objects.
+
+* periodicdummies: new auxiliary function that creates a matrix with periodicity dummies (e.g. seasonals) for regular time series. The function is similar to - but more general than - the seasonaldummy function in the forecast package.
+
+* sim, iim, tim, recursive: improved handling of the index when a time-series is regular
+
+* getsm, getsv, isat: the default value of the wald.pval argument was changed to t.pval.
+
+* eviews, stata: minor stylistic changes in the printing whenever file is not NULL.
+
+* Fixes:
+
+- arx: regressors in mxreg can now contain fewer non-NA observations than the regressand (this is automatically adjusted for).
+
+- recursive: the value of vconst (the intercept in a log-arch model) is now correctly computed. Earlier, the adjustment value E(ln z^2) was added rather than subtracted.
+
+- getsm: now correctly computes the number of non-NA observations for the log-likelihood when a log-arch is fitted. The error did not affect the comparison between terminal models nor the logLik.gets function.
+
+- plot.gets: now returns a plot when no mean-specification is fitted (it did not do so in versions 0.3 and 0.4).
+
+- logLik.arx: now correctly specifies the conditional variance to compute the log-likelihood. The error did not affect getsv, getsm nor isat, only the log-likelihood value reported when printing the results.
+
+
 Version 0.4 (18 December 2015):
 ===============================
 
@@ -5,7 +35,7 @@ Version 0.4 (18 December 2015):
 
 * eviews, stata: new utility functions that can be applied on arx, gets and isat objects. Provides utilities and generates code that facilitates exporting the estimation results to EViews and Stata, respectively.
 
-* ols: four new estimation methods have been added. Three of them correspond to different variance-covariance matrices, whereas the fourth can be user-specifid
+* ols: four new estimation methods have been added. Three of them correspond to different variance-covariance matrices, whereas the fourth can be user-specified
 
 * isat: step-indicator saturation is now the default. That is, the default value of iis was changed to FALSE, and the default value of sis was changed to TRUE.
 

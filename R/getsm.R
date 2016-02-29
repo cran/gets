@@ -1,5 +1,5 @@
 getsm <-
-function(object, t.pval=0.05, wald.pval=0.05,
+function(object, t.pval=0.05, wald.pval=t.pval,
   vcov.type=NULL, do.pet=TRUE,
   ar.LjungB=list(lag=NULL, pval=0.025),
   arch.LjungB=list(lag=NULL,pval=0.025),
@@ -42,7 +42,9 @@ function(object, t.pval=0.05, wald.pval=0.05,
   spec <- list()
   spec.results <- NULL
 
-  #check if variance equation:
+##in the future, check object$aux$vX instead?:
+
+  ##check if variance equation:
   if(is.null(object$variance.results)){
     var.spec.chk <- FALSE
   }else{var.spec.chk <- TRUE}
@@ -60,7 +62,7 @@ function(object, t.pval=0.05, wald.pval=0.05,
   if(is.null(keep)){mXndel <- NULL}else{mXndel <- cbind(object$aux$mX[,keep])}
   mXadj <- cbind(mXdel,mXndel)
 
-  #estimate GUM:
+  ##estimate GUM:
   est <- ols(object$aux$y, mXadj, tol = object$aux$tol,
     LAPACK=LAPACK, method=2)
   fit <- as.vector(mXadj%*%cbind(est$coefficients))
@@ -69,7 +71,7 @@ function(object, t.pval=0.05, wald.pval=0.05,
   sumResids2 <- sum(resids2)
   sigma2 <- sumResids2/d.f.
 
-  #estimate s.e.; compute t-stats. and p-vals.:
+  ##estimate s.e.; compute t-stats. and p-vals.:
   if(vcov.type == "ordinary"){
     varcovmat <- sigma2*est$xtxinv
     coef.var <-as.vector(diag(varcovmat))
@@ -173,14 +175,14 @@ function(object, t.pval=0.05, wald.pval=0.05,
 
   } #end if(is.null(arch..
 
-  #Jarque-Bera test of zhat:
+  ## Jarque-Bera test of zhat:
   if(is.null(normality.JarqueB)){ normality.gum.chk <- 1 }else{
     if(diagnostics.table[3,3] <= normality.JarqueB[1]){
       normality.gum.chk <- 0
     }else{ normality.gum.chk <- 1 }
   }#end if(is.null(normality..
 
-  #results:
+  ## results:
   if(verbose){
     tmp <- rep(0,object$aux$mXncol)
     if(!is.null(keep)){ tmp[keep] <- 1 }
@@ -193,7 +195,7 @@ function(object, t.pval=0.05, wald.pval=0.05,
     out$gum.diagnostics <- diagnostics.table
   } #end if(verbose)
 
-  #if GUM passes diagnostic checks:
+  ## if GUM passes diagnostic checks:
   gum.chk <- ar.gum.chk*arch.gum.chk*normality.gum.chk
   if(gum.chk != 0){
 
@@ -223,9 +225,9 @@ function(object, t.pval=0.05, wald.pval=0.05,
 
   if( gum.chk !=0 && delete.n>0 && include.empty==TRUE ){
 
-    #DO NOT do pet in order to enable reality check!
+    ## DO NOT do pet in order to enable reality check!
 
-    #estimate model:
+    ## estimate model:
     if(!is.null(mXndel)){
       est <- ols(object$aux$y, mXndel, tol=object$aux$tol,
         LAPACK=object$aux$LAPACK, method=2)
@@ -242,7 +244,10 @@ function(object, t.pval=0.05, wald.pval=0.05,
 
     #make resids.adj, sigma2.fit, zhat:
     if(var.spec.chk){
-      est.var <- arx(resids, vc=object$aux$vc,
+      residsAdj <- zoo(resids, order.by=object$aux$y.index)
+      est.var <- arx(residsAdj, vc=object$aux$vc,
+#OLD:
+#      est.var <- arx(resids, vc=object$aux$vc,
         arch=object$aux$arch, asym=object$aux$asym,
         log.ewma=object$aux$log.ewma, vxreg=object$aux$vxreg,
         zero.adj=object$aux$zero.adj, vc.adj=object$aux$vc.adj,
@@ -250,11 +255,15 @@ function(object, t.pval=0.05, wald.pval=0.05,
         verbose=TRUE, plot=FALSE)
       sigma2.fit <- coredata(na.trim(est.var$var.fit))
       resids.adj <- resids[c(object$aux$y.n-object$aux$loge2.n+1):object$aux$y.n]
-      resids.adj.n <- object$aux$y.n
+      resids.adj.n <- length(resids.adj)
+#OLD (ERROR):
+#      resids.adj.n <- object$aux$y.n
       zhat <- coredata(na.trim(est.var$resids.std))
     }else{
       resids.adj <- resids
-      resids.adj.n <- object$aux$y.n
+      resids.adj.n <- length(resids.adj)
+#OLD (ERROR):
+#      resids.adj.n <- object$aux$y.n
       sigma2.fit <- rep(sigma2, resids.adj.n)
       zhat <- resids/sqrt(sigma2)
     } #end if(var.spec.chk)
@@ -262,49 +271,6 @@ function(object, t.pval=0.05, wald.pval=0.05,
     diagnostics.chk <- diagnostics(zhat, s2=1,
       ar.LjungB=ar.LjungB, arch.LjungB=arch.LjungB,
       normality.JarqueB=normality.JarqueB, verbose=FALSE)
-
-#OLD:
-#    #benchmark model:
-#    if(keep.n==0){
-#      resids <- as.vector(object$aux$y)
-#      resids.n <- length(resids)
-#      fit <- rep(0, object$aux$y.n)
-#      mXndel.k <- 0
-#      resids2 <- resids^2; sumResids2 <- sum(resids2)
-#      sigma2 <- sumResids2/object$aux$y.n
-#    }
-#    if(keep.n>0){
-#      est <- ols(object$aux$y, mXndel, tol=object$aux$tol,
-#        LAPACK=object$aux$LAPACK, method=1)
-#      fit <- as.vector(mXndel%*%cbind(est$coefficients))
-#      resids <- as.vector(object$aux$y) - fit
-#      mXndel.k <- NCOL(mXndel)
-#      resids2 <- resids^2; sumResids2 <- sum(resids2)
-#      sigma2 <- sumResids2/(object$aux$y.n-mXndel.k)
-#    }
-#
-#    #estimate sigma2.fit, resids.adj, zhat:
-#    est.var <- arx(resids, arch=object$aux$arch,
-#      asym=object$aux$asym, log.ewma=object$aux$log.ewma,
-#      vxreg=object$aux$vxreg, zero.adj=object$aux$zero.adj,
-#      vc.adj=object$aux$vc.adj, tol=object$aux$tol,
-#      LAPACK=object$aux$LAPACK, verbose=TRUE, plot=FALSE)
-#    sigma2.fit <- coredata(na.trim(est.var$var.fit))
-#    resids.adj <- coredata(resids[c(resids.n-length(sigma2.fit)+1):resids.n])
-#    resids.adj.n <- length(resids.adj)
-#    zhat <- coredata(na.trim(est.var$resids.std))
-#
-#    #Ljung-Box test for serial correlation in {z_t}:
-#    if(!is.null(ar.LjungB)){
-#      ar.LjungBox <- Box.test(zhat, lag = ar.LjungB[1], type="L")
-#      if(ar.LjungBox$p.value <= ar.LjungB[2]){ar.bench.chk <- 0}else{ar.bench.chk <- 1}
-#    }else{ar.bench.chk <- 1}
-#
-#    #Ljung-Box test for arch in {z_t}
-#    if(!is.null(arch.LjungB)){
-#      arch.LjungBox <- Box.test(zhat^2, lag = arch.LjungB[1], type="L")
-#      if(arch.LjungBox$p.value <= arch.LjungB[2]){arch.bench.chk <- 0}else{arch.bench.chk <- 1}
-#    }else{arch.bench.chk <- 1}
 
     ##if empty model passes diagnostic checks:
     if(diagnostics.chk){
@@ -328,27 +294,6 @@ function(object, t.pval=0.05, wald.pval=0.05,
         notes <- c(notes, c("Empty mean model does not pass one or more diagnostic checks"))
     } #end if(empty passes diagnostics==TRUE){..}else{..}
 
-#OLD:
-#    #check if empty model passes diagnostic checks:
-#    if(diagnostics.chk){
-#
-#      spec[[length(spec)+1]] <- if(is.null(keep)){0}else{keep}
-#
-#      #specification results
-#      logl <- -resids.adj.n*log(2*pi)/2 - sum(log(sigma2.fit))/2 - sum(resids.adj^2/sigma2.fit)/2
-#      info.results <- info.criterion(logl, resids.adj.n, keep.n,
-#        method = info.method)
-#
-#      #check pet result:
-#      spec.results <- rbind(spec.results,
-#        c(info.results$value, logl, info.results$n,
-#        info.results$k))
-#      row.labels <- c(row.labels, paste("spec", length(spec), " (empty)", sep=""))
-#
-#    }else{
-#      notes <- c(notes, c("Empty mean model does not pass one or more diagnostic checks"))
-#    } #end if(empty passes diagnostics==TRUE){..}else{..}
-
   } #end if(include empty model==TRUE)
 
 ## MULTI-PATH SEARCH: #################
@@ -368,40 +313,40 @@ insig.regs <- NULL
 paths <- list()
 if( gum.chk!=0 && delete.n>1 ){
 
-  #paths:
+  ## paths:
   insig.regs <- delete[which(p.val[1:delete.n] > t.pval)]
   n.paths <- length(insig.regs)
 
-  #if paths = 0:
+  ## if paths = 0:
   if(n.paths == 0){
     notes <- c(notes, c("All regressors significant in GUM mean equation"))
   }
 
-  #if paths > 0:
+  ## if paths > 0:
   if(n.paths > 0){
 
-    #paths:
+    ## paths:
     for(i in 1:n.paths){
 
-      #print searchinfo:
+      ## print searchinfo:
       if(print.searchinfo){
         cat("Searching path no. ", i, " out of ",
           n.paths, "\n", sep="")
       }
 
-      #prepare single-path search:
+      ## prepare single-path search:
       path <- insig.regs[i]
       delete.adj <- setdiff(delete, insig.regs[i])
       keep.adj <- as.numeric(keep)
 
-      #single-path search:
+      ## single-path search of path i:
       for(j in 1:max.regs){
 
-        #matrices:
+        ## matrices:
         mXdell <- if(length(delete.adj)==0){NULL}else{object$aux$mX[,delete.adj]}
         mXndell <- if(is.null(keep.adj)){NULL}else{object$aux$mX[,keep.adj]}
 
-        #estimate model:
+        ## estimate model:
         mXadj <- cbind(mXdell,mXndell)
         if(!is.null(mXadj)){
           est <- ols(object$aux$y, mXadj, tol=object$aux$tol,
@@ -417,9 +362,12 @@ if( gum.chk!=0 && delete.n>1 ){
         sumResids2 <- sum(resids2)
         sigma2 <- sumResids2/d.f.
 
-        #make resids.adj, sigma2.fit, zhat:
+        ## make resids.adj, sigma2.fit, zhat:
         if(var.spec.chk){
-          est.var <- arx(resids, vc=object$aux$vc,
+          residsAdj <- zoo(resids, order.by=object$aux$y.index)
+#OLD:
+#          est.var <- arx(resids, vc=object$aux$vc,
+          est.var <- arx(residsAdj, vc=object$aux$vc,
             arch=object$aux$arch, asym=object$aux$asym,
             log.ewma=object$aux$log.ewma,
             vxreg=object$aux$vxreg,
@@ -428,11 +376,15 @@ if( gum.chk!=0 && delete.n>1 ){
             LAPACK=object$aux$LAPACK, verbose=TRUE, plot=FALSE)
           sigma2.fit <- coredata(na.trim(est.var$var.fit))
           resids.adj <- resids[c(object$aux$y.n-object$aux$loge2.n+1):object$aux$y.n]
-          resids.adj.n <- object$aux$y.n
+          resids.adj.n <- length(resids.adj)
+#OLD (ERROR):
+#          resids.adj.n <- object$aux$y.n
           zhat <- coredata(na.trim(est.var$resids.std))
         }else{
           resids.adj <- resids
-          resids.adj.n <- object$aux$y.n
+          resids.adj.n <- length(resids.adj)
+#OLD (ERROR):
+#          resids.adj.n <- object$aux$y.n
           sigma2.fit <- rep(sigma2, resids.adj.n)
           zhat <- resids/sqrt(sigma2)
         } #end if(var.spec.chk)
@@ -441,8 +393,8 @@ if( gum.chk!=0 && delete.n>1 ){
           ar.LjungB=ar.LjungB, arch.LjungB=arch.LjungB,
           normality.JarqueB=normality.JarqueB, verbose=FALSE)
 
-        #if diagnostics.chk fails (i.e. FALSE),
-        #then move path[length(path)] to keep.adj
+        ## if diagnostics.chk fails (i.e. FALSE),
+        ## then move path[length(path)] to keep.adj
         if(!diagnostics.chk){
           path.n <- length(path)
           keep.adj <- union(path[path.n], keep.adj)
@@ -453,7 +405,7 @@ if( gum.chk!=0 && delete.n>1 ){
         #if diagnostics are ok (i.e. TRUE):
         if(diagnostics.chk){
 
-          #stop if no more deletable regressors:
+          ## stop if no more deletable regressors:
           if(length(delete.adj)==0){
             spec.adj <- keep.adj
             break
@@ -461,7 +413,7 @@ if( gum.chk!=0 && delete.n>1 ){
 
           if(!is.null(mXadj)){
 
-            #estimate s.e.; compute t-stats. and p-vals.:
+            ## estimate s.e.; compute t-stats. and p-vals.:
             if(vcov.type == "ordinary"){
               coef.var <-as.vector(sigma2*diag(est$xtxinv))
               s.e. <- sqrt(coef.var)
@@ -499,18 +451,18 @@ if( gum.chk!=0 && delete.n>1 ){
               s.e. <- sqrt(coef.var)
             } #end newey-west
 
-            #t-tests:
+            ## t-tests:
             t.stat <- est$coefficients/s.e.
             p.val <- pt(abs(t.stat), d.f., lower.tail=FALSE)*2
 
           } #end if(!is.null(mXadj))
 
-          #if any p-value > t.pval:
+          ## if any p-value > t.pval:
           if(sum(p.val[1:c(length(delete.adj))] > t.pval) > 0){
 
             reg.no <- which.max(p.val[1:I(length(delete.adj))])
 
-            #do pet test:
+            ## do pet test:
             if(do.pet){
               deleted <- setdiff(delete, delete.adj[-reg.no])
               n.deleted <- length(deleted)
@@ -527,7 +479,7 @@ if( gum.chk!=0 && delete.n>1 ){
               pet.chk <- TRUE
             } #end if(do.pet)else..
 
-            #delete regressor if(pet.chk), else move to keep:
+            ## delete regressor if(pet.chk), else move to keep:
             if(pet.chk){
               path <- union(path, delete.adj[reg.no])
               delete.adj <- delete.adj[-reg.no]

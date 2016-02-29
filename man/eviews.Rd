@@ -24,7 +24,7 @@ stata(object, file=NULL, print=TRUE, return=FALSE)
 Genaro Sucarrat, \url{http://www.sucarrat.net/}
 }
 
-\seealso{code{\link{arx}}, code{\link{getsm}}, code{\link{getsv}}, code{\link{isat}}}
+\seealso{\code{\link{arx}}, \code{\link{getsm}}, \code{\link{getsv}}, \code{\link{isat}}}
 
 \examples{
 ##simulate random variates, estimate model:

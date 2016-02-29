@@ -7,12 +7,12 @@ function(x, lr=FALSE)
       var.rel <- c( which(substr(x$aux$mXnames,1,6) %in% "mconst"), which(x$aux$mXnames %in% x$ISnames))  #vector of where the constant and is terms are
 
       #coefficient path function
-      is.x <- cbind(x$aux$mX[, x$ISnames])
-      is.coef.ests <- coef.gets(x, spec = "mean")[x$ISnames]
+      is.x <- cbind(x$aux$mX[, x$aux$mXnames %in% x$ISnames])
+      is.coef.ests <- coef.isat(x)[x$ISnames]
       coef.path <- zoo(is.x %*% is.coef.ests, order.by = x$aux$y.index)
       colnames(coef.path) <- "coef.path"
 
-      const <- coef.gets(x, spec = "mean")["mconst"]
+      const <- coef.isat(x)["mconst"]
       const.path <- coef.path + const
       colnames(const.path) <- "const.path"
 
@@ -20,7 +20,7 @@ function(x, lr=FALSE)
       var.rel <- which(substr(x$aux$mXnames,1,6) %in% "mconst")
 
       #coefficient path function
-      const <- coef.gets(x, spec = "mean")["mconst"]
+      const <- coef.isat(x)["mconst"]
 
       coef.path <- zoo(0, order.by = x$aux$y.index)
 
@@ -81,14 +81,14 @@ function(x, lr=FALSE)
         if (!is.null(x$mean.fit)){
 
           vcov.rel.tot <- x$vcov.mean
-          coef.rel <- coef.gets(x)
+          coef.rel <- coef.isat(x)
 
           ###coefficient path of LR mean
 
           arcall <- as.list(x$call)$ar
           arnames <- paste("ar",eval(as.expression(arcall)), sep="")
 
-          ar.coefs <- coef.gets(x, spec = "mean")[arnames]
+          ar.coefs <- coef.isat(x)[arnames]
           ar.sum <- sum(ar.coefs)
           lr.path <- const.path/(1-ar.sum)
 

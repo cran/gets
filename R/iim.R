@@ -10,19 +10,29 @@ function(x, which.ones=NULL)
     mIIS <- as.zoo(mIIS)
   }else{
     n <- NROW(x)
-    x <- as.zoo(x)
-    x.index <- index(x)
     mIIS <- matrix(0,n,n)
     diag(mIIS) <- 1
+    x <- as.zoo(x)
+    x.index <- index(x)
+    xIsRegular <- is.regular(x)
+    if(xIsRegular){
+      xIndexObs <- floor(as.numeric(x.index))
+      xCycle <- as.numeric(cycle(x))
+      xIndexAsChar <- paste(xIndexObs, "(", xCycle, ")", sep="")
+      xFrequency <- frequency(x)
+    }else{
+      xIndexAsChar <- as.character(x.index)
+    }
     colnames(mIIS) <- paste("iis",
-      as.character(x.index), sep="")
+      xIndexAsChar, sep="")
     mIIS <- zoo(mIIS, order.by=x.index)
+    if(xIsRegular){ mIIS <- as.zooreg(mIIS) }
     if(!is.null(which.ones)){
       where.indicators <- which(index(mIIS) %in% which.ones)
       if(length(where.indicators > 0)){
         mIIS <- cbind(mIIS[,where.indicators])
       }else{
-        print("'which.ones' not in index")
+        stop("'which.ones' not in index")
       }
     }
   } #end if(NROW(x)==1)else..

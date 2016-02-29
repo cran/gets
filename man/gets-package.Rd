@@ -16,11 +16,11 @@ The package also provides auxiliary functions used by the main functions, in add
 \tabular{ll}{
 Package: \tab gets\cr
 Type: \tab Package\cr
-Version: \tab 0.4\cr
-Date: \tab 2015-12-18\cr
+Version: \tab 0.5\cr
+Date: \tab 2015-02-29\cr
 License: \tab GPL-2\cr
 }
-Most of the code originated in relation with G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility
+The code originated in relation with G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility
 Specifications', Oxford Bulletin of Economics and Statistics 74, Issue 5 (October), pp. 716-735. Subsequently, Felix Pretis and James Reade joined for the development of the \code{\link{isat}} code and related functions
 }
 
@@ -46,16 +46,16 @@ Jurgen, A. Doornik, Hendry, David F., and Pretis, Felix (2013): 'Step Indicator 
 \examples{
 ##Simulate from an AR(1):
 set.seed(123)
-y <- arima.sim(list(ar=0.4), 100)
+y <- arima.sim(list(ar=0.4), 80)
 
 ##Estimate an AR(2) with intercept as mean specification
 ##and a log-ARCH(4) as log-volatility specification:
 myModel <- arx(y, mc=TRUE, ar=1:2, arch=1:4)
 
-##GETS model selection of the mean of myModel:
+##GETS modelling of the mean of myModel:
 simpleMean <- getsm(myModel)
 
-##GETS model selection of the log-variance of myModel:
+##GETS modelling of the log-variance of myModel:
 simpleVar <- getsv(myModel)
 
 ##results:
