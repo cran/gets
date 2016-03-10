@@ -293,9 +293,11 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     max.regs=max.regs, print.searchinfo=print.searchinfo,
     plot=FALSE)
 
-  ##names of retained impulses:
+  ##names of retained impulses, mX colnames:
   ISnames <- setdiff(getsis$aux$mXnames, mXnames)
   if(length(ISnames)==0){ ISnames <- NULL }
+#NEW for 0.6:
+  colnames(getsis$aux$mX) <- getsis$aux$mXnames
 
   ##return:
   getsis$gets.type <- "isat"

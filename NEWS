@@ -1,3 +1,15 @@
+Version 0.6 (9 March 2016):
+===========================
+
+* Minor change in the object returned by isat: The entry aux$mX now have column-names equal to aux$mXnames (in version 0.5 colnames(aux$mX) was NULL)
+
+* Fixes:
+
+- paths, terminals: documentation and help-files for these functions are now included (the help-files were inadvertedly excluded in version 0.5 due to an error in the paths.Rd file)
+
+- DESCRIPTION file: The BugReports field was changed to http://stackoverflow.com/questions/tagged/r
+
+
 Version 0.5 (29 February 2016):
 ===============================
 
@@ -9,7 +21,7 @@ Version 0.5 (29 February 2016):
 
 * periodicdummies: new auxiliary function that creates a matrix with periodicity dummies (e.g. seasonals) for regular time series. The function is similar to - but more general than - the seasonaldummy function in the forecast package.
 
-* sim, iim, tim, recursive: improved handling of the index when a time-series is regular
+* sim, iim, tim, recursive: improved handling of the time index when a time-series is regular
 
 * getsm, getsv, isat: the default value of the wald.pval argument was changed to t.pval.
 
@@ -17,7 +29,7 @@ Version 0.5 (29 February 2016):
 
 * Fixes:
 
-- arx: regressors in mxreg can now contain fewer non-NA observations than the regressand (this is automatically adjusted for).
+- arx: regressors in mxreg can now contain fewer non-NA observations than the regressand (this is automatically adjusted for) at the beginning and at the end of the series.
 
 - recursive: the value of vconst (the intercept in a log-arch model) is now correctly computed. Earlier, the adjustment value E(ln z^2) was added rather than subtracted.
 
@@ -25,7 +37,7 @@ Version 0.5 (29 February 2016):
 
 - plot.gets: now returns a plot when no mean-specification is fitted (it did not do so in versions 0.3 and 0.4).
 
-- logLik.arx: now correctly specifies the conditional variance to compute the log-likelihood. The error did not affect getsv, getsm nor isat, only the log-likelihood value reported when printing the results.
+- logLik.arx: now correctly specifies the conditional variance to compute the log-likelihood. The error did not affect the getsv, getsm nor isat functions, only the log-likelihood value reported when printing the results via print.arx.
 
 
 Version 0.4 (18 December 2015):

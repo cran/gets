@@ -30,7 +30,7 @@
 \arguments{
   \item{object}{an object of class 'arx'}
   \item{x}{an object of class 'arx'}
-  \item{spec}{NULL, "mean", "variance" or, in some instances, "both". When NULL is a valid value, then it is automatically determined whether information pertaining to the mean or variance specification should be returned}
+  \item{spec}{NULL, "mean", "variance" or, in some instances, "both". When \code{NULL} is a valid value, then it is automatically determined whether information pertaining to the mean or variance specification should be returned}
   \item{std}{logical. If FALSE (default), then the mean residuals are returned. If TRUE, then the standardised residuals are returned}
   \item{n.ahead}{generate forecasts up to n steps ahead (the default is 5)}
   \item{newmxreg}{a matrix (\code{n.ahead} rows and NCOL(mxregs) columns) with the out-of-sample values of the \code{mxreg} regressors}

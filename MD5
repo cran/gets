@@ -1,6 +1,6 @@
-c456a06386ca29b9de63ea9cbf5f02ad *DESCRIPTION
+099db4bac3e8e7f902db9981f3026b6a *DESCRIPTION
 c5b36aff33d8a61753604a8c3e001ec6 *NAMESPACE
-cc4706592016001c54302e1424011140 *NEWS
+1908853e59f11806aed12809812cedf2 *NEWS
 c25eeb8fa0e15be4a260abc8f60b2bfd *R/arx.R
 8435d75d2a045d9aab870aaf9b09ac65 *R/biascorr.R
 992fe9c859e590bdf5528d1f0617bce2 *R/coef.arx.R
@@ -17,7 +17,7 @@ f59ac91632cdf45b2ec320185fbf81d2 *R/getsm.R
 f4e7178d0543783af271124b44574fe0 *R/getsv.R
 9bd37671878697b7afd2c03d9e98f250 *R/iim.R
 4e963ee89115231740dafdc38ac370ce *R/info.criterion.R
-8e09db8ea02901d575e8d575f3dedc3d *R/isat.R
+b066356dcd8eda34899bc0d5b2ba271b *R/isat.R
 ef1abcc3c4d39329413b7f0934c91ce2 *R/isattest.R
 f7c8f652d3e60b5e939e8322c006082b *R/isatvar.R
 51eec9c0df3c57985bf82c28b2d3954d *R/jb.test.R
@@ -52,14 +52,14 @@ a01e719076d0a3dd475909d855cbe397 *R/vcov.gets.R
 0cb882628dd028aeeefcca915f08d61a *data/hpdata.rda
 e665e287285d7d0a44694a5236438a41 *man/arx.Rd
 6ad7d7a3958d2a4feb91a06ffb5933e1 *man/biascorr.Rd
-130fc39014383bd52761a83ceff7ce9a *man/coef.arx.Rd
-9a726d52f74f079625962ffa462b5576 *man/coef.gets.Rd
+cf888011acee779fc2a1ba2c1a9f4bf4 *man/coef.arx.Rd
+9e6fbc0398aa71015c7e69df733952e1 *man/coef.gets.Rd
 fc7f442951df5415740c8a7a345fda51 *man/coef.isat.Rd
 65bd5a9991ff65c91fadc41cdd287605 *man/diagnostics.Rd
 4e0afef2d649ef6dcb09a41fb12f8617 *man/dropvar.Rd
 f7b0006d8f88fb02e6c426559b287fb5 *man/eqwma.Rd
 c845653e34e88eb8b3a2663103404c65 *man/eviews.Rd
-fcbe80a26807776d62c59dcc2772ce60 *man/gets-package.Rd
+bddc088615828ad85f220bfd76c39132 *man/gets-package.Rd
 ef7bd05438e7e1ff69759958c363d89e *man/getsm.Rd
 3e74a0612d09a238e10df85650200cd6 *man/hpdata.Rd
 312108f02fc364b8d309500b66ea9629 *man/iim.Rd
@@ -69,5 +69,6 @@ c7c8900b2a5484ffaf2435f9e2e7739c *man/isattest.Rd
 8b505ca44ffc55d9e03dcb43b6b38b20 *man/isatvar.Rd
 1634f0223a0137206541f25aa5041247 *man/jb.test.Rd
 5ffd69e4f98faac9d5fed4c5ffcb91a1 *man/ols.Rd
+e8f4e18a2fd8df446ceeb1e0e5bc62c6 *man/paths.Rd
 25acde7e6bd4e4d57de576059013f8cc *man/periodicdummies.Rd
 69b8d5444920909281a35f3d1b044821 *man/recursive.Rd

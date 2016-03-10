@@ -2,12 +2,10 @@
 \alias{coef.gets}
 \alias{fitted.gets}
 \alias{logLik.gets}
-\alias{paths}
 \alias{plot.gets}
 \alias{print.gets}
 \alias{residuals.gets}
 \alias{summary.gets}
-\alias{terminals}
 \alias{vcov.gets}
 
 \title{Extraction functions for 'gets' objects}
@@ -18,22 +16,18 @@
 \method{coef}{gets}(object, spec=NULL, ...)
 \method{fitted}{gets}(object, spec=NULL, ...)
 \method{logLik}{gets}(object, ...)
-## extraction function for class 'gets' and 'isat':
-paths(object, ...)
 \method{plot}{gets}(x, spec=NULL, col=c("red","blue"),
   lty=c("solid","solid"), lwd=c(1,1), ...)
 \method{print}{gets}(x, ...)
 \method{residuals}{gets}(object, std=NULL, ...)
 \method{summary}{gets}(object, ...)
-## extraction function for class 'gets' and 'isat':
-terminals(object, ...)
 \method{vcov}{gets}(object, spec=NULL, ...)
 }
 
 \arguments{
   \item{object}{an object of class 'gets'}
   \item{x}{an object of class 'gets'}
-  \item{spec}{NULL, "mean", "variance" or, except \code{vcov.gets}, "both". If NULL, then it is automatically determined whether information pertaining to the mean or variance specification should be returned. This can be overridden by either "mean", "variance" or, except for \code{vcov.arx}, "both"}
+  \item{spec}{NULL, "mean", "variance" or, in some instances, "both". When \code{NULL} is a valid value, then it is automatically determined whether information pertaining to the mean or variance specification should be returned}
   \item{std}{logical. If FALSE (default), then the mean residuals are returned. If TRUE, then the standardised residuals are returned}
   \item{col}{colours of fitted (default=red) and actual (default=blue) lines}
   \item{lty}{types of fitted (default=solid) and actual (default=solid) lines}
@@ -45,12 +39,10 @@ terminals(object, ...)
   \item{coef:}{a numeric vector containing parameter estimates}
   \item{fitted:}{a \code{\link{zoo}} object with fitted values}
   \item{logLik:}{a numeric, the log-likelihood (normal density)}
-  \item{paths:}{a \code{\link{list}} with the paths searched (each number refers to a regressor in the GUM)}
   \item{plot:}{a plot of the fitted values and the residuals}
   \item{print:}{a print of the estimation results}
   \item{residuals:}{a \code{\link{zoo}} object with the residuals}
   \item{summary:}{a print of the items in the \code{\link{gets}} object}
-  \item{terminals:}{a \code{\link{list}} with the terminal models (each number refers to a regressor in the GUM)}
   \item{vcov:}{a variance-covariance matrix}
 }
 
@@ -95,14 +87,6 @@ summary(varmod)
 coef(meanmod) #mean spec
 coef(varmod) #variance spec
 
-##extract the paths searched:
-paths(meanmod) #mean
-paths(varmod) #variance spec
-
-##extract the terminal models:
-terminals(meanmod) #mean
-terminals(varmod) #variance spec
-
 ##extract log-likelihood:
 logLik(mymod)
 
@@ -118,9 +102,11 @@ vfit <- fitted(varmod) #variance fit
 plot(vfit)
 
 ##extract and plot residuals:
-epshat <- residuals(meanmod) #mean residuals
+epshat <- residuals(meanmod)
 plot(epshat)
-zhat <- residuals(varmod) #standardised residuals
+
+##extract and plot standardised residuals:
+zhat <- residuals(varmod)
 plot(zhat)
 
 }
