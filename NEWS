@@ -1,3 +1,28 @@
+Version 0.7 (11 April 2016):
+============================
+
+* arx: the log.ewma argument can now either be a vector containing the lengths, or a list with an entry named length (that contains the vector of lengths). The lag entry lag, which was previously available when log.ewma is a list, has been deprecated (lag is always equal to 1).
+
+* predict.arx:
+
+- can now be applied on arx-objects where log.ewam is not NULL.
+
+- n.ahead: new default value, 12.
+
+- new argument: newindex.
+
+* print.arx: improved handling of regular time-indices
+
+* isat: t.pval can now be extracted using aux$t.pval on an isat object. 
+
+* Fixes:
+
+- predict.arx: now works when a log-arch specification has been fitted witharch=NULL.
+
+- a zoo-object x is considered to be regular if is.regular(x, strict=TRUE) is TRUE. Previously, x was considered regular if is.regular(x, strict=FALSE) was TRUE.
+
+- isattest: bias-correction (biascorr=TRUE) now works when t.pval is specified as a variable in the initial isat model.
+
 Version 0.6 (9 March 2016):
 ===========================
 

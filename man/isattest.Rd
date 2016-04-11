@@ -4,7 +4,7 @@
 \title{Indicator Saturation Test}
 
 \description{
-  Takes a 'gets' object returned by the \code{isat} function as input and returns the results of a hypothesis test on the time-varying intercept or long-run equilibrium against a specified null-hypothesis for a chosen level of significance - see Pretis (2015).
+  Takes an 'isat' object returned by the \code{isat} function as input and returns the results of a hypothesis test on the time-varying intercept or long-run equilibrium against a specified null-hypothesis for a chosen level of significance - see Pretis (2015).
 }
 
 \usage{
@@ -54,7 +54,8 @@ Pretis, F. (2015): 'Testing for time-varying predictive accuracy using bias-corr
 #ys <- isat(y, sis=TRUE, iis=FALSE, tis=FALSE, t.pval=0.01)
 #isattest(ys, hnull=0, lr=FALSE, ci.pval = 0.99, plot.turn = FALSE, biascorr=TRUE)
 
-##Dynamic Test of the long-run equilibrium against hnull=2 with breakpoints labelled in the plot:
+##Dynamic Test of the long-run equilibrium against hnull=2 with breakpoints
+##labelled in the plot:
 
 #ys <- isat(y, sis=TRUE, iis=FALSE, tis=FALSE, t.pval=0.01, ar=1:2)
 #isattest(ys, hnull=2, lr=TRUE, ci.pval = 0.99, plot.turn = TRUE, biascorr=FALSE)

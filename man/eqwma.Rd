@@ -7,7 +7,7 @@
 \description{
 The function \code{eqwma} returns an Equally Weighted Moving Average (EqWMA) of the pth. exponentiated values lagged. Optionally, the absolute values are computed before averaging, and the log of is returned. The function \code{leqwma} is essentially a wrapper to \code{eqwma} in which the absolute values are used and the logarithm is applied.
 
-If x is financial return (possibly mean-corrected) and p=2, then this gives the socalled 'historical' model, also known as an integrated ARCH model where the ARCH coefficients all have the same value with sum equal to one. In the log-variance specification the lag of log(EqWMA) is thus a financial volatility proxy. It may be an imperfect proxy compared with high-frequency data (which can also be included as regressors), but - in contrast to high-frequency data - is always available and easy to compute
+If x is financial return (possibly mean-corrected) and p=2, then this gives the socalled 'historical' model, also known as an integrated ARCH model where the ARCH coefficients all have the same value with sum equal to one. In the log-variance specification the lag of log(EqWMA) is thus a financial volatility proxy. It may be an imperfect proxy compared with high-frequency data (which can also be included as regressors), but - in contrast to high-frequency data - is always available and easy to compute.
 }
 \usage{
 eqwma(x, length = 5, lag = 1, start = 1, p = 1, log = FALSE, abs = FALSE,
@@ -29,7 +29,7 @@ leqwma(x, length = 5, lag = 1, start = 1, p = 2, as.vector=FALSE)
 \details{
 The intended primary use of \code{eqwma} is to construct mixed frequency regressors for the mean specification.
 
-The intended primary use of \code{leqwma} is to construct volatility proxies in for the log-variance specification. The default is the lagged log of an equally weighted moving average of the squared residuals, where each average is made up of m observations. This is equivalent to an integrated ARCH(p) model where the p coefficients are all equal. For further details on the use of log(EqWMA) as a volatility proxy, see Sucarrat and Escribano (2012)
+The intended primary use of \code{leqwma} is to construct volatility proxies for the log-variance specification. The default is the lagged log of an equally weighted moving average of the squared residuals, where each average is made up of m observations. This is equivalent to an integrated ARCH(p) model where the p coefficients are all equal. For further details on the use of log(EqWMA) as a volatility proxy, see Sucarrat and Escribano (2012).
 }
 
 \value{numeric vector, time series or \code{\link{zoo}} object}

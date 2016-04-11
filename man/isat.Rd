@@ -4,7 +4,7 @@
 \title{Indicator Saturation}
 
 \description{
-The \code{\link{isat}} function undertakes multi-path indicator saturation to detect outliers and mean-shifts using impulses (IIS), step-shifts (SIS), or both. Indicators are partitioned into blocks and selected over at a chosen level of significance (\code{t.pval}) using the \code{\link{getsm}} function.
+The \code{\link{isat}} function undertakes multi-path indicator saturation to detect outliers and mean-shifts using impulses (IIS), step-shifts (SIS), or trend-indicators (TIS). Indicators are partitioned into blocks and selected over at a chosen level of significance (\code{t.pval}) using the \code{\link{getsm}} function.
 }
 
 \usage{
@@ -49,12 +49,12 @@ isat(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL, iis=FALSE, sis=TRUE,
   \item{plot}{logical. If TRUE, then the fitted values and the residuals of the final model are plotted after model selection}
 }
 
-\details{Multi-path indicator saturation using eiter impulses (IIS), step-shifts (SIS), or both. Indicators are partitioned into sequential blocks (as of beta version 0.1) where the block intervals are defined by the ratio of variables to observations in each block and a specified maximum block size. Indicators are selected over using the \code{gets.m} function. Retained indicators in each block are combined and re-selected over. Fixed covariates that are not selected over can be included in the regression model either in the mxreg matrix, or for auto-regressive terms through the ar specification. See Santos et al. (2007) and Doornik et al. (2013) }
+\details{Multi-path indicator saturation using impulses (IIS), step-shifts (SIS), or trend-indicators (TIS). Indicators are partitioned into sequential blocks (as of beta version 0.7) where the block intervals are defined by the ratio of variables to observations in each block and a specified maximum block size. Indicators are selected over using the \code{gets.m} function. Retained indicators in each block are combined and re-selected over. Fixed covariates that are not selected over can be included in the regression model either in the mxreg matrix, or for auto-regressive terms through the ar specification. See Hendry, Johansen and Santos (2007) and Castle, Doornik, Hendry, and Pretis (2015)}
 
 \value{A list of class 'gets'}
 
 \references{
-Carlos Santos, Hendry, David, F. and Johansen, Soren (2007):  'Automatic selection of indicators in a fully saturated regression'. Computational Statistics, vol 23:1, pp.317-335.
+Hendry, David, F., Johansen, Soren, and Santos, Carlos (2007):  'Automatic selection of indicators in a fully saturated regression'. Computational Statistics, vol 23:1, pp.317-335.
 
 Castle, Jennifer, L., Doornik, Jurgen, A., Hendry, David F., and Pretis, Felix (2015): 'Detecting Location Shifts during Model Selection by Step-Indicator Saturation', Econometrics, vol 3:2, 240-264.
 }

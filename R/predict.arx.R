@@ -1,8 +1,11 @@
 predict.arx <-
-function(object, spec=NULL, n.ahead=5,
-  newmxreg=NULL, newvxreg=NULL, n.sim=1000, innov=NULL,
-  plot=TRUE, ...)
+function(object, spec=NULL, n.ahead=12,
+  newmxreg=NULL, newvxreg=NULL, newindex=NULL,
+  n.sim=1000, innov=NULL, plot=TRUE, ...)
 {
+  ##n.ahead:
+  if(n.ahead < 1){ stop("n.ahead must be 1 or greater") }
+
   ##spec:
   if(is.null(spec)){
     if(!is.null(object$mean.results)) spec <- "mean"
@@ -15,13 +18,23 @@ function(object, spec=NULL, n.ahead=5,
   } #end if(..)else(..)
   if(is.null(spec)){ stop("No estimated model") }
 
-  ##n.ahead:
-  if(n.ahead < 1){ stop("n.ahead must be 1 or greater") }
-
   ##newindex:
-#  if(!is.null(newindex) &&
-#    n.ahead!=length(newindex)){ stop("length(newindex) must equal n.ahead") }
-
+  if(!is.null(newindex) &&
+    n.ahead!=length(newindex)){ stop("length(newindex) must equal n.ahead") }
+  yInSample <- zoo(object$aux$y, order.by=object$aux$y.index)
+  if( is.regular(yInSample, strict=TRUE)
+    && is.null(newindex) ){
+      yIsRegular <- TRUE
+      endCycle <- cycle(yInSample)
+      endCycle <- as.numeric(endCycle[length(endCycle)])
+      endYear <- floor(as.numeric(object$aux$y.index[object$aux$y.n]))
+      yFreq <- frequency(yInSample)
+      yhat <- rep(NA, n.ahead+1)
+      yhat <- zooreg(yhat, start=c(endYear, endCycle),
+        frequency=yFreq)
+      yhat <- yhat[-1]
+      newindex <- index(yhat)
+  }
 
   ##-------------
   ##if mean spec:
@@ -73,6 +86,15 @@ function(object, spec=NULL, n.ahead=5,
       ##check newmxreg:
       if(is.null(newmxreg)){ stop("'newmxreg' is NULL") }
       if(NROW(newmxreg)!=n.ahead){ stop("NROW(newmxreg) must equal n.ahead") }
+#      if(NROW(newmxreg)!=n.ahead
+#        && NROW(newmxreg)!=1){ stop("NROW(newmxreg) must equal 1 or n.ahead") }
+#      if(NROW(newmxreg)!=n.ahead
+#        && NROW(newmxreg)==1){
+#          newmxreg <- coredata(rbind(as.zoo(newmxreg)))
+#          tmp <- matrix(NA,n.ahead,NCOL(newmxreg))
+#          tmp[1:NROW(tmp),] <- newmxreg
+#          newmxreg <- tmp
+#      }
 
       ##newmxreg:
       newmxreg <- coredata(cbind(as.zoo(newmxreg)))
@@ -143,7 +165,15 @@ function(object, spec=NULL, n.ahead=5,
     ##log.ewma:
     logewmaMax <- 0
     logewmaIndx <- max(asymIndx)
-    if(!is.null(object$call$log.ewma)) stop("Sorry, 'log.ewma' not implemented yet")
+    if(!is.null(object$call$log.ewma)){
+      logewmaEval <- eval(object$call$log.ewma)
+      if(is.list(logewmaEval)){ logewmaEval <- logewmaEval$length }
+      logewmaIndx <- 1:length(logewmaEval) + max(asymIndx)
+      logewmaMax <- max(logewmaEval)
+      logewmaCoefs <- as.numeric(coefs[logewmaIndx])
+    }
+#OLD:
+#    if(!is.null(object$call$log.ewma)) stop("Sorry, 'log.ewma' not implemented yet")
 
     ##backcast length:
     backcastMax <- max(archMax,asymMax,logewmaMax)
@@ -186,9 +216,9 @@ function(object, spec=NULL, n.ahead=5,
     }
 
     ##zhat:
-    if(backcastMax>0){
+    if(n.ahead>0){
 
-      ##bootstrap:
+      ##bootstrap innov (not user-provided):
       if(is.null(innov)){
         zhat <- coredata(na.trim(object$resids.std))
         where.zeros <- which(zhat==0)
@@ -199,14 +229,20 @@ function(object, spec=NULL, n.ahead=5,
         zhat <- zhat[draws]
       }
 
-      ##user-provided:
+      ##user-provided innov:
       if(!is.null(innov)){
         if(length(innov)!=n.ahead*n.sim){ stop("length(innov) must equal n.ahead*n.sim") }
+        if(any(innov==0)){ stop("innov cannot contain zeros") }
         zhat <- as.numeric(innov)
       }
 
       zhat <- matrix(zhat,n.ahead,n.sim)
-      mLnz2Hat[c(backcastMax+1):NROW(mLnz2Hat),] <- log(zhat^2)
+      mZhat2 <- zhat^2
+      mLnz2Hat[c(backcastMax+1):NROW(mLnz2Hat),] <- log(mZhat2)
+
+      vEpsilon2 <- rep(NA, n.ahead+backcastMax)
+      vEpsilon2[1:backcastMax] <- as.numeric(object$resids[c(length(object$resids)-backcastMax+1):length(object$resids)]^2)
+      mZhat2 <- rbind(matrix(NA,backcastMax,NCOL(mZhat2)),mZhat2)
     }
 
     ##prepare asym:
@@ -221,18 +257,38 @@ function(object, spec=NULL, n.ahead=5,
       mZhatIneg[c(backcastMax+1):NROW(mZhatIneg),] <- matrix(as.numeric(zhat<0),NROW(zhat),NCOL(zhat))
     }
 
+    ##prepare log.ewma:
+    if(logewmaMax>0){
+      mLogEwmaHat <- matrix(NA, n.ahead+backcastMax, length(logewmaCoefs))
+      colnames(mLogEwmaHat) <- object$aux$vXnames[logewmaIndx]
+      mLogEwmaHat[1:backcastMax,] <- object$aux$vX[c(NROW(object$aux$vX)-backcastMax+1):NROW(object$aux$vX),logewmaIndx]
+      mLogEwmaHat <- as.matrix(mLogEwmaHat)
+    }
+
     ##predict:
+    archTerm <- 0
+    lnz2Term <- 0
     asymTerm <- 0
+    logewmaTerm <- 0
     for(j in 1:NCOL(mLnsd2Hat)){
       for(i in c(backcastMax+1):NROW(mLnsd2Hat)){
-        archTerm <- sum( archCoefs*mLnsd2Hat[c(i-1):c(i-archMax),j] )
-        lnz2Term <- sum( archCoefs*mLnz2Hat[c(i-1):c(i-archMax),j] )
+        if(archMax>0){
+          archTerm <- sum( archCoefs*mLnsd2Hat[c(i-1):c(i-archMax),j] )
+          lnz2Term <- sum( archCoefs*mLnz2Hat[c(i-1):c(i-archMax),j] )
+        }
         if(asymMax>0){
           asymTermSd2 <- sum( asymCoefs*mLnsd2Hat[c(i-1):c(i-asymMax),j]*mZhatIneg[c(i-1):c(i-asymMax),j] )
           asymTermLnz2 <- sum( asymCoefs*mLnz2Hat[c(i-1):c(i-asymMax),j]*mZhatIneg[c(i-1):c(i-asymMax),j] )
           asymTerm <- asymTermSd2 + asymTermLnz2
         }
-        mLnsd2Hat[i,j] <- vconst + archTerm + lnz2Term + asymTerm + vxreghat[i]
+        if(logewmaMax>0){
+          for(k in 1:NCOL(mLogEwmaHat)){
+            mLogEwmaHat[i,k] <- log( mean(vEpsilon2[c(i-logewmaEval[k]):c(i-1)]) )
+          }
+          logewmaTerm <- sum( coefs[logewmaIndx] * mLogEwmaHat[i,] )
+        }
+        mLnsd2Hat[i,j] <- vconst + archTerm + lnz2Term + asymTerm + logewmaTerm + vxreghat[i]
+        vEpsilon2[i] <- exp(mLnsd2Hat[i,j])*mZhat2[i,j]
       } ##end for(i)
     } ##end for(j)
 
@@ -250,17 +306,18 @@ function(object, spec=NULL, n.ahead=5,
     out <- cbind(outMean,outVariance)
     colnames(out) <- c("mean","variance")
   }
-  #if(!is.null(newindex)){
-  #  out <- zoo(coredata(out), order.by="index")
-  #}
+  if(!is.null(newindex)){
+    out <- zoo(coredata(out), order.by=newindex)
+    if(yIsRegular){ out <- as.zooreg(out) }
+  }
 
   ##plot:
   if(plot){
-#    if(is.null(newindex)){
+    if(is.null(newindex)){
       xlabArg <- "Step ahead"
-#    }else{
-#      xlabArg <- ""
-#    }
+    }else{
+      xlabArg <- ""
+    }
     if(spec=="both"){
       ylabArg <- c("Mean","Variance")
     }else{

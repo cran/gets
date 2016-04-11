@@ -19,8 +19,9 @@
 \method{logLik}{arx}(object, ...)
 \method{plot}{arx}(x, spec=NULL, col=c("red","blue"),
   lty=c("solid","solid"), lwd=c(1,1), ...)
-\method{predict}{arx}(object, spec=NULL, n.ahead=5, newmxreg = NULL,
-    newvxreg = NULL, n.sim = 1000, innov = NULL, plot = TRUE,...)
+\method{predict}{arx}(object, spec=NULL, n.ahead=12, newmxreg=NULL,
+    newvxreg=NULL, newindex=NULL, n.sim=1000, innov=NULL,
+    plot=TRUE, ...)
 \method{print}{arx}(x, ...)
 \method{residuals}{arx}(object, std=FALSE, ...)
 \method{summary}{arx}(object, ...)
@@ -35,8 +36,9 @@
   \item{n.ahead}{generate forecasts up to n steps ahead (the default is 5)}
   \item{newmxreg}{a matrix (\code{n.ahead} rows and NCOL(mxregs) columns) with the out-of-sample values of the \code{mxreg} regressors}
   \item{newvxreg}{a matrix (\code{n.ahead} rows and NCOL(vxregs) columns) with the out-of-sample values of the \code{vxreg} regressors}
+  \item{newindex}{date-index for the \code{zoo} object returned by \code{predict.arx}}
   \item{n.sim}{integer, the number of bootstrap replications for the generation of the variance forecasts}
-  \item{innov}{\code{NULL} (default) or a vector containing the standardised errors to bootstrap from}
+  \item{innov}{\code{NULL} (default) or a vector of length \code{n.ahead * n.sim} containing the standardised errors (i.e. zero mean, unit variance) to bootstrap from}
   \item{plot}{logical. If \code{TRUE} (default), then the out-of-sample forecasts are plotted}
   \item{col}{colours of actual (default=blue) and fitted (default=red) lines}
   \item{lty}{types of actual (default=solid) and fitted (default=solid) lines}

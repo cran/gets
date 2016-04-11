@@ -25,7 +25,7 @@ arx(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL, vc=FALSE,
   \item{vc}{logical. TRUE includes an intercept in the log-variance specification, whereas FALSE (default) does not. If the log-variance specification contains any other item but the log-variance intercept, then vc is set to TRUE}
   \item{arch}{integer vector, say, c(1,3) or 2:5. The log-ARCH lags to include in the log-variance specification}
   \item{asym}{integer vector, say, c(1) or 1:3. The asymmetry (i.e. 'leverage') terms to include in the log-variance specification}
-  \item{log.ewma}{either NULL (default) or a list with arguments sent to the \code{\link{leqwma}} function. In the latter case the log of a lagged moving average of the residuals (essentially the log of a volatility proxy) is included as a regressor}
+  \item{log.ewma}{either NULL (default) or a vector of the lengths of the volatility proxies, see \code{\link{leqwma}} }
   \item{vxreg}{numeric vector or matrix, say, a \code{\link{zoo}} object, of conditioning variables. If both y and mxreg are \code{zoo} objects, then their samples are chosen to match}
   \item{zero.adj}{numeric value between 0 and 1. The quantile adjustment for zero values. The default 0.1 means the zero residuals are replaced by the 10 percent quantile of the absolute residuals before taking the logarithm}
   \item{vc.adj}{logical. If TRUE (default), then the log-variance intercept is adjusted by the estimate of E[ln(z^2)]. This adjustment is needed for the conditional scale of e to be equal to the conditional standard deviation. If FALSE, then the log-variance intercept is not adjusted}
@@ -76,7 +76,7 @@ arx(y, mc=TRUE, ar=1:2, mxreg=xregs)
 arx(y, arch=1:4)
 
 ##estimate a log-variance specification with a log-ARCH(4)
-##structure and an asymmetry or leverage term:
+##structure and an asymmetry/leverage term:
 arx(y, arch=1:4, asym=1)
 
 ##estimate a log-variance specification with a log-ARCH(4)

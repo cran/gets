@@ -296,6 +296,11 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
 
     ##log.ewma term:
     if(!is.null(log.ewma)){
+      if(is.list(log.ewma)){
+        log.ewma$lag <- 1
+      }else{
+        log.ewma <- list(length=log.ewma)
+      }
       tmp <- do.call(leqwma, c(list(resids),log.ewma) )
       vXnames <- c(vXnames, colnames(tmp))
       colnames(tmp) <- NULL

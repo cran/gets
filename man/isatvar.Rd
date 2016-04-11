@@ -4,7 +4,7 @@
 \title{Variance of the coefficient path}
 
 \description{
-Takes a 'gets' object returned by the \code{isat} function as input and returns the coefficient path of the constant (and long-run equilibrium if 'lr' is specified) together with its approximate variance and standard errors.
+Takes an 'isat' object returned by the \code{isat} function as input and returns the coefficient path of the constant (and long-run equilibrium if 'lr' is specified) together with its approximate variance and standard errors.
 }
 
 \usage{

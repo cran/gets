@@ -115,11 +115,11 @@ function(object, spec=c("mean","variance"),
   }
   recursiveEstimates <- zoo(recursiveEstimates,
     order.by=zooIndx)
-  if(is.regular(recursiveEstimates)){ recursiveEstimates <- as.zooreg(recursiveEstimates) }
+  if(is.regular(recursiveEstimates, strict=TRUE)){ recursiveEstimates <- as.zooreg(recursiveEstimates) }
   if(std.errors){
     recursiveStdErrs <- zoo(recursiveStdErrs,
       order.by=zooIndx)
-    if(is.regular(recursiveStdErrs)){ recursiveStdErrs <- as.zooreg(recursiveStdErrs) }
+    if(is.regular(recursiveStdErrs, strict=TRUE)){ recursiveStdErrs <- as.zooreg(recursiveStdErrs) }
   }
 
   ##if return=TRUE:

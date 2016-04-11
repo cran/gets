@@ -37,7 +37,7 @@ function(x, ...)
   
   ##header - sample info:
   indexTrimmed <- index(na.trim(x$resids))
-  if(is.regular(x$resids)){
+  if(is.regular(x$resids, strict=TRUE)){
     cycleTrimmed <- cycle(na.trim(x$resids))
     startYear <- floor(as.numeric(indexTrimmed[1]))
     startAsChar <- paste(startYear,

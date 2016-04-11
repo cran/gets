@@ -14,7 +14,7 @@ function(x, which.ones=NULL)
     n <- NROW(x)
     x <- as.zoo(x)
     x.index <- index(x)
-    xIsRegular <- is.regular(x)
+    xIsRegular <- is.regular(x, strict=TRUE)
     if(xIsRegular){
       xIndexObs <- floor(as.numeric(x.index))
       xCycle <- as.numeric(cycle(x))

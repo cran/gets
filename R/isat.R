@@ -296,7 +296,6 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   ##names of retained impulses, mX colnames:
   ISnames <- setdiff(getsis$aux$mXnames, mXnames)
   if(length(ISnames)==0){ ISnames <- NULL }
-#NEW for 0.6:
   colnames(getsis$aux$mX) <- getsis$aux$mXnames
 
   ##return:
@@ -304,7 +303,8 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   getsis$call <- isat.call
   getsis <- c(list(ISfinalmodels=ISfinalmodels,
     ISnames=ISnames), getsis)
-  class(getsis) <- "isat" #"gets"
+  getsis$aux$t.pval <- t.pval #needed for biascorr
+  class(getsis) <- "isat"
   if(alarm){ alarm() }
   if(plot){ plot.isat(getsis, coef.path=TRUE) }
   return(getsis)

@@ -3,7 +3,10 @@
 
 \title{OLS estimation}
 
-\description{OLS estimation with the QR decomposition and, for some options, computation of variance-covariance matrices}
+\description{
+OLS estimation with the QR decomposition and, for some options, computation of variance-
+covariance matrices
+}
 
 \usage{
 ols(y, x, tol=1e-07, LAPACK=FALSE, method=1, user.fun=NULL, user.options=NULL)
@@ -20,7 +23,7 @@ ols(y, x, tol=1e-07, LAPACK=FALSE, method=1, user.fun=NULL, user.options=NULL)
 }
 
 \details{
-\code{method=1} or 2 only returns the OLS coefficient estimates together with the QR-information. \code{method=1} is slightly faster than \code{method=2}. \code{method=3} returns in addition the ordinary variance-covariance matrix of the OLS estimator. \code{method=4} returns the White (1980) heteroscedasticity robust variance-covariance matrix in addition to the information returned by \code{method=3}, whereas \code{method=5} does the same except that the variance-covariance matrix now is that of Newey and West (1987).
+\code{method = 1} or 2 only returns the OLS coefficient estimates together with the QR-information. \code{method = 1} is slightly faster than \code{method=2}. \code{method=3} returns in addition the ordinary variance-covariance matrix of the OLS estimator. \code{method=4} returns the White (1980) heteroscedasticity robust variance-covariance matrix in addition to the information returned by \code{method=3}, whereas \code{method=5} does the same except that the variance-covariance matrix now is that of Newey and West (1987).
 }
 
 \value{A list with some or all of the following elements:

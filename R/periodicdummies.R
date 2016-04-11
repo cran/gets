@@ -2,7 +2,7 @@ periodicdummies <-
 function(x, values=1)
 {
   ##prepare:
-  if(!is.regular(x)) stop("Vector/matrix not regular")
+  if(!is.regular(x, strict=TRUE)) stop("Vector/matrix not strictly regular")
   iFreq <- frequency(x)
   if(iFreq==1) stop("Frequency must be greater than 1")
   if(!is.zoo(x)){ x <- as.zooreg(x) }
