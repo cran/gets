@@ -47,7 +47,8 @@
 }
 
 \author{
-James Reade, \url{https://sites.google.com/site/jjamesreade/},\cr
+Felix Pretis, \url{http://www.felixpretis.org/}\cr
+James Reade, \url{https://sites.google.com/site/jjamesreade/}\cr
 Genaro Sucarrat, \url{http://www.sucarrat.net/}
 }
 

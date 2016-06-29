@@ -1,5 +1,5 @@
 import(zoo)
-importFrom("stats", "Box.test", "cycle", "dnorm", "frequency", "pchisq", "pnorm", "pt", "qt", "quantile", "runif", "var", "window")
+importFrom("stats", "Box.test", "cycle", "dnorm", "frequency", "pchisq", "pnorm", "printCoefmat", "pt", "qt", "quantile", "runif", "var", "window")
 importFrom("graphics", "abline", "legend", "lines", "par", "plot", "text", "title")
 importFrom("grDevices", "rgb")
 importFrom("utils", "write.csv")

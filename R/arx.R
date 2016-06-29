@@ -10,6 +10,8 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   ##regressand:
   y.name <- deparse(substitute(y))
+  #y.name <- make.names(y.name)
+  #if(is.ts(y)){ y <- as.zooreg(y) }
   if(is.zoo(y)){ y <- cbind(y) }else{ y <- as.zoo(cbind(y)) }
   #OLD: y <- as.zoo(cbind(y))
   y <- cbind(y)
@@ -19,15 +21,6 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   y.n <- NROW(y)
   y.index <- index(y)
   y <- coredata(y)
-
-#OLD:
-#  y <- na.trim(y)
-#  y.n <- NROW(y)
-#  y.index <- index(y)
-#  t1 <- y.index[1]
-#  t2 <- y.index[y.n]
-#  y <- coredata(y)
-#  y <- y[,1]
 
   ##regressors:
   mX <- NULL
@@ -77,6 +70,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   ##mxreg:
   if(!is.null(mxreg)){
+    #if(is.ts(mxreg)){ mxreg <- as.zooreg(mxreg) }
     mxreg <- as.zoo(cbind(mxreg))
     mxreg.names <- colnames(mxreg)
     if(is.null(mxreg.names)){
@@ -88,6 +82,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
         mxreg.names[i] <- paste("mxreg", i, sep="")
       }
     }
+    #mxreg.names <- make.names(mxreg.names)
     mXnames <- c(mXnames, mxreg.names)
     mxreg <- window(mxreg, start=t1, end=t2)
     mxreg <- cbind(coredata(mxreg))

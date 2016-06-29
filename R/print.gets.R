@@ -8,6 +8,9 @@ function(x, ...)
   ##header - first part:
   cat("\n")
   cat("Date:", x$date, "\n")
+  if(spec=="mean"){
+    cat("Dependent var.:", x$aux$y.name, "\n")
+  }
   cat("Method: Ordinary Least Squares (OLS)\n")
 
   ##header - if mean:
@@ -59,18 +62,22 @@ function(x, ...)
     cat("\n")
     cat("GUM mean equation:\n")
     cat("\n")
-    print(x$gum.mean)
+    printCoefmat(x$gum.mean, dig.tst=0, tst.ind=c(1,2))
+#OLD:    print(x$gum.mean)
   }
   if(!is.null(x$gum.variance)){
     cat("\n")
     cat("GUM log-variance equation:\n")
     cat("\n")
-    print(x$gum.variance)
+    printCoefmat(x$gum.variance, dig.tst=0, tst.ind=c(1,2))
+#OLD:    print(x$gum.variance)
   }
-  cat("\n")
-  cat("Diagnostics:\n")
-  cat("\n")
-  print(x$gum.diagnostics)
+  if(!is.null(x$gum.diagnostics)){
+    cat("\n")
+    cat("Diagnostics:\n")
+    cat("\n")
+    printCoefmat(x$gum.diagnostics[1:3,], dig.tst=0, tst.ind=2)
+  }
 
   ##paths:
   cat("\n")
@@ -94,7 +101,8 @@ function(x, ...)
     }
   }
   cat("\n")
-  print(x$terminals.results)
+  printCoefmat(x$terminals.results, dig.tst=0, tst.ind=c(3,4))
+#OLD:  print(x$terminals.results)
 
   ##specific model:
   if(spec=="mean" && !is.null(x$specific.spec)){
@@ -102,7 +110,8 @@ function(x, ...)
     cat("SPECIFIC mean equation:\n")
     cat("\n")
     if(!is.null(x$mean.results)){
-      print(x$mean.results)
+      printCoefmat(x$mean.results)
+#OLD:      print(x$mean.results)
     }
     if(x$specific.spec[1]==0){
       cat("empty\n")
@@ -116,13 +125,15 @@ function(x, ...)
     cat("\n")
     cat("SPECIFIC log-variance equation:\n")
     cat("\n")
-    print(x$variance.results)
+    printCoefmat(x$variance.results)
+#OLD:    print(x$variance.results)
   }
   if(!is.null(x$specific.diagnostics)){
     cat("\n")
     cat("Diagnostics:\n")
     cat("\n")
-    print(x$specific.diagnostics)
+    printCoefmat(x$specific.diagnostics, dig.tst=0, tst.ind=2)
+#OLD:    print(x$specific.diagnostics)
   }
 
   ##notes:

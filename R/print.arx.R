@@ -17,9 +17,10 @@ function(x, ...)
   cat("\n")
   cat("Date:", x$date, "\n")
   if(meanResults || varianceResults){
+    cat("Dependent var.:", x$aux$y.name, "\n")
     cat("Method: Ordinary Least Squares (OLS)\n")
   }
-  
+
   ##header - if mean results:
   if(meanResults){
     cat("Variance-Covariance:", switch(x$aux$vcov.type,
@@ -34,7 +35,7 @@ function(x, ...)
     cat("No. of observations (variance eq.):",
       length(na.trim(x$resids.std)), "\n")
   }
-  
+
   ##header - sample info:
   indexTrimmed <- index(na.trim(x$resids))
   if(is.regular(x$resids, strict=TRUE)){
@@ -52,12 +53,33 @@ function(x, ...)
   }
   cat("Sample:", startAsChar, "to", endAsChar, "\n")
 
+#prototype for NEW:
+#  ##header - sample info:
+#  indexTrimmed <- index(na.trim(x$resids))
+#  isRegular <- is.regular(x$resids, strict=TRUE)
+#  isCyclical <- frequency(indexTrimmed) > 1
+#  if(isRegular && isCyclical){
+#    cycleTrimmed <- cycle(na.trim(x$resids))
+#    startYear <- floor(as.numeric(indexTrimmed[1]))
+#    startAsChar <- paste(startYear,
+#      "(", cycleTrimmed[1], ")", sep="")
+#    endYear <- floor(as.numeric(indexTrimmed[length(indexTrimmed)]))
+#    endAsChar <- paste(endYear,
+#      "(", cycleTrimmed[length(indexTrimmed)], ")", sep="")
+#
+#  }else{
+#    startAsChar <- as.character(indexTrimmed[1])
+#    endAsChar <- as.character(indexTrimmed[length(indexTrimmed)])
+#  }
+#  cat("Sample:", startAsChar, "to", endAsChar, "\n")
+
   ##print mean results:
   if(meanResults){
     cat("\n")
     cat("Mean equation:\n")
     cat("\n")
-    print(x$mean.results)
+    printCoefmat(x$mean.results)
+    #OLD: print(x$mean.results)
   }
 
   ##print variance results:
@@ -65,7 +87,8 @@ function(x, ...)
     cat("\n")
     cat("Log-variance equation:\n")
     cat("\n")
-    print(x$variance.results)
+    printCoefmat(x$variance.results)
+    #OLD: print(x$variance.results)
   }
 
   ##diagnostics:
@@ -80,7 +103,9 @@ function(x, ...)
   cat("\n")
   cat("Diagnostics:\n")
   cat("\n")
-  print(x$diagnostics[1:3,])
-  print(mGOF)
+  printCoefmat(x$diagnostics[1:3,], dig.tst=0, tst.ind=2)
+  #OLD: print(x$diagnostics[1:3,])
+  printCoefmat(mGOF, digits=6)
+  #OLD: print(mGOF)
 
 }

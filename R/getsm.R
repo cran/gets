@@ -679,6 +679,10 @@ if( gum.chk!=0 && delete.n>1 ){
   } #end if(!is.null(spec.results))
 
   if(length(notes) > 0){ out$notes <- notes }
+  out$aux$y <- object$aux$y
+  out$aux$y.index <- object$aux$y.index
+  out$aux$y.n <- object$aux$y.n
+  out$aux$y.name <- object$aux$y.name
   out$aux$mXnames.gum <- object$aux$mXnames
   if(is.null(out$aux$vcov.type)){ out$aux$vcov.type <- vcov.type }
   #if(is.null(out$aux$y.n)){ out$aux$y.n <- object$aux$y.n }

@@ -1,10 +1,10 @@
 \name{info.criterion}
 \alias{info.criterion}
 
-\title{Computes the Value of an Information Criterion}
+\title{Computes the Average Value of an Information Criterion}
 
 \description{
-Given a log-likelihood, the number of observations and the number of estimated parameters, the value of a chosen information criterion is computed
+Given a log-likelihood, the number of observations and the number of estimated parameters, the average value of a chosen information criterion is computed. This facilitates comparison of models that are estimated with a different number of observations, e.g. due to different lags.
 }
 
 \usage{
@@ -18,6 +18,10 @@ info.criterion(logl, n=NULL, k=NULL, method=c("sc", "aic", "aicc", "hq"))
   \item{method}{character, either "sc" (default), "aic", "aicc" or "hq"}
 }
 
+\details{
+Contrary to \code{\link{AIC}} and \code{\link{BIC}}, \code{info.criterion} computes the average criterion value (i.e. division by the number of observations). This facilitates comparison of models that are estimated with a different number of observations, e.g. due to different lags.
+}
+
 \value{a list with elements:
   \item{method}{type of information criterion}
   \item{n}{number of observations}
@@ -25,9 +29,23 @@ info.criterion(logl, n=NULL, k=NULL, method=c("sc", "aic", "aicc", "hq"))
   \item{value}{the value on the information criterion}
 }
 
+\references{
+H. Akaike (1974): 'A new look at the statistical model identification'.
+  IEEE Transactions on Automatic Control 19, pp. 716-723
+
+E. Hannan and B. Quinn (1979): 'The determination of the order of an
+  autoregression'. Journal of the Royal Statistical Society B 41, pp. 190-195
+
+C.M. Hurvich and C.-L. Tsai (1989): 'Regression and Time Series Model
+  Selection in Small Samples'. Biometrika 76, pp. 297-307
+
+G. Schwarz (1978): 'Estimating the dimension of a model'. The Annals of
+  Statistics 6, pp. 461-464
+}
+
 \author{Genaro Sucarrat, \url{http://www.sucarrat.net/}}
 
-\keyword{datasets}
+\keyword{Statistical Models}
 \keyword{Time Series}
 \keyword{Econometrics}
 \keyword{Financial Econometrics}

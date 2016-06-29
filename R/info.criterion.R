@@ -15,7 +15,7 @@ method <- match.arg(method)
 #info.val <- NULL
 
 #Schwarch criterion
-if(method == "sc") info.val <- I(-2)*logl/n + k*log(n)/n
+if(method == "sc") info.val <- -2*logl/n + k*log(n)/n
 
 #Akaike criterion
 if(method == "aic") info.val <- -2*logl/n + 2*k/n
