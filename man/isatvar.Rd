@@ -4,25 +4,32 @@
 \title{Variance of the coefficient path}
 
 \description{
-Takes an 'isat' object returned by the \code{isat} function as input and returns the coefficient path of the constant (and long-run equilibrium if 'lr' is specified) together with its approximate variance and standard errors.
+Takes an 'isat' object returned by the \code{isat} function as input and returns the coefficient path of the constant (and long-run equilibrium if 'lr' is specified) together with its approximate variance and standard errors. If \code{mxfull} and \code{mxbreak} are specified, then the function returns the coefficient path of the user-specified variable.
 }
 
 \usage{
-isatvar(x, lr=FALSE)
+  isatvar(x, lr=FALSE, conscorr=FALSE, effcorr=FALSE, mcor = 1, 
+    mxfull = NULL, mxbreak=NULL)
 }
 
 \arguments{
   \item{x}{a 'gets' object obtained with the \code{\link{isat}} function}
   \item{lr}{logical. If TRUE and 'x' contains autoregressive elements, then \code{isatvar} also returns the long-run equilibrium coefficient path with its variance and standard deviation. See Pretis (2015).}
+  \item{conscorr}{logical. If TRUE then the Johansen and Nielsen (2016) impulse-indicator consistency correction is applied to estimated residual variance.}
+  \item{effcorr}{logical. If TRUE then the Johansen and Nielsen (2016) m-step efficiency correction is applied to estimated standard errors of `fixed' regressors.}
+  \item{mcor}{integer. The m-step efficiency correction factor, where m=mcor.}
+  \item{mxfull}{string. The name of the full-sample variable when constructing the coefficient path of user-specified break variables.}
+  \item{mxbreak}{string. The name of the break variables used to construct the coefficient path of user-specified break variables.}
 }
 
-\details{The function computes the approximate variance and standard errors of the intercept term with structural breaks determined by \code{\link{isat}}. This permits hypothesis testing and plotting of approximate confidence intervals for the intercept in the presence of structural breaks. For dynamic autoregressive models in \code{\link{isat}} the \code{lr} argument returns the time-varying long-run equilibrium together with its approximate variance and standard errors.}
+\details{The function computes the approximate variance and standard errors of the intercept term with structural breaks determined by \code{\link{isat}}. This permits hypothesis testing and plotting of approximate confidence intervals for the intercept in the presence of structural breaks. For dynamic autoregressive models in \code{\link{isat}} the \code{lr} argument returns the time-varying long-run equilibrium together with its approximate variance and standard errors. If \code{mxfull} and \code{mxbreak} are specified, then the function returns the coefficient path of the user-specified variable, where \code{mxfull} denotes the ful-sample variable name, to which the \code{mxbreak} variables are added. To correct for the under-estimation of the residual variance, the argument \code{conscorr} implements the Johansen and Nielsen (2016) consistency correction, and \code{effcorr} adds the efficiency correction for standard errors on fixed regressors which are not selected over.}
 
 \value{If \code{lr=FALSE}: A Tx4 matrix (with T = number of observations) where the first column denotes the coefficient path relative to the full sample coefficient, the second column the coefficient path of the intercept, the third the approximate variance of the coefficient path, and the fourth column the approximate standard errors of the coefficient path. If \code{lr=TRUE}: A Tx7 matrix where the first four columns are identical to the \code{lr=FALSE} case, and the additional columns denote the long-run equilibrium coefficient path, together with the approximate variance and standard errors of the long-run equilibrium coefficient path.}
 
 \references{
 
-Pretis, F. (2015): 'Testing for time-varying predictive accuracy using bias-corrected indicator saturation'. Oxford Department of Economics Discussion Paper.
+Pretis, F. (2015): 'Testing for time-varying predictive accuracy using bias-corrected indicator saturation'. Oxford Department of Economics ???orking Paper.
+Johansen, S., & Nielsen, B. (2016): 'Asymptotic theory of outlier detection algorithms for linear time series regression models.' Scandinavian Journal of Statistics, 43(2), 321-348.
 
 }
                 

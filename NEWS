@@ -1,3 +1,42 @@
+Version 0.9 (3 October 2016):
+=============================
+
+* New functions:
+
+- predict.gets, predict.isat
+
+- isvarcor, isvareffcor
+
+* isatvar, isattest:
+
+- now possible to use consistency correction (for the variance estimate) as well as the efficiency correction (for fixed regressors) when using IIS (see Johansen and Nielsen 2016)
+
+- isatvar can now compute the (approximate variance and) coefficient path of user-specified variables
+
+* biascorr: improved/new feature
+
+* arx:
+
+- predict.arx: new arguments (return and plot.options), improved plotting and improved handling of regular zoo-indices
+
+- arguments ar, mxreg, arch, asym and vxreg, whose defaults are NULL, now also accepts FALSE as argument value (does the same as NULL)
+
+- print.arx: new argument, signif.stars, with default value FALSE
+
+* getsm, getsv, isat: minor changes to the printing during search (in particular, search-paths now printed sideways)
+
+* iim, sim, tim: prettier index-handling of the column/regressor-names whenever the argument is a strictly regular time series with frequency equal to 1, e.g. a yearly time-series
+
+Fixes:
+
+* isat:
+
+- several issues related to the use of the uis argument (most of the issues occurred in situations where uis contained few regressors)
+
+- minor change to the algorithm determining the number of blocks (in order to avoid very small blocks)
+
+
+
 Version 0.8 (28 June 2016):
 ===========================
 
@@ -30,6 +69,7 @@ Version 0.7 (11 April 2016):
 - a zoo-object x is considered to be regular if is.regular(x, strict=TRUE) is TRUE. Previously, x was considered regular if is.regular(x, strict=FALSE) was TRUE.
 
 - isattest: bias-correction (biascorr=TRUE) now works when t.pval is specified as a variable in the initial isat model.
+
 
 Version 0.6 (9 March 2016):
 ===========================

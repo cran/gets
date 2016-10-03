@@ -3,6 +3,7 @@
 \alias{fitted.gets}
 \alias{logLik.gets}
 \alias{plot.gets}
+\alias{predict.gets}
 \alias{print.gets}
 \alias{residuals.gets}
 \alias{summary.gets}
@@ -13,15 +14,18 @@
 \description{Extraction functions for objects of class 'gets'}
 
 \usage{
-\method{coef}{gets}(object, spec=NULL, ...)
-\method{fitted}{gets}(object, spec=NULL, ...)
-\method{logLik}{gets}(object, ...)
-\method{plot}{gets}(x, spec=NULL, col=c("red","blue"),
-  lty=c("solid","solid"), lwd=c(1,1), ...)
-\method{print}{gets}(x, ...)
-\method{residuals}{gets}(object, std=NULL, ...)
-\method{summary}{gets}(object, ...)
-\method{vcov}{gets}(object, spec=NULL, ...)
+  \method{coef}{gets}(object, spec=NULL, ...)
+  \method{fitted}{gets}(object, spec=NULL, ...)
+  \method{logLik}{gets}(object, ...)
+  \method{plot}{gets}(x, spec=NULL, col=c("red","blue"),
+    lty=c("solid","solid"), lwd=c(1,1), ...)
+  \method{predict}{gets}(object, spec=NULL, n.ahead=12, newmxreg=NULL,
+    newvxreg=NULL, newindex=NULL, n.sim=1000, innov=NULL, return=TRUE,
+    plot=TRUE, plot.options=list(), ...)
+  \method{print}{gets}(x, ...)
+  \method{residuals}{gets}(object, std=NULL, ...)
+  \method{summary}{gets}(object, ...)
+  \method{vcov}{gets}(object, spec=NULL, ...)
 }
 
 \arguments{
@@ -29,10 +33,30 @@
   \item{x}{an object of class 'gets'}
   \item{spec}{NULL, "mean", "variance" or, in some instances, "both". When \code{NULL} is a valid value, then it is automatically determined whether information pertaining to the mean or variance specification should be returned}
   \item{std}{logical. If FALSE (default), then the mean residuals are returned. If TRUE, then the standardised residuals are returned}
+  \item{n.ahead}{generate forecasts up to n steps ahead (the default is 12)}
+  \item{newmxreg}{a matrix (\code{n.ahead} rows and NCOL(mxregs) columns) with the out-of-sample values of the \code{mxreg} regressors}
+  \item{newvxreg}{a matrix (\code{n.ahead} rows and NCOL(vxregs) columns) with the out-of-sample values of the \code{vxreg} regressors}
+  \item{newindex}{date-index for the \code{zoo} object returned by \code{predict.arx}}
+  \item{n.sim}{integer, the number of bootstrap replications for the generation of the variance forecasts}
+  \item{innov}{\code{NULL} (default) or a vector of length \code{n.ahead * n.sim} containing the standardised errors (i.e. zero mean, unit variance) to bootstrap from}
+  \item{return}{logical. If \code{TRUE} (default), then the out-of-sample forecasts are returned}
+  \item{plot}{logical. If \code{TRUE} (default), then the out-of-sample forecasts are plotted}
+  \item{plot.options}{a \code{list} of options related to the plotting of forecasts, see 'Details'}
   \item{col}{colours of fitted (default=red) and actual (default=blue) lines}
   \item{lty}{types of fitted (default=solid) and actual (default=solid) lines}
   \item{lwd}{widths of fitted (default=1) and actual (default=1) lines}
   \item{\dots}{additional arguments}
+}
+
+\details{
+The \code{plot.options} argument is a list that can contain any of the following arguments:\cr
+
+\code{keep}: integer greater than zero (default is 10) that controls the number of in-sample actual values to plot\cr
+\code{fitted}: If \code{TRUE}, then the fitted values as well as actual values are plotted in-sample. The default is \code{FALSE}\cr
+\code{errors.only}: logical or \code{NULL} (the default). If \code{TRUE}, then only mean forecasts are plotted when \code{spec} is set to "both"\cr
+\code{legend.loc}: character string (the default is "topleft"). Allows the location of the plot legend to be altered\cr
+\code{newmactual}: numeric vector or \code{NULL} (default). Enables the plotting of actual values out-of-sample in addition to the forecasts\cr
+
 }
 
 \value{
@@ -40,6 +64,7 @@
   \item{fitted:}{a \code{\link{zoo}} object with fitted values}
   \item{logLik:}{a numeric, the log-likelihood (normal density)}
   \item{plot:}{a plot of the fitted values and the residuals}
+  \item{predict}{a vector containing the out-of-sample forecasts}
   \item{print:}{a print of the estimation results}
   \item{residuals:}{a \code{\link{zoo}} object with the residuals}
   \item{summary:}{a print of the items in the \code{\link{gets}} object}

@@ -1,5 +1,5 @@
 print.arx <-
-function(x, ...)
+function(x, signif.stars=FALSE, ...)
 {
   ##check if mean and variance have been fitted:
   if(is.null(x$mean.results)){
@@ -78,8 +78,7 @@ function(x, ...)
     cat("\n")
     cat("Mean equation:\n")
     cat("\n")
-    printCoefmat(x$mean.results)
-    #OLD: print(x$mean.results)
+    printCoefmat(x$mean.results, signif.stars=signif.stars)
   }
 
   ##print variance results:
@@ -87,8 +86,7 @@ function(x, ...)
     cat("\n")
     cat("Log-variance equation:\n")
     cat("\n")
-    printCoefmat(x$variance.results)
-    #OLD: print(x$variance.results)
+    printCoefmat(x$variance.results, signif.stars=signif.stars)
   }
 
   ##diagnostics:
@@ -103,9 +101,9 @@ function(x, ...)
   cat("\n")
   cat("Diagnostics:\n")
   cat("\n")
-  printCoefmat(x$diagnostics[1:3,], dig.tst=0, tst.ind=2)
-  #OLD: print(x$diagnostics[1:3,])
-  printCoefmat(mGOF, digits=6)
+  printCoefmat(x$diagnostics[1:3,], dig.tst=0, tst.ind=2,
+    signif.stars=FALSE)
+  printCoefmat(mGOF, digits=6, signif.stars=FALSE)
   #OLD: print(mGOF)
 
 }

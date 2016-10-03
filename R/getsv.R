@@ -367,13 +367,18 @@ if( gum.chk!=0 && delete.n>1 ){
   ## if paths > 0:
   if(n.paths > 0){
 
+    if(print.searchinfo){
+      cat(n.paths, " paths to search\n", sep="")
+      cat("Searching: ", sep="")
+    }
+
     ## paths:
     for(i in 1:n.paths){
 
       ## print searchinfo:
       if(print.searchinfo){
-        cat("Searching path no. ", i, " out of ",
-          n.paths, "\n", sep="")
+        cat(i, " ", sep="")
+        if(i==n.paths){ cat("\n") }
       }
 
       ## prepare single-path search:
@@ -630,6 +635,7 @@ if( gum.chk!=0 && delete.n>1 ){
 
   if(length(notes) > 0){ out$notes <- notes }
   out$aux$vXnames.gum <- object$aux$vXnames
+  out$aux$call.gum <- object$call
   if(is.null(out$aux$vcov.type)){ out$aux$vcov.type <- vcov.type }
   out <- c(list(date=date(), gets.type="getsv"), out)
   out$time.finished <- date()

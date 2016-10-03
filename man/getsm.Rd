@@ -74,7 +74,7 @@ set.seed(123)
 y <- arima.sim(list(ar=0.4), 80)
 
 ##Simulate four independent Gaussian regressors:
-xregs <- matrix(rnorm(4*80), 80, 4)
+xregs <- matrix(rnorm(2*80), 80, 2)
 
 ##estimate an AR(2) with intercept and four conditioning
 ##regressors in the mean, and a log-ARCH(3) with log(xregs^2) as
@@ -98,7 +98,7 @@ meanmod03 <- getsm(gum01, ar.LjungB=list(pval=0.05))
 
 ##GETS model selection of the mean with very liberal
 ##(20 percent) significance levels:
-meanmod04 <- getsm(gum01, t.pval=0.2, wald.pval=0.2)
+meanmod04 <- getsm(gum01, t.pval=0.2)
 
 ##GETS model selection of log-variance with all the
 ##log-ARCH terms excluded from removal:

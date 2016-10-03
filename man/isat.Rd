@@ -44,12 +44,12 @@ isat(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL, iis=FALSE, sis=TRUE,
   \item{LAPACK}{logical. If TRUE, then use LAPACK. If FALSE (default), then use LINPACK (see \code{\link{qr}} function)}
   \item{max.regs}{integer. The maximum number of regressions along a deletion path. It is not recommended that this is altered}
   \item{verbose}{logical. TRUE (default) returns (slightly) more output than FALSE}
-  \item{print.searchinfo}{logical. If TRUE (default), then a print is returned whenever simiplification along a new path is started}
+  \item{print.searchinfo}{logical. If TRUE (default), then a print is returned whenever simiplification along a new path is started, and whenever regressors are dropped due to exact multicolinearity}
   \item{alarm}{logical. If TRUE, then a sound is emitted (in order to alert the user) when the model selection ends}
   \item{plot}{logical. If TRUE, then the fitted values and the residuals of the final model are plotted after model selection}
 }
 
-\details{Multi-path indicator saturation using impulses (IIS), step-shifts (SIS), or trend-indicators (TIS). Indicators are partitioned into sequential blocks (as of beta version 0.7) where the block intervals are defined by the ratio of variables to observations in each block and a specified maximum block size. Indicators are selected over using the \code{gets.m} function. Retained indicators in each block are combined and re-selected over. Fixed covariates that are not selected over can be included in the regression model either in the mxreg matrix, or for auto-regressive terms through the ar specification. See Hendry, Johansen and Santos (2007) and Castle, Doornik, Hendry, and Pretis (2015)}
+\details{Multi-path indicator saturation using impulses (IIS), step-shifts (SIS), or trend-indicators (TIS). Indicators are partitioned into sequential blocks (as of beta version 0.7) where the block intervals are defined by the ratio of variables to observations in each block and a specified maximum block size. Indicators are selected over using the \code{\link{getsm}} function. Retained indicators in each block are combined and re-selected over. Fixed covariates that are not selected over can be included in the regression model either in the mxreg matrix, or for auto-regressive terms through the ar specification. See Hendry, Johansen and Santos (2007) and Castle, Doornik, Hendry, and Pretis (2015)}
 
 \value{A list of class 'gets'}
 

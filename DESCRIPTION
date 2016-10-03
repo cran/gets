@@ -1,6 +1,6 @@
 Package: gets
-Version: 0.8
-Date: 2016-06-28
+Version: 0.9
+Date: 2016-10-03
 Title: General-to-Specific (GETS) Modelling and Indicator Saturation
         Methods
 Author: Genaro Sucarrat [aut, cre], Felix Pretis [aut], James Reade [aut]
@@ -13,6 +13,6 @@ BugReports: http://stackoverflow.com/questions/tagged/r
 URL: https://cran.r-project.org/package=gets,
         http://www.sucarrat.net/R/gets
 NeedsCompilation: no
-Packaged: 2016-06-28 17:35:44 UTC; PC
+Packaged: 2016-10-03 17:30:12 UTC; PC
 Repository: CRAN
-Date/Publication: 2016-06-29 02:34:54
+Date/Publication: 2016-10-03 22:45:04

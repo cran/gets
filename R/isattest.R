@@ -1,5 +1,5 @@
 isattest <-
-function(x, hnull=0, lr=FALSE, ci.pval = 0.99, plot=TRUE, plot.turn = FALSE, biascorr=FALSE){
+function(x, hnull=0, lr=FALSE, ci.pval = 0.99, plot=TRUE, plot.turn = FALSE, conscorr=FALSE, effcorr=FALSE, mcor = 1, biascorr=FALSE, mxfull = NULL, mxbreak=NULL){
   
   trend.incl <- FALSE
   if(!is.null(as.list(x$call)$tis)){
@@ -10,7 +10,10 @@ function(x, hnull=0, lr=FALSE, ci.pval = 0.99, plot=TRUE, plot.turn = FALSE, bia
   }
   
   arcall <- as.list(x$call)$ar
-  x.var <- isatvar(x,lr=lr)
+  x.var <- isatvar(x,lr=lr, conscorr=conscorr, effcorr=effcorr, mcor = mcor, mxfull = mxfull, mxbreak=mxbreak)
+  
+  #misy1.var
+  
   
   if (biascorr==TRUE){
     
@@ -44,11 +47,7 @@ function(x, hnull=0, lr=FALSE, ci.pval = 0.99, plot=TRUE, plot.turn = FALSE, bia
     
     if (biascorr){
       
-      #is2$aux$t.pval
-      
       xbias <-biascorr(b=x.var$const.path, b.se=x.var$const.se, p.alpha = x$aux$t.pval, T=length(x.var$const.path))
-      
-      #xbias <-biascorr(b=x.var$const.path, b.se=x.var$const.se, p.alpha = as.list(x$call)$t.pval, T=length(x.var$const.path))
       x.is.const <- xbias$beta.2step
       
     } else {
@@ -111,7 +110,7 @@ function(x, hnull=0, lr=FALSE, ci.pval = 0.99, plot=TRUE, plot.turn = FALSE, bia
   fitted <- x$mean.fit
   actual <- zoo(x$aux$y, order.by=x$aux$y.index)
   
-  ylabel_a <- "Series"
+  ylabel_a <- "Coefficient"
   ylabel_b <- "Bias"
   
   
@@ -121,14 +120,17 @@ function(x, hnull=0, lr=FALSE, ci.pval = 0.99, plot=TRUE, plot.turn = FALSE, bia
   
   if (plot){
     
-    plot(time, x.mean, ylim=Ylim_main, col="blue", title(main=NULL, xlab=NULL), xlab=NA, ylab=ylabel_a, sub=NA, type="l")
-    lines(ci.low, col="blue", lty=2)
-    lines(ci.high, col="blue", lty=2)
-    lines(actual)
-    abline(a =hnull, b=0, col="black", lty=3, lwd=2)
+    plot(time, x.mean, ylim=Ylim_main, col="red", title(main=NULL, xlab=NULL), xlab=NA, ylab=ylabel_a, sub=NA, type="l")
+    lines(ci.low, col="red", lty=2)
+    lines(ci.high, col="red", lty=2)
     
+    if (is.null(mxbreak))
+    {
+      lines(actual, col="blue")
+    }
+    abline(a =hnull, b=0, col="black", lty=3, lwd=2)
     plot(time, bias.low, type="h", col="red", ylim=Ylim_bias, title(main=NULL, xlab=NULL), xlab=NA, ylab=ylabel_b, sub=NA)
-    lines(bias.high, type="h", col="blue")
+    lines(bias.high, type="h", col="red")
     
     if ( plot.turn ){
       text(turn.x.lab, y=turn.ar.y, x=turn.x, pos=4, offset=-0.5, cex=0.8)

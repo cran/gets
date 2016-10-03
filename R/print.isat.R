@@ -41,21 +41,21 @@ function(x, ...)
     cat("\n")
     cat("GUM mean equation:\n")
     cat("\n")
-    printCoefmat(x$gum.mean, dig.tst=0, tst.ind=c(1,2))
-#OLD:    print(x$gum.mean)
+    printCoefmat(x$gum.mean, dig.tst=0, tst.ind=c(1,2),
+      signif.stars=FALSE, P.values=FALSE, has.Pvalue=FALSE)
   }
   if(!is.null(x$gum.variance)){
     cat("\n")
     cat("GUM log-variance equation:\n")
     cat("\n")
-    printCoefmat(x$gum.variance)
-#OLD:    print(x$gum.variance)
+    printCoefmat(x$gum.variance, signif.stars=FALSE,
+      P.values=FALSE, has.Pvalue=FALSE)
   }
   cat("\n")
   cat("Diagnostics:\n")
   cat("\n")
-  printCoefmat(x$gum.diagnostics, dig.tst=0, tst.ind=2)
-#OLD:  print(x$gum.diagnostics)
+  printCoefmat(x$gum.diagnostics, dig.tst=0, tst.ind=2,
+    signif.stars=FALSE, P.values=FALSE, has.Pvalue=FALSE)
 
   ##paths:
   cat("\n")
@@ -80,8 +80,8 @@ function(x, ...)
   }
   if(!is.null(x$terminals.results)){
     cat("\n")
-    printCoefmat(x$terminals.results, dig.tst=0, tst.ind=c(3,4))
-    #OLD: print(x$terminals.results)
+    printCoefmat(x$terminals.results, dig.tst=0, tst.ind=c(3,4),
+      signif.stars=FALSE)
   }
 
 
@@ -91,8 +91,10 @@ function(x, ...)
     cat("SPECIFIC mean equation:\n")
     cat("\n")
     if(!is.null(x$mean.results)){
-      printCoefmat(x$mean.results)
-#OLD:      print(x$mean.results)
+      print(x$mean.results)
+#OLD: DOES NOT WORK IN A PREDICTABLE WAY!
+#      printCoefmat(x$mean.results, signif.stars=FALSE,
+#        P.values=FALSE, has.Pvalues=FALSE)
     }
     if(x$specific.spec[1]==0){
       cat("empty\n")
@@ -106,8 +108,8 @@ function(x, ...)
     cat("\n")
     cat("Diagnostics:\n")
     cat("\n")
-    printCoefmat(x$specific.diagnostics, dig.tst=0, tst.ind=2)
-#OLD:    print(x$specific.diagnostics)
+    printCoefmat(x$specific.diagnostics, dig.tst=0, tst.ind=2,
+      signif.stars=FALSE)
   }
 
   ##delete this one? or at least change?:

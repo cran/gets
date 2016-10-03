@@ -15,7 +15,7 @@ function(x, which.ones=NULL)
     x <- as.zoo(x)
     x.index <- index(x)
     xIsRegular <- is.regular(x, strict=TRUE)
-    if(xIsRegular){
+    if(xIsRegular && frequency(x)>1 ){
       xIndexObs <- floor(as.numeric(x.index))
       xCycle <- as.numeric(cycle(x))
       xIndexAsChar <- paste(xIndexObs, "(", xCycle, ")", sep="")
@@ -42,7 +42,7 @@ function(x, which.ones=NULL)
   }else{
     colnames(mSIS) <- paste("sis",
       xIndexAsChar[where.indicators], sep="")
-    if(xIsRegular){
+    if(xIsRegular && frequency(x)>1 ){
       mSIS <- zooreg(mSIS, frequency=xFrequency,
         start=c(xIndexObs[1],xCycle[1]))
     }else{

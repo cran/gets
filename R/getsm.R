@@ -325,13 +325,18 @@ if( gum.chk!=0 && delete.n>1 ){
   ## if paths > 0:
   if(n.paths > 0){
 
+    if(print.searchinfo){
+      cat(n.paths, " paths to search\n", sep="")
+      cat("Searching: ", sep="")
+    }
+
     ## paths:
     for(i in 1:n.paths){
 
       ## print searchinfo:
       if(print.searchinfo){
-        cat("Searching path no. ", i, " out of ",
-          n.paths, "\n", sep="")
+        cat(i, " ", sep="")
+        if(i==n.paths){ cat("\n") }
       }
 
       ## prepare single-path search:
@@ -673,6 +678,10 @@ if( gum.chk!=0 && delete.n>1 ){
       names(specific) <- colnames(mXadj)
       out$specific.spec <- specific
       out <- c(out,est)
+      ##solution to issue raised by THE J-dog?:
+#      if(specific[1]==0){
+#        out$aux$mX <- out$aux$mXnames <- NULL
+#      }
 
     } #end if(estimate.specific)
 
@@ -684,6 +693,7 @@ if( gum.chk!=0 && delete.n>1 ){
   out$aux$y.n <- object$aux$y.n
   out$aux$y.name <- object$aux$y.name
   out$aux$mXnames.gum <- object$aux$mXnames
+  out$aux$call.gum <- object$call
   if(is.null(out$aux$vcov.type)){ out$aux$vcov.type <- vcov.type }
   #if(is.null(out$aux$y.n)){ out$aux$y.n <- object$aux$y.n }
   out <- c(list(date=date(), gets.type="getsm"), out)

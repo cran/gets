@@ -63,11 +63,36 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     ISmatrices <- c(ISmatrices,list(TIS=mTIS))
   }
 
-  ##user-defined indicators:
+  ##user-defined indicators/variables:
   #if uis is a matrix:
   if(!is.list(uis) && !identical(as.numeric(uis),0)){
+
+    ##handle colnames:
+    uis <- as.zoo(cbind(uis))
+    uis.names <- colnames(uis)
+    if(is.null(uis.names)){
+      uis.names <- paste("uisxreg", 1:NCOL(uis), sep="")
+    }
+    if(any(uis.names == "")){
+      missing.colnames <- which(uis.names == "")
+      for(i in 1:length(missing.colnames)){
+       uis.names[i] <- paste("uisxreg", missing.colnames[i], sep="")
+      }
+    }
+    #for the future?: uis.names <- make.names(uis.names)
+
+    ##select sample:
+    uis <- na.trim(uis, sides="both", is.na="any")
+    uis.index.as.char <- as.character(index(uis))
+    t1 <- which(uis.index.as.char==y.index.as.char[1])
+    t2 <- which(uis.index.as.char
+      ==y.index.as.char[length(y.index.as.char)])
+    uis <- coredata(uis)
+    uis <- window(uis, start=t1, end=t2)
+    uis <- cbind(coredata(as.zoo(uis)))
+    colnames(uis) <- uis.names
+
     #check nrow(uis):
-    uis <- as.matrix(coredata(as.zoo(uis)))
     if(nrow(uis) != y.n) stop("nrow(uis) is unequal to no. of observations")
     ISmatrices <- c(ISmatrices,list(UIS=uis))
   }
@@ -81,14 +106,18 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
           sep=""))
       }
     }
+    uis.names <- paste("UIS", 1:length(uis), sep="")
     if(is.null(names(uis))){
-      uis.names <- paste("UIS", 1:length(uis), sep="")
       names(uis) <- uis.names
     }else{
-      uis.names <- paste("UIS", 1:length(uis), sep="")
       for(i in 1:length(uis)){
-        if(names(uis)[i]==""){ names(uis)[i] <- uis.names[i] }
-      }
+        if(names(uis)[i]==""){
+          names(uis)[i] <- uis.names[i]
+        }else{
+          names(uis)[i] <- paste(uis.names[i], ".", names(uis)[i],
+            sep="")
+        } #close if..else
+      } #close for..loop
     }
     ISmatrices <- c(ISmatrices,uis)
   }
@@ -119,6 +148,8 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         blocksize.value <- ncol.adj/max.block.size
         no.of.blocks <- max(2,blockratio.value,blocksize.value)
         no.of.blocks <- ceiling(no.of.blocks)
+        no.of.blocks <- min(ncol.adj, no.of.blocks) #ensure blocks < NCOL
+#        if(ncol.adj <= 2){ no.of.blocks <- 1 }
       }else{
         no.of.blocks <- blocks
       }
@@ -155,15 +186,28 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       if(print.searchinfo){
         cat("\n")
         cat(names(ISmatrices)[i],
-          " block ", j, " of ", length(ISblocks[[i]]), "...\n", sep="")
+          " block ", j, " of ", length(ISblocks[[i]]), ":\n", sep="")
         cat("\n")
+        #if( j==length(ISblocks[[i]]) ){ cat("\n") }
       }
 
-      mXis <- cbind(mX,ISmatrices[[i]][, ISblocks[[i]][[j]] ])
-#OLD:
-#      mXis <- cbind(mX,ISmatrices[[i]][, tmpBlocks[[j]] ])
-#      mXis <- cbind(mX,ISmatrices[[i]][,partitions.t1[j]:partitions.t2[j]])
-      #future?: mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK)
+      ##check if block contains 1 regressor:
+      if( length(ISblocks[[i]][[j]])==1 ){
+        tmp <- colnames(ISmatrices[[i]])[ ISblocks[[i]][[j]] ]
+        mXis <- cbind(ISmatrices[[i]][, ISblocks[[i]][[j]] ])
+        colnames(mXis) <- tmp
+        mXis <- cbind(mX, mXis)
+      }else{
+        mXis <- cbind(mX,ISmatrices[[i]][, ISblocks[[i]][[j]] ])
+      }
+
+      ##if(UIS), then apply dropvar:
+      if( substr(names(ISmatrices)[i],1,3)=="UIS" ){
+        mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK,
+          silent=print.searchinfo)
+      }
+
+      ##gum:
       mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
         qstat.options=qstat.options, tol=tol, LAPACK=LAPACK,
         verbose=TRUE, plot=FALSE)
@@ -192,9 +236,9 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     if(print.searchinfo){
       cat("\n")
       cat("GETS of union of retained ",
-        names(ISmatrices)[i], " indicators... \n",
+        names(ISmatrices)[i], " variables... \n",
         sep="")
-      cat("\n")
+      #cat("\n")
     }
 
     ##if no indicators retained from the blocks:
@@ -203,12 +247,12 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       ISfinalmodels[[i]] <- NULL
     }
 
-    ##when indicators retained from the blocks:
+    ##when indicators/variables(uis) retained from the blocks:
     if(length(ISspecific.models)>0){
 
       isNames <- NULL
 
-      #which indicators retained?:
+      #which indicators/variables(uis) retained?:
       for(j in 1:length(ISspecific.models)){
         #check if mean is non-empty:
         if(!is.null(ISspecific.models[[j]])){
@@ -222,7 +266,8 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       mXisNames <- c(mXnames,isNames)
       mXis <- cbind(mX,ISmatrices[[i]][,isNames])
       colnames(mXis) <- mXisNames
-      mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK)
+      mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK,
+        silent=print.searchinfo)
       mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
         qstat.options=NULL, tol=tol, LAPACK=LAPACK,
         verbose=TRUE, plot=FALSE)
@@ -245,7 +290,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   ##gets of union of retained impulses:
   if(print.searchinfo){
     cat("\n")
-    cat("GETS of union of ALL retained indicators...\n")
+    cat("GETS of union of ALL retained variables...\n")
     cat("\n")
   }
 
@@ -277,7 +322,8 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       }
     } #end for loop
 
-    mXis <- dropvar(cbind(mX,mIS), tol=tol, LAPACK=LAPACK)
+    mXis <- dropvar(cbind(mX,mIS), tol=tol, LAPACK=LAPACK,
+      silent=print.searchinfo)
     mXis <- zoo(mXis, order.by=y.index)
   } #end if(length(ISfinalmodels)>0)
 

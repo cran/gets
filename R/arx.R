@@ -27,13 +27,13 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   mXnames <- NULL
 
   ##mean intercept:
-  if(as.numeric(mc)==1){
+  if(identical(as.numeric(mc),1)){
     mX <- cbind(rep(1,y.n))
     mXnames  <- "mconst"
   }
 
   ##ar terms:
-  if(!is.null(ar)){
+  if(!is.null(ar) && !identical(as.numeric(ar),0) ){
     tmp <- NULL
     nas <- rep(NA, max(ar))
     tmpfun <- function(i){
@@ -69,7 +69,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   }
 
   ##mxreg:
-  if(!is.null(mxreg)){
+  if(!is.null(mxreg) && !identical(as.numeric(mxreg),0) ){
     #if(is.ts(mxreg)){ mxreg <- as.zooreg(mxreg) }
     mxreg <- as.zoo(cbind(mxreg))
     mxreg.names <- colnames(mxreg)
@@ -105,7 +105,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   } #end if(!is.null(mxreg))
 
   ##vxreg:
-  if(!is.null(vxreg)){
+  if(!is.null(vxreg) && !identical(as.numeric(vxreg),0) ){
     vxreg <- as.zoo(cbind(vxreg))
     vxreg.names <- colnames(vxreg)
     if(is.null(vxreg.names)){
@@ -265,7 +265,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     vXnames <- "vconst"
 
     ##arch terms:
-    if(!is.null(arch)){
+    if(!is.null(arch) && !identical(as.numeric(arch),0) ){
       tmp <- NULL
       nas <- rep(NA, max(arch))
       tmpfun <- function(i){
@@ -277,7 +277,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     }
 
     ##asym terms:
-    if(!is.null(asym)){
+    if(!is.null(asym) && !identical(as.numeric(asym),0) ){
       tmp <- NULL
       nas <- rep(NA, max(asym))
       tmpfun <- function(i){
@@ -315,7 +315,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     colnames(vX) <- NULL
 
     ##vxreg:
-    if(!is.null(vxreg)){
+    if(!is.null(vxreg) && !identical(as.numeric(vxreg),0) ){
       vxreg <- window(vxreg, start=loge2.index[1],
         end=loge2.index[loge2.n])
       vxreg <- cbind(vxreg)

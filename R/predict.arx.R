@@ -1,8 +1,16 @@
 predict.arx <-
 function(object, spec=NULL, n.ahead=12,
   newmxreg=NULL, newvxreg=NULL, newindex=NULL,
-  n.sim=1000, innov=NULL, plot=TRUE, ...)
+  n.sim=1000, innov=NULL, return=TRUE, plot=TRUE,
+  plot.options=list(), ...)
 {
+  ## contents:
+  ## 0 initialise
+  ## 1 if mean spec
+  ## 2 if variance spec
+  ## 3 if plot=TRUE
+  ## 4 if return=TRUE
+
   ##n.ahead:
   if(n.ahead < 1){ stop("n.ahead must be 1 or greater") }
 
@@ -10,7 +18,7 @@ function(object, spec=NULL, n.ahead=12,
   if(is.null(spec)){
     if(!is.null(object$mean.results)) spec <- "mean"
     if(is.null(object$mean.results)
-        && !is.null(object$variance.results)) spec <- "variance"
+       && !is.null(object$variance.results)) spec <- "variance"
   }else{
     spec.type <- c("mean", "variance", "both")
     which.type <- charmatch(spec, spec.type)
@@ -19,30 +27,43 @@ function(object, spec=NULL, n.ahead=12,
   if(is.null(spec)){ stop("No estimated model") }
 
   ##newindex:
-  if(!is.null(newindex) &&
-    n.ahead!=length(newindex)){ stop("length(newindex) must equal n.ahead") }
   yInSample <- zoo(object$aux$y, order.by=object$aux$y.index)
-  if( is.regular(yInSample, strict=TRUE)
-    && is.null(newindex) ){
-      yIsRegular <- TRUE
-      endCycle <- cycle(yInSample)
-      endCycle <- as.numeric(endCycle[length(endCycle)])
-      endYear <- floor(as.numeric(object$aux$y.index[object$aux$y.n]))
-      yFreq <- frequency(yInSample)
-      yhat <- rep(NA, n.ahead+1)
-      yhat <- zooreg(yhat, start=c(endYear, endCycle),
-        frequency=yFreq)
-      yhat <- yhat[-1]
-      newindex <- index(yhat)
+
+  if(!is.null(newindex)){
+    yAsRegular <- FALSE
+    if( n.ahead!=length(newindex) ){
+      stop("length(newindex) must equal n.ahead")
+    }
   }
 
-  ##-------------
-  ##if mean spec:
-  ##-------------
+  if( is.null(newindex) && is.regular(yInSample, strict=TRUE) ){
+    endCycle <- cycle(yInSample)
+    endCycle <- as.numeric(endCycle[length(endCycle)])
+    endYear <- floor(as.numeric(object$aux$y.index[object$aux$y.n]))
+    yFreq <- frequency(yInSample)
+    yhataux <- rep(NA, n.ahead+1)
+    yDeltat <- deltat(yInSample)
+    if( yDeltat==1 && yFreq==1 ){
+      yhataux <- zoo(yhataux,
+        order.by=seq(endYear, endYear+n.ahead, by=1))
+      yAsRegular <- FALSE
+    }else{
+      yhataux <- zooreg(yhataux, start=c(endYear, endCycle),
+                frequency=yFreq)
+      yAsRegular <- TRUE
+    }
+    yhataux <- yhataux[-1]
+    newindex <- index(yhataux)
+  }
+
+  if(is.null(newindex)){ newindex <- 1:n.ahead }
+
+  ##----------------
+  ## 1 if mean spec
+  ##----------------
 
   outMean <- NULL
   if(spec=="mean" || spec=="both"){
-
     coefs <- coef.arx(object, spec="mean")
 
     ##mc:
@@ -57,6 +78,7 @@ function(object, spec=NULL, n.ahead=12,
     ##ar:
     arMax <- 0
     arIndx <- max(mconstIndx)
+    arCoefs <- NULL ##J-DOG CHANGE!!!
     if(!is.null(object$call$ar)){
       arEval <- eval(object$call$ar)
       arIndx <- 1:length(arEval) + max(mconstIndx)
@@ -69,39 +91,41 @@ function(object, spec=NULL, n.ahead=12,
     ewmaMax <- 0
     ewmaIndx <- max(arIndx)
     if(!is.null(object$call$ewma)) stop("Sorry, 'ewma' not implemented yet")
-#    if(!is.null(object$call$ewma)){
-#      modify arEval
-#      modify arIndx
-#      modify arMax
-#      modify arCoefs
-#    }
+    #    if(!is.null(object$call$ewma)){
+    #      modify arEval
+    #      modify arIndx
+    #      modify arMax
+    #      modify arCoefs
+    #    }
 
     ##backcast length:
     backcastMax <- max(arMax,ewmaMax)
 
     ##mxreg:
     mxreghat <- rep(0, n.ahead + backcastMax)
+
     if(!is.null(object$call$mxreg)){
 
       ##check newmxreg:
       if(is.null(newmxreg)){ stop("'newmxreg' is NULL") }
       if(NROW(newmxreg)!=n.ahead){ stop("NROW(newmxreg) must equal n.ahead") }
-#      if(NROW(newmxreg)!=n.ahead
-#        && NROW(newmxreg)!=1){ stop("NROW(newmxreg) must equal 1 or n.ahead") }
-#      if(NROW(newmxreg)!=n.ahead
-#        && NROW(newmxreg)==1){
-#          newmxreg <- coredata(rbind(as.zoo(newmxreg)))
-#          tmp <- matrix(NA,n.ahead,NCOL(newmxreg))
-#          tmp[1:NROW(tmp),] <- newmxreg
-#          newmxreg <- tmp
-#      }
+      #      if(NROW(newmxreg)!=n.ahead
+      #        && NROW(newmxreg)!=1){ stop("NROW(newmxreg) must equal 1 or n.ahead") }
+      #      if(NROW(newmxreg)!=n.ahead
+      #        && NROW(newmxreg)==1){
+      #          newmxreg <- coredata(rbind(as.zoo(newmxreg)))
+      #          tmp <- matrix(NA,n.ahead,NCOL(newmxreg))
+      #          tmp[1:NROW(tmp),] <- newmxreg
+      #          newmxreg <- tmp
+      #      }
 
       ##newmxreg:
       newmxreg <- coredata(cbind(as.zoo(newmxreg)))
       colnames(newmxreg) <- NULL
 
       ##mxreghat:
-      mxregIndx <- c(max(ewmaIndx)+1):length(coefs)
+      mxregIndx <- c(max(ewmaIndx)+1):length(coefs) ##J-DOG CHANGE!!!
+
       mxreghat <-  newmxreg %*% as.numeric(coefs[mxregIndx])
       mxreghat <- c(rep(0,backcastMax),mxreghat)
 
@@ -111,7 +135,9 @@ function(object, spec=NULL, n.ahead=12,
     yhat <- rep(NA, n.ahead + backcastMax)
     yhat.n <- length(yhat)
     meanFit <- coredata(fitted.arx(object, spec="mean"))
-    yhat[1:backcastMax] <- meanFit[c(length(meanFit)-backcastMax+1):length(meanFit)]
+    if(backcastMax>0) { ##J-DOG SAYS: "I HAVE CHANGED THIS!!!!"
+      yhat[1:backcastMax] <- meanFit[c(length(meanFit)-backcastMax+1):length(meanFit)]
+    }
 
     ##predict:
     for(i in c(backcastMax+1):yhat.n){
@@ -120,17 +146,17 @@ function(object, spec=NULL, n.ahead=12,
 
     ##out:
     outMean <- yhat[c(yhat.n-n.ahead+1):yhat.n]
-    outMean <- as.zoo(outMean)
+    #outMean <- as.zoo(outMean)
 
   } #end mean spec
 
 
-  ##-----------------
-  ##if variance spec:
-  ##-----------------
+  ##--------------------
+  ## 2 if variance spec
+  ##--------------------
 
   outVariance <- NULL
-  if(spec=="variance" || spec=="both"){
+  if(spec=="variance" || spec=="both"){ # || !is.null(plot.options$errors.only)
 
     ##record coef estimates:
     coefs <- as.numeric(coef.arx(object, spec="variance"))
@@ -172,8 +198,6 @@ function(object, spec=NULL, n.ahead=12,
       logewmaMax <- max(logewmaEval)
       logewmaCoefs <- as.numeric(coefs[logewmaIndx])
     }
-#OLD:
-#    if(!is.null(object$call$log.ewma)) stop("Sorry, 'log.ewma' not implemented yet")
 
     ##backcast length:
     backcastMax <- max(archMax,asymMax,logewmaMax)
@@ -224,7 +248,7 @@ function(object, spec=NULL, n.ahead=12,
         where.zeros <- which(zhat==0)
         if(length(where.zeros)>0){ zhat <- zhat[-where.zeros] }
         draws <- runif(n.ahead*n.sim, min=0.5+.Machine$double.eps,
-          max=length(zhat)+0.5+.Machine$double.eps)
+                       max=length(zhat)+0.5+.Machine$double.eps)
         draws <- round(draws, digits=0)
         zhat <- zhat[draws]
       }
@@ -294,8 +318,7 @@ function(object, spec=NULL, n.ahead=12,
 
     ##out:
     outVariance <- mLnsd2Hat[c(lnsd2hat.n-n.ahead+1):lnsd2hat.n,]
-    outVariance <- rowMeans(exp(outVariance))
-    outVariance <- as.zoo(outVariance)
+    outVariance <- rowMeans(rbind(exp(outVariance)))
 
   } #end variance spec
 
@@ -306,13 +329,47 @@ function(object, spec=NULL, n.ahead=12,
     out <- cbind(outMean,outVariance)
     colnames(out) <- c("mean","variance")
   }
-  if(!is.null(newindex)){
-    out <- zoo(coredata(out), order.by=newindex)
-    if(yIsRegular){ out <- as.zooreg(out) }
+  if(yAsRegular){
+    startYear <- floor(as.numeric(index(yhataux))[1])
+    startCycle <- cycle(yhataux)[1]
+    out <- zooreg(out, start=c(startYear, startCycle),
+      frequency=yFreq)
+  }else{
+    out <- zoo(out, order.by=newindex)
   }
 
-  ##plot:
+
+  ##----------------
+  ## 3 if plot=TRUE
+  ##----------------
+
   if(plot){
+
+    ##plot.options:
+    if(is.null(plot.options$keep)) {
+      plot.keep=10
+    } else {
+      plot.keep <- plot.options$keep
+    }
+    if(is.null(plot.options$fitted)) {
+      fitted <- FALSE
+    } else {
+      fitted <- TRUE
+      yhat <- tail(object$mean.fit,plot.keep)
+    }
+    if(!is.null(plot.options$errors.only)) {
+      errors.only=TRUE
+      if((spec=="mean")){
+        print("Cannot plot estimated error bars when mean specified")
+      }
+    }
+    if(is.null(plot.options$legend.loc)) {
+      legend.loc <- "topleft"
+    } else {
+      legend.loc <- plot.options$legend.loc
+    }
+
+    ##
     if(is.null(newindex)){
       xlabArg <- "Step ahead"
     }else{
@@ -320,15 +377,148 @@ function(object, spec=NULL, n.ahead=12,
     }
     if(spec=="both"){
       ylabArg <- c("Mean","Variance")
+      retained <- tail(yInSample,plot.keep)
+      retained.var <- tail(object$var.fit,plot.keep)
     }else{
-      if(spec=="mean"){ ylabArg <- "Mean" }
-      if(spec=="variance"){ ylabArg <- "Variance" }
+      if(spec=="mean"){
+        ylabArg <- "Mean"
+        retained <- tail(yInSample, plot.keep)
+      }
+      if(spec=="variance"){
+        ylabArg <- "Variance"
+        retained <- tail(object$var.fit,plot.keep)
+      }
     }
-    plot(out, xlab=xlabArg, ylab=ylabArg, main="Forecasts",
-      col="red")
+
+    ##get current par-values:
+    def.par <- par(no.readonly=TRUE)
+
+    if(xlabArg=="") {
+      par(mar = c(2,3,0.5,0.5) + 0.1) #b,l,t,r
+    } else {
+      par(mar = c(3,3,0.5,0.5) + 0.1) #b,l,t,r
+    }
+
+    if(spec=="both" && is.null(errors.only)) {
+      par(mfrow = c(2,1))
+    }
+
+    ##get limits for y axis based on whether plotting error bars or not
+    y.range.values <- as.numeric(retained)
+    if(fitted) {#if want fitted values plotted
+      y.range.values <- c(y.range.values,as.numeric(yhat))
+    }
+    if(spec=="both") {
+      y.range.values <- c(y.range.values,as.numeric(out[,1]+2*out[,2]),
+                          as.numeric(out[,1]-2*out[,2]))
+    } else if(!is.null(outVariance)) {
+      y.range.values <- c(y.range.values,
+                          as.numeric(out)+2*as.numeric(outVariance),
+                          as.numeric(out)-2*as.numeric(outVariance))
+    } else if (spec=="mean") {
+      reg.st.error <- sum(object$resids^2)/(object$aux$y.n - object$aux$mXncol)
+      y.range.values <- c(y.range.values,as.numeric(out+2*reg.st.error),
+                          as.numeric(out-2*reg.st.error))
+    } else {
+      y.range.values <- c(y.range.values,as.numeric(out))
+    }
+    if(!is.null(plot.options$newmactual)){
+      y.range.values <- c(y.range.values,as.numeric(plot.options$newmactual))
+    }
+    y.range <- range(y.range.values)
+
+    ##plot forecast, but adjust limits of graph for final X observations of series
+    if(NROW(out)==1) {
+      plot.type = "p"
+    } else {
+      plot.type = "l"
+    }
+    plot(out[,1], xlab="", ylab="", #ylab=ylabArg, #main="Forecasts",
+         col="red",type=plot.type,
+         xlim=range(min(index(retained)),max(index(out))),
+         ylim=y.range)
+    if(fitted) {
+      lines(yhat,col="red")
+    }
+    ##add text closer to plot than xlab or ylab would do
+    if(xlabArg!="") {
+      mtext(xlabArg,side=1,line=2)
+    }
+    mtext(ylabArg[1],side=2,line=2)
+
+    ##if both specified, can add in forecast error bounds
+    if(spec=="both") {
+      lines(out[,1]+2*out[,2],col="darkgreen",lty=2,type=plot.type)
+      lines(out[,1]-2*out[,2],col="darkgreen",lty=2,type=plot.type)
+#    } else if (!is.null(outVariance)) {
+#      lines(out+2*as.numeric(outVariance),col="darkgreen",lty=2,type=plot.type)
+#      lines(out-2*as.numeric(outVariance),col="darkgreen",lty=2,type=plot.type)
+    } else if (spec=="mean") {
+      lines(out[,1]+2*reg.st.error,col="darkgreen",lty=2,type=plot.type)
+      lines(out[,1]-2*reg.st.error,col="darkgreen",lty=2,type=plot.type)
+    }
+
+    ##add actual values if provided
+    if(!is.null(plot.options$newmactual)) {
+      while(NROW(newindex)>NROW(plot.options$newmactual)) {
+        plot.options$newmactual <- c(plot.options$newmactual,NA)
+      }
+      plot.options$newmactual <- zoo(plot.options$newmactual,order.by = newindex)
+      lines(plot.options$newmactual, col="blue")
+    }
+
+    ##add final X observations of series
+    if(is.null(outVariance)){
+      lineType <- 1
+    }else{
+      lineType <- 2
+    }
+    lines(retained, lty=lineType, col="blue")
+
+    ##plot green line between last observation and first forecast
+    abline(v=(min(as.numeric(index(out)))+max(as.numeric(index(retained))))/2,col="darkgreen",lty=3)
+
+    ##write legend, which depends on what is specified
+    if(spec=="both") {
+      legend(legend.loc,col=c("red","darkgreen","blue"),lty=c(1,2,1),
+             legend=c("Forecast","+/- 2 x SE of regression (Forecast)","Actual"),
+             bty="n")
+    } else if (spec=="mean") {
+      legend(legend.loc,col=c("red","darkgreen","blue"),lty=c(1,2,1),
+             legend=c("Forecast","+/- 2 x SE of regression","Actual"),
+             bty="n")
+    } else {
+      legend(legend.loc,col=c("red","blue"),lty=c(1,2,1),
+             legend=c("Forecast", "Fitted"),
+             bty="n")
+    }
+
+
+    if(spec=="both" && is.null(errors.only)) { ##now add the variance plot
+      plot(out[,2], xlab="", ylab="",
+           col="red",
+           xlim=range(min(index(retained)),max(index(out))),
+           ylim=range(retained.var,out[,2]))
+      mtext(ylabArg[2],side=2,line=2)
+      ##add final X observations of series
+      lines(retained.var,col="blue")
+      ##plot green line between last observation and first forecast
+      abline(v=(min(as.numeric(index(out)))+max(as.numeric(index(retained))))/2,col="darkgreen",lty=3)
+      legend(legend.loc,col=c("red","blue"),lty=1,
+             legend=c("Forecast variance","Fitted variance"),
+             bty="n")
+    }
+
+    ##return to old par-values:
+    par(def.par)
+
   } #end if(plot)
 
-  ##out:
-  return(out)
+
+  ##------------------
+  ## 4 if return=TRUE
+  ##------------------
+
+  if(return){ return(out) }
 
 }
