@@ -1,7 +1,7 @@
 predict.gets <-
 function(object, spec=NULL, n.ahead=12,
   newmxreg=NULL, newvxreg=NULL, newindex=NULL,
-  n.sim=1000, innov=NULL, return=TRUE, plot=TRUE,
+  n.sim=1000, innov=NULL, return=TRUE, plot=NULL,
   plot.options=list(), ...)
 {
   ##create new object to add stuff to in order to use predict.arx()

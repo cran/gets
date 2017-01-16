@@ -20,7 +20,7 @@ function(x, hnull=0, lr=FALSE, ci.pval = 0.99, plot=TRUE, plot.turn = FALSE, con
     if (!is.null(as.list(x$call)$mxreg) | !is.null(arcall) | trend.incl){
       
       biascorr <- FALSE
-      print("Bias Correction not applicable in isat regression with additional non-step covariates. Has been set to FALSE.")
+      message("Bias Correction not applicable in isat regression with additional non-step covariates. Has been set to FALSE.")
     }
   }
   

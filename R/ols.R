@@ -1,5 +1,5 @@
 ols <-
-function(y, x, tol = 1e-07 , LAPACK = FALSE,
+function(y, x, tol=1e-07 , LAPACK=FALSE,
   method=1, user.fun=NULL, user.options=NULL)
 {
   ##user-specified:
@@ -11,53 +11,52 @@ function(y, x, tol = 1e-07 , LAPACK = FALSE,
   ##fastest (usually only for estimates):
   if(method==1){
     out <- list()
-    qx <- qr(x, tol, LAPACK = LAPACK)
+    qx <- qr(x, tol, LAPACK=LAPACK)
     out <- c(out, qx)
-    out$coefficients <- as.vector(solve.qr(qx, y, tol = tol))
+    out$coefficients <- solve.qr(qx, y, tol=tol)
   }
 
   ##second fastest:
   if(method==2){
-    tmp <- crossprod(x)
-    out <- qr(tmp, tol, LAPACK=LAPACK)
-    out$xtxinv <- solve.qr(out, tol=tol, LAPACK=LAPACK)
-    out$xtx <- tmp
-    out$xty <- crossprod(x,y)
-    out$coefficients <- as.vector(out$xtxinv%*%out$xty)
-    out$fitted <- as.vector(x %*% cbind(out$coefficients))
-    out$residuals <- y - out$fitted
+    out <- list()
+    qx <- qr(x, tol, LAPACK=LAPACK) ## compute qr-decomposition of x
+    out <- c(out, qx)
+    out$coefficients <- solve.qr(qx, y, tol=tol)
+    out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
+    out$fit <- as.vector(x %*% out$coefficients)
+    out$residuals <- y - out$fit
   }
 
   ##ordinary vcov:
   if(method==3){
-    tmp <- crossprod(x)
-    out <- qr(tmp, tol, LAPACK=LAPACK)
-    out$xtxinv <- solve.qr(out, tol=tol, LAPACK=LAPACK)
-    out$xtx <- tmp
-    out$xty <- crossprod(x,y)
-    out$coefficients <- as.vector(out$xtxinv%*%out$xty)
-    out$fitted <- as.vector(x %*% cbind(out$coefficients))
-    out$residuals <- y - out$fitted
+    out <- list()
+    qx <- qr(x, tol, LAPACK=LAPACK) ## compute qr-decomposition of x
+    out <- c(out, qx)
+    out$coefficients <- solve.qr(qx, y, tol=tol)
+    out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
+    out$fit <- as.vector(x %*% out$coefficients)
+    out$residuals <- y - out$fit
     out$resids2 <- out$residuals^2
     out$rss <- sum(out$resids2)
-    out$df <- length(y) - NCOL(x)
+    out$n <- length(y)
+    out$df <- out$n - NCOL(x)
     out$sigma2 <- out$rss/out$df
-    out$vcov <- out$sigma2*out$xtxinv
+    out$vcov <- out$sigma2 * out$xtxinv
   }
 
   ##white vcov:
   if(method==4){
-    tmp <- crossprod(x)
-    out <- qr(tmp, tol, LAPACK=LAPACK)
-    out$xtxinv <- solve.qr(out, tol=tol, LAPACK=LAPACK)
-    out$xtx <- tmp
-    out$xty <- crossprod(x,y)
-    out$coefficients <- as.vector(out$xtxinv%*%out$xty)
-    out$fitted <- as.vector(x %*% cbind(out$coefficients))
-    out$residuals <- y - out$fitted
+    out <- list()
+    qx <- qr(x, tol, LAPACK=LAPACK) ## compute qr-decomposition of x
+    out <- c(out, qx)
+    out$coefficients <- solve.qr(qx, y, tol=tol)
+    out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
+    out$fit <- as.vector(x %*% out$coefficients)
+    out$residuals <- y - out$fit
     out$resids2 <- out$residuals^2
     out$rss <- sum(out$resids2)
-    out$df <- length(y) - NCOL(x)
+    out$n <- length(y)
+    out$df <- out$n - NCOL(x)
     out$sigma2 <- out$rss/out$df
     out$omegahat <- crossprod(x, x*out$resids2)
     out$vcov <- out$xtxinv %*% out$omegahat %*% out$xtxinv
@@ -65,17 +64,17 @@ function(y, x, tol = 1e-07 , LAPACK = FALSE,
 
   ##newey-west vcov:
   if(method==5){
-    tmp <- crossprod(x)
-    out <- qr(tmp, tol, LAPACK=LAPACK)
-    out$xtxinv <- solve.qr(out, tol=tol, LAPACK=LAPACK)
-    out$xtx <- tmp
-    out$xty <- crossprod(x,y)
-    out$coefficients <- as.vector(out$xtxinv%*%out$xty)
-    out$fitted <- as.vector(x %*% cbind(out$coefficients))
-    out$residuals <- y - out$fitted
+    out <- list()
+    qx <- qr(x, tol, LAPACK=LAPACK) ## compute qr-decomposition of x
+    out <- c(out, qx)
+    out$coefficients <- solve.qr(qx, y, tol=tol)
+    out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
+    out$fit <- as.vector(x %*% out$coefficients)
+    out$residuals <- y - out$fit
     out$resids2 <- out$residuals^2
     out$rss <- sum(out$resids2)
-    out$df <- length(y) - NCOL(x)
+    out$n <- length(y)
+    out$df <- out$n - NCOL(x)
     out$sigma2 <- out$rss/out$df
 
     y.n <- length(y)

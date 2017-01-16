@@ -6,6 +6,7 @@
 \alias{predict.gets}
 \alias{print.gets}
 \alias{residuals.gets}
+\alias{sigma.gets}
 \alias{summary.gets}
 \alias{vcov.gets}
 
@@ -21,9 +22,10 @@
     lty=c("solid","solid"), lwd=c(1,1), ...)
   \method{predict}{gets}(object, spec=NULL, n.ahead=12, newmxreg=NULL,
     newvxreg=NULL, newindex=NULL, n.sim=1000, innov=NULL, return=TRUE,
-    plot=TRUE, plot.options=list(), ...)
+    plot=NULL, plot.options=list(), ...)
   \method{print}{gets}(x, ...)
   \method{residuals}{gets}(object, std=NULL, ...)
+  \method{sigma}{gets}(object, ...)
   \method{summary}{gets}(object, ...)
   \method{vcov}{gets}(object, spec=NULL, ...)
 }
@@ -40,7 +42,7 @@
   \item{n.sim}{integer, the number of bootstrap replications for the generation of the variance forecasts}
   \item{innov}{\code{NULL} (default) or a vector of length \code{n.ahead * n.sim} containing the standardised errors (i.e. zero mean, unit variance) to bootstrap from}
   \item{return}{logical. If \code{TRUE} (default), then the out-of-sample forecasts are returned}
-  \item{plot}{logical. If \code{TRUE} (default), then the out-of-sample forecasts are plotted}
+  \item{plot}{NULL or logical. If \code{TRUE} (default), then the out-of-sample forecasts are plotted. If NULL (default), then the value set by \code{\link{options}} determines whether a plot is produced or not.}
   \item{plot.options}{a \code{list} of options related to the plotting of forecasts, see 'Details'}
   \item{col}{colours of fitted (default=red) and actual (default=blue) lines}
   \item{lty}{types of fitted (default=solid) and actual (default=solid) lines}
@@ -67,6 +69,7 @@ The \code{plot.options} argument is a list that can contain any of the following
   \item{predict}{a vector containing the out-of-sample forecasts}
   \item{print:}{a print of the estimation results}
   \item{residuals:}{a \code{\link{zoo}} object with the residuals}
+  \item{sigma:}{the regression standard error ('SE of regression')}
   \item{summary:}{a print of the items in the \code{\link{gets}} object}
   \item{vcov:}{a variance-covariance matrix}
 }

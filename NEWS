@@ -1,3 +1,38 @@
+Version 0.10 (16 January 2017):
+===============================
+
+* diagnostics: several new arguments in order to accommodate user-defined diagnostics
+
+* arx, getsm, getsv and isat: now accepts user-defined diagnostics via a new argument, user.diagnostics, see help(diagnostics)
+
+* ols, arx, getsm, getsv, isat, recursive: the way ols-estimation is implemented via the qr-decomposition has been modified for greater numerical stability
+
+* recursive, getsm, getsv, isat: messages and search-info during search can now be suppressed with the suppressMessages() function
+
+* plot.arx: now returns a warning if applied to an arx-object with no estimation results
+
+* new S3-method: sigma, i.e. the standard error of regression, which can be applied to arx, gets and isat objects
+
+* new extraction function: rsquared. The function returns the R-squared of the regression, and the function can be applied to arx, gets and isat objects
+
+* print.arx: now also returns the standard error of regression
+
+* print.gets, print.isat:
+
+- now also returns the standard error of regression, R-squared and log-likelihood of the specific model
+
+* isat:
+
+- regressors that enters via mxreg can now be perfectly colinear with indicators, as superflous indicators are detected and removed before search
+- the verbose argument is deprecated and thus not used anymore
+
+* getsv: the argument 'verbose' was deleted
+
+* stata: a fix in the variable-naming
+
+* Deleted function: jb.test
+
+
 Version 0.9 (3 October 2016):
 =============================
 

@@ -2,9 +2,13 @@ plot.arx <-
 function(x, spec=NULL, col=c("red","blue"),
   lty=c("solid","solid"), lwd=c(1,1), ...)
 {
-  ##one is always non-NULL?:
-  if(!is.null(x$mean.fit) || !is.null(x$var.fit)){
+  ##check if there is a model to plot:
+  if(is.null(x$mean.results) && is.null(x$variance.results)){
+  
+    warning("No estimated model, so no plot produced")
 
+  }else{
+  
     ##lwd argument:
     if(length(lwd)==1){
       print("lwd needs two arguments, but only one provided. Single argument applied to all lines plotted.")
@@ -69,6 +73,7 @@ function(x, spec=NULL, col=c("red","blue"),
     } #if length(col!=2)
 
     ##spec argument:
+    ##(logically, this part should come before the col, lty and lwd arguments)
     if(is.null(spec)){
       if(!is.null(x$mean.results)){
         spec <- "mean"
@@ -178,6 +183,6 @@ function(x, spec=NULL, col=c("red","blue"),
 
     } #close if(!is.null(spec))
 
-  } #close if(!is.null(x$mean.fit))
+  } #close if(is.null(x$mean.results) && ...
 
 }

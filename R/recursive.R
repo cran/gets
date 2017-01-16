@@ -1,7 +1,7 @@
 recursive <-
 function(object, spec=c("mean","variance"),
   std.errors=TRUE, from=40, tol=1e-07, LAPACK=FALSE,
-  plot=TRUE, return=TRUE)
+  plot=NULL, return=TRUE)
 {
   ##which specification:
   specType <- match.arg(spec)
@@ -131,7 +131,11 @@ function(object, spec=c("mean","variance"),
     }
   }
 
-  ##if plot=TRUE:
+  ##plot:
+  if( is.null(plot) ){
+    plot <- getOption("plot")
+    if( is.null(plot) ){ plot <- FALSE }
+  }
   if(plot){
     recursiveEstimates <- na.trim(recursiveEstimates,
       is.na="all")

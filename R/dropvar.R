@@ -10,8 +10,9 @@ function(x, tol=1e-7, LAPACK=FALSE, silent=FALSE)
   if(qr.X$rank == NCOL(x))
     return(x) ## return x if x has full column rank
   if(!silent){ ## message the no. of dropped columns:
-    cat("regressor-matrix is column rank deficient, so dropping", NCOL(x) - qr.X$rank, "regressors\n")
-    cat("\n")
+    message("regressor-matrix is column rank deficient, so dropping",
+      NCOL(x) - qr.X$rank, "regressors", appendLF=TRUE)
+    message("\n", appendLF=FALSE)
   }
 #OLD:
 #    message(gettextf("regressor-matrix is column rank deficient, so dropping %d regressors",

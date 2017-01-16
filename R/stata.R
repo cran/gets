@@ -10,7 +10,9 @@ function(object, file=NULL, print=TRUE,
   out$data <- cbind(object$aux$y, object$aux$mX)
   out$data <- as.data.frame(out$data)
   out$data <- cbind(as.character(out$index), out$data)
-  out$names <- c("index", object$aux$y.name, object$aux$mXnames)
+  out$names <- gsub("[.]","",tolower(c("index", object$aux$y.name, object$aux$mXnames)))
+#OLD:
+#  out$names <- c("index", object$aux$y.name, object$aux$mXnames)
   where.mconst <- which(out$names=="mconst")
   if(length(where.mconst) > 0){
     out$data <- out$data[-where.mconst]

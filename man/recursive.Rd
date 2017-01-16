@@ -19,7 +19,7 @@ recursive(object, spec="mean", std.errors=TRUE, from=40, tol=1e-07,
   \item{from}{integer. The starting point of the recursion}
   \item{tol}{numeric. The tolerance for linear dependency among regressors}
   \item{LAPACK}{logical, TRUE or FALSE (default). If true use LAPACK otherwise use LINPACK, see \code{\link{qr}} function}
-  \item{plot}{logical. If TRUE (default), then the recursive coefficient estimates are plotted}
+  \item{plot}{NULL or logical. If TRUE, then the recursive coefficient estimates are plotted. If NULL (default), then the value set by \code{\link{options}} determines whether a plot is produced or not.}
   \item{return}{logical. If TRUE (default), then the recursive estimates are returned in a list}
 }
 

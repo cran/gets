@@ -3,14 +3,13 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   vc=FALSE, arch=NULL, asym=NULL, log.ewma=NULL, vxreg=NULL,
   zero.adj=0.1, vc.adj=TRUE,
   vcov.type=c("ordinary", "white", "newey-west"),
-  qstat.options=NULL, tol=1e-07, LAPACK=FALSE, verbose=TRUE,
-  plot=TRUE)
+  qstat.options=NULL, user.diagnostics=NULL, tol=1e-07,
+  LAPACK=FALSE, verbose=TRUE, plot=NULL)
 {
   vcov.type <- match.arg(vcov.type)
 
   ##regressand:
   y.name <- deparse(substitute(y))
-  #y.name <- make.names(y.name)
   #if(is.ts(y)){ y <- as.zooreg(y) }
   if(is.zoo(y)){ y <- cbind(y) }else{ y <- as.zoo(cbind(y)) }
   #OLD: y <- as.zoo(cbind(y))
@@ -180,53 +179,25 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   }else{
 
-    ##estimates, fitted, residuals, etc.:
-    est.m <- ols(y, mX, tol = tol, LAPACK=LAPACK,
-      method=2)
-    fit.m <- as.vector(mX%*%cbind(est.m$coefficients))
-    resids <- y - fit.m
-    resids2 <- resids^2
-    d.f. <- y.n - aux$mXncol
-    sigma2 <- sum(resids2)/d.f.
+    ##estimate:
+    #for the future?:
+    #if(!is.null(mean.estimator)){ estMethod <- 0 }else{..}
+    estMethod <- which(vcov.type==c("none", "none", "ordinary",
+      "white", "newey-west"))
+    estMean <- ols(y, mX, tol=tol, LAPACK=LAPACK,
+      method=estMethod, user.fun=NULL, user.options=NULL)
+    resids <- estMean$residuals
+    fit.m <- estMean$fit
 
-    ##estimate s.e.; compute t-stats. and p-vals.:
-    if(vcov.type == "ordinary"){
-      varcovmat <- sigma2*est.m$xtxinv
-      s.e. <- sqrt(as.vector(diag(varcovmat)))
-    }
-    if(vcov.type == "white"){
-      omega.hat <- crossprod(mX, mX*resids2)
-      varcovmat <- est.m$xtxinv %*% omega.hat %*% est.m$xtxinv
-      coef.var <- as.vector(diag(varcovmat))
-      s.e. <- sqrt(coef.var)
-    }
-    if(vcov.type == "newey-west"){
-      iL <- round(y.n^(1/4), digits=0)
-      vW <- 1 - 1:iL/(iL+1)
-      vWsqrt <- sqrt(vW)
-      mXadj <- resids*mX
-      mS0 <- crossprod(mXadj)
+    vcov.mean <- estMean$vcov
+    stderrs <- sqrt(diag(vcov.mean))
+    colnames(vcov.mean) <- mXnames
+    rownames(vcov.mean) <- mXnames
+    t.stat <- estMean$coefficients/stderrs
+    p.val <- pt(abs(t.stat), estMean$df, lower.tail=FALSE)*2
 
-      mSum <- 0
-      for(l in 1:iL){
-        mXadjw <- mXadj*vWsqrt[l]
-        mXadjwNo1 <- mXadjw[-c(1:l),]
-        mXadjwNo2 <- mXadjw[-c(c(y.n-l+1):y.n),]
-        mSum <- mSum + crossprod(mXadjwNo1, mXadjwNo2) + crossprod(mXadjwNo2, mXadjwNo1)
-      }
-
-      omega.hat <- mS0 + mSum
-      varcovmat <- est.m$xtxinv %*% omega.hat %*% est.m$xtxinv
-      coef.var <- as.vector(diag(varcovmat))
-      s.e. <- sqrt(coef.var)
-    }
-    colnames(varcovmat) <- mXnames
-    rownames(varcovmat) <- mXnames
-    vcov.mean <- varcovmat
-    t.stat <- est.m$coefficients/s.e.
-    p.val <- pt(abs(t.stat), d.f., lower.tail=FALSE)*2
-
-    mean.results <- as.data.frame(cbind(est.m$coefficients, s.e., t.stat, p.val))
+    mean.results <- as.data.frame(cbind(estMean$coefficients,
+      stderrs, t.stat, p.val))
     colnames(mean.results) <- c("coef", "std.error", "t-stat", "p-value")
     rownames(mean.results) <- mXnames
 
@@ -336,19 +307,6 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
       colnames(vX) <- NULL
     }
 
-#OLD:
-#    ##adjust loge2 and regressors:
-#    ewma.vol.chk <- if(is.null(log.ewma)){0}else{
-#     ifelse(is.null(log.ewma$lag), 1, log.ewma$lag)
-#    }
-#    pstar <- max(arch, asym, ewma.vol.chk)
-#    if(pstar > 0){
-#      loge2 <- loge2[c(pstar+1):y.n]
-#      vX <- cbind(vX[c(pstar+1):y.n,])
-#      vX.index <- y.index[c(pstar+1):y.n]
-#    }
-#    loge2.n <- length(loge2)
-
     ##aux: more info for getsm/getsv functions
     aux$loge2 <- loge2
     aux$loge2.n <- loge2.n
@@ -372,9 +330,13 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     ##covariance coefficient matrix:
     varcovmat.v <- sigma2.v*est.v$xtxinv
     s.e. <- sqrt(as.vector(diag(varcovmat.v)))
-    colnames(varcovmat.v) <- vXnames
-    rownames(varcovmat.v) <- vXnames
-    vcov.var <- varcovmat.v[-1,-1]
+    vcov.var <- as.matrix(varcovmat.v[-1,-1])
+    colnames(vcov.var) <- vXnames[-1]
+    rownames(vcov.var) <- vXnames[-1]
+#OLD:
+#    colnames(varcovmat.v) <- vXnames
+#    rownames(varcovmat.v) <- vXnames
+#    vcov.var <- varcovmat.v[-1,-1]
     t.stat <- est.v$coefficients/s.e.
     p.val <- pt(abs(t.stat), d.f.v., lower.tail=FALSE)*2
 
@@ -397,31 +359,13 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   ### DIAGNOSTICS #################
 
   if(verbose){
-    diagnostics.table <- matrix(NA, 4, 3)
-    colnames(diagnostics.table) <- c("Chi-sq", "df", "p-value")
-    rownames(diagnostics.table) <- c(paste("Ljung-Box AR(", qstat.options[1], ")", sep=""),
-      paste("Ljung-Box ARCH(", qstat.options[2], ")", sep=""),
-      "Jarque-Bera", "R-squared")
-    ar.LjungBox <- Box.test(resids.std, lag = qstat.options[1], type="L")
-    diagnostics.table[1,1] <- ar.LjungBox$statistic
-    diagnostics.table[1,2] <- qstat.options[1]
-    diagnostics.table[1,3] <- ar.LjungBox$p.value
-    arch.LjungBox <- Box.test(resids.std^2, lag = qstat.options[2], type="L")
-    diagnostics.table[2,1] <- arch.LjungBox$statistic
-    diagnostics.table[2,2] <- qstat.options[2]
-    diagnostics.table[2,3] <- arch.LjungBox$p.value
-    normality.test <- jb.test(resids.std)
-    diagnostics.table[3,1] <- normality.test$statistic
-    diagnostics.table[3,2] <- 2
-    diagnostics.table[3,3] <- normality.test$p.value
-
-    ##R-squared:
-    TSS <- sum( (y - mean(y))^2 )
-    RSS <- sum( (resids - mean(resids))^2 )
-    Rsquared <- 1 - RSS/TSS
-    diagnostics.table[4,1] <- Rsquared
-    out$diagnostics <- diagnostics.table
-  } #end if(verbose)
+    tmpY <- tmpXreg <- NULL
+    if(!is.null(user.diagnostics)){ tmpY <- y; tmpXreg <- mX }
+    out$diagnostics <- diagnostics(resids.std, s2=1, y=tmpY,
+      xreg=tmpXreg, ar.LjungB=c(qstat.options[1],0),
+      arch.LjungB=c(qstat.options[2],0), normality.JarqueB=0,
+      user.fun=user.diagnostics, verbose=TRUE)
+  }
 
   ### OUTPUT: ######################
 
@@ -441,7 +385,8 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     out$resids.std <- zoo(c(add.nas2var,resids.std),
       order.by=y.index)
     if(vc.adj && logvar.spec.chk==1){ out$Elnz2 <- Elnz2 }
-#DELETE?:
+#DELETE out$logl? The only other place in the code where it
+#appears is for the gum in getsm
     out$logl <- -loge2.n*log(2*pi)/2 - sum(log(fit.v))/2 - sum(resids.std^2)/2
   } #end if(verbose)
 
@@ -452,6 +397,14 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   out$variance.results <- variance.results
   out <- c(list(date=date(),aux=aux), out)
   class(out) <- "arx"
+
+  ##plot:
+  if( is.null(plot) ){
+    plot <- getOption("plot")
+    if( is.null(plot) ){ plot <- FALSE }
+  }
   if(plot){ plot.arx(out) }
+
+  ##return result:
   return(out)
 }

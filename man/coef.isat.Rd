@@ -6,6 +6,7 @@
 \alias{predict.isat}
 \alias{print.isat}
 \alias{residuals.isat}
+\alias{sigma.isat}
 \alias{summary.isat}
 \alias{vcov.isat}
 
@@ -20,9 +21,10 @@
   \method{plot}{isat}(x, col=c("red","blue"), lty=c("solid","solid"),
     lwd=c(1,1), coef.path=TRUE, ...)
   \method{predict}{isat}(object, n.ahead=12, newmxreg=NULL, newindex=NULL,
-    return=TRUE, plot=TRUE, plot.options=list(), ...)
+    return=TRUE, plot=NULL, plot.options=list(), ...)
   \method{print}{isat}(x, ...)
   \method{residuals}{isat}(object, std=FALSE, ...)
+  \method{sigma}{isat}(object, ...)
   \method{summary}{isat}(object, ...)
   \method{vcov}{isat}(object, ...)
 }
@@ -35,7 +37,7 @@
   \item{newmxreg}{a matrix (\code{n.ahead} rows and NCOL(mxregs) columns) with the out-of-sample values of the \code{mxreg} regressors}
   \item{newindex}{date-index for the \code{zoo} object returned by \code{predict.arx}}
   \item{return}{logical. If \code{TRUE} (default), then the out-of-sample forecasts are returned}
-  \item{plot}{logical. If \code{TRUE} (default), then the out-of-sample forecasts are plotted}
+  \item{plot}{NULL or logical. If \code{TRUE}, then the out-of-sample forecasts are plotted. If NULL (default), then the value set by \code{\link{options}} determines whether a plot is produced or not.}
   \item{plot.options}{a \code{list} of options related to the plotting of forecasts, see 'Details'}
   \item{col}{colours of fitted (default=red) and actual (default=blue) lines}
   \item{lty}{types of fitted (default=solid) and actual (default=solid) lines}
@@ -63,6 +65,7 @@ The \code{plot.options} argument is a list that can contain any of the following
   \item{predict}{a vector containing the out-of-sample forecasts}
   \item{print:}{a print of the estimation results}
   \item{residuals:}{a \code{\link{zoo}} object with the residuals}
+  \item{sigma:}{the regression standard error ('SE of regression')}
   \item{summary:}{a print of the items in the \code{\link{isat}} object}
   \item{vcov:}{variance-covariance matrix}
 }

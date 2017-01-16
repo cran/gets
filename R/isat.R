@@ -1,13 +1,13 @@
 isat <-
 function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   iis=FALSE, sis=TRUE, tis=FALSE, uis=FALSE, blocks=NULL,
-  ratio.threshold=0.8, max.block.size=30,
-  vcov.type=c("ordinary", "white", "newey-west"),
-  t.pval=0.001, do.pet=FALSE, wald.pval=t.pval, ar.LjungB=NULL,
-  arch.LjungB=NULL, normality.JarqueB=NULL,
-  info.method=c("sc", "aic", "hq"), include.gum=FALSE,
-  include.empty=FALSE, tol=1e-07, LAPACK=FALSE, max.regs=NULL, verbose=TRUE,
-  print.searchinfo=TRUE, alarm=FALSE, plot=TRUE)
+  ratio.threshold=0.8, max.block.size=30, t.pval=0.001, wald.pval=t.pval,
+  vcov.type=c("ordinary", "white", "newey-west"), do.pet=FALSE,
+  ar.LjungB=NULL, arch.LjungB=NULL, normality.JarqueB=NULL,
+  user.diagnostics=NULL, info.method=c("sc", "aic", "hq"),
+  include.gum=FALSE, include.empty=FALSE, tol=1e-07,
+  LAPACK=FALSE, max.regs=NULL, print.searchinfo=TRUE, plot=NULL,
+  alarm=FALSE)
 {
 
   ##arguments:
@@ -15,7 +15,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   vcov.type <- match.arg(vcov.type)
   info.method <- match.arg(info.method)
   mod <- arx(y, mc=mc, ar=ar, ewma=ewma, mxreg=mxreg,
-    vcov.type=vcov.type, qstat.options=NULL,
+    vcov.type=vcov.type, qstat.options=NULL, user.diagnostics=user.diagnostics,
     tol=tol, LAPACK=LAPACK, verbose=FALSE, plot=FALSE)
   y <- mod$aux$y
   y.n <- mod$aux$y.n
@@ -184,11 +184,11 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
       ##print info:
       if(print.searchinfo){
-        cat("\n")
-        cat(names(ISmatrices)[i],
-          " block ", j, " of ", length(ISblocks[[i]]), ":\n", sep="")
-        cat("\n")
-        #if( j==length(ISblocks[[i]]) ){ cat("\n") }
+        message("\n", appendLF=FALSE)
+        message(names(ISmatrices)[i],
+          " block ", j, " of ", length(ISblocks[[i]]), ":",
+          appendLF=TRUE)
+        message("\n", appendLF=FALSE)
       }
 
       ##check if block contains 1 regressor:
@@ -202,23 +202,24 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       }
 
       ##if(UIS), then apply dropvar:
-      if( substr(names(ISmatrices)[i],1,3)=="UIS" ){
+#      if( substr(names(ISmatrices)[i],1,3)=="UIS" ){
         mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK,
           silent=print.searchinfo)
-      }
+#      }
 
       ##gum:
       mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
-        qstat.options=qstat.options, tol=tol, LAPACK=LAPACK,
-        verbose=TRUE, plot=FALSE)
+        qstat.options=qstat.options, user.diagnostics=user.diagnostics,
+        tol=tol, LAPACK=LAPACK, verbose=TRUE, plot=FALSE)
 #future?: keep=NULL instead of mxkeep?
 #      getsis <- getsm(mod, keep=NULL, t.pval=t.pval,
       getsis <- getsm(mod, keep=mxkeep, t.pval=t.pval,
-        do.pet=do.pet, wald.pval=wald.pval, ar.LjungB=ar.LjungB,
+        wald.pval=wald.pval, do.pet=do.pet, ar.LjungB=ar.LjungB,
         arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
-        info.method=info.method, include.empty=include.empty,
-        max.regs=max.regs, estimate.specific=FALSE,
-        print.searchinfo=print.searchinfo, plot=FALSE)
+        user.diagnostics=user.diagnostics, info.method=info.method,
+        include.empty=include.empty, max.regs=max.regs,
+        estimate.specific=FALSE, print.searchinfo=print.searchinfo,
+        plot=FALSE)
 
       if(is.null(getsis$specific.spec)){
         ISspecific.models[[j]] <- NULL
@@ -234,11 +235,10 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
     ##print info:
     if(print.searchinfo){
-      cat("\n")
-      cat("GETS of union of retained ",
-        names(ISmatrices)[i], " variables... \n",
-        sep="")
-      #cat("\n")
+      message("\n", appendLF=FALSE)
+      message("GETS of union of retained ",
+        names(ISmatrices)[i], " variables... ",
+        appendLF=TRUE)
     }
 
     ##if no indicators retained from the blocks:
@@ -274,10 +274,10 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       getsis <- getsm(mod, keep=mxkeep, t.pval=t.pval,
         do.pet=do.pet, wald.pval=wald.pval, ar.LjungB=ar.LjungB,
         arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
-        info.method=info.method, include.gum=include.gum,
-        include.empty=include.empty, max.regs=max.regs,
-        print.searchinfo=print.searchinfo, estimate.specific=FALSE,
-        plot=FALSE)
+        user.diagnostics=user.diagnostics, info.method=info.method,
+        include.gum=include.gum, include.empty=include.empty,
+        max.regs=max.regs, print.searchinfo=print.searchinfo,
+        estimate.specific=FALSE, plot=FALSE)
       ISfinalmodels[[i]] <- names(getsis$specific.spec)
 
     } #end if(length(ISspecific.models > 0)
@@ -289,9 +289,10 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   ##gets of union of retained impulses:
   if(print.searchinfo){
-    cat("\n")
-    cat("GETS of union of ALL retained variables...\n")
-    cat("\n")
+    message("\n", appendLF=FALSE)
+    message("GETS of union of ALL retained variables...",
+      appendLF=TRUE)
+    message("\n", appendLF=FALSE)
   }
 
   ##no final models estimated:
@@ -330,14 +331,14 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   ##gum and gets:
   y <- zoo(y, order.by=y.index)
   mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
-    qstat.options=qstat.options, tol=tol,
-    LAPACK=LAPACK, verbose=TRUE, plot=FALSE)
+    qstat.options=qstat.options, user.diagnostics=user.diagnostics,
+    tol=tol, LAPACK=LAPACK, verbose=TRUE, plot=FALSE)
   getsis <- getsm(mod, keep=mxkeep, t.pval=t.pval,
     do.pet=do.pet, wald.pval=wald.pval, ar.LjungB=ar.LjungB,
     arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
-    info.method=info.method, include.empty=include.empty,
-    max.regs=max.regs, print.searchinfo=print.searchinfo,
-    plot=FALSE)
+    user.diagnostics=user.diagnostics, info.method=info.method,
+    include.empty=include.empty, max.regs=max.regs,
+    print.searchinfo=print.searchinfo, plot=FALSE)
 
   ##names of retained impulses, mX colnames:
   ISnames <- setdiff(getsis$aux$mXnames, mXnames)
@@ -352,6 +353,10 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   getsis$aux$t.pval <- t.pval #needed for biascorr
   class(getsis) <- "isat"
   if(alarm){ alarm() }
+  if( is.null(plot) ){
+    plot <- getOption("plot")
+    if( is.null(plot) ){ plot <- FALSE }
+  }
   if(plot){ plot.isat(getsis, coef.path=TRUE) }
   return(getsis)
 }

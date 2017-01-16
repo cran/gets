@@ -1,7 +1,7 @@
 predict.arx <-
 function(object, spec=NULL, n.ahead=12,
   newmxreg=NULL, newvxreg=NULL, newindex=NULL,
-  n.sim=1000, innov=NULL, return=TRUE, plot=TRUE,
+  n.sim=1000, innov=NULL, return=TRUE, plot=NULL,
   plot.options=list(), ...)
 {
   ## contents:
@@ -343,6 +343,11 @@ function(object, spec=NULL, n.ahead=12,
   ## 3 if plot=TRUE
   ##----------------
 
+  ##plot:
+  if( is.null(plot) ){
+    plot <- getOption("plot")
+    if( is.null(plot) ){ plot <- FALSE }
+  }
   if(plot){
 
     ##plot.options:

@@ -2,19 +2,19 @@ print.gets <-
 function(x, ...)
 {
   ##determine spec:
-  spec <- switch(as.character(x$call)[1],
+  specType <- switch(as.character(x$call)[1],
     getsm="mean", getsv="variance")
 
   ##header - first part:
   cat("\n")
   cat("Date:", x$date, "\n")
-  if(spec=="mean"){
+  if(specType=="mean"){
     cat("Dependent var.:", x$aux$y.name, "\n")
   }
   cat("Method: Ordinary Least Squares (OLS)\n")
 
   ##header - if mean:
-  if(spec=="mean"){
+  if(specType=="mean"){
     cat("Variance-Covariance:", switch(x$aux$vcov.type,
       ordinary = "Ordinary", white = "White (1980)",
       "newey-west" = "Newey and West (1987)"), "\n")
@@ -23,19 +23,18 @@ function(x, ...)
   }
 
   ##header - if variance:
-  if(spec=="variance"){
+  if(specType=="variance"){
     if(!is.null(x$aux$loge2.n)){
       cat("No. of observations (variance eq.):",
         x$aux$loge2.n, "\n") }
-#print.arx:
-#    cat("No. of observations (variance eq.):",
-#      length(na.trim(x$resids.std)), "\n")
   }
 
   ##header - sample info:
   if(!is.null(x$resids)){
     indexTrimmed <- index(na.trim(x$resids))
-    if(is.regular(x$resids, strict=TRUE)){
+    isRegular <- is.regular(x$resids, strict=TRUE)
+    isCyclical <- frequency(x$resids) > 1
+    if(isRegular && isCyclical){
       cycleTrimmed <- cycle(na.trim(x$resids))
       startYear <- floor(as.numeric(indexTrimmed[1]))
       startAsChar <- paste(startYear,
@@ -43,7 +42,6 @@ function(x, ...)
       endYear <- floor(as.numeric(indexTrimmed[length(indexTrimmed)]))
       endAsChar <- paste(endYear,
         "(", cycleTrimmed[length(indexTrimmed)], ")", sep="")
-
     }else{
       startAsChar <- as.character(indexTrimmed[1])
       endAsChar <- as.character(indexTrimmed[length(indexTrimmed)])
@@ -51,14 +49,8 @@ function(x, ...)
     cat("Sample:", startAsChar, "to", endAsChar, "\n")
   } #end if(!is.null..)
 
-#OLD:
-#  ##header - sample info:
-#  cat("Sample (mean eq.):",
-#    as.character(x$aux$y.index[1]), "to",
-#    as.character(x$aux$y.index[x$aux$y.n]), "\n")
-
   ##gum:
-  if(spec=="mean"){
+  if(specType=="mean"){
     cat("\n")
     cat("GUM mean equation:\n")
     cat("\n")
@@ -69,14 +61,19 @@ function(x, ...)
     cat("\n")
     cat("GUM log-variance equation:\n")
     cat("\n")
-    printCoefmat(x$gum.variance, dig.tst=0, tst.ind=c(1,2),
+    if(specType=="mean"){
+      printCoefmat(x$gum.variance, signif.stars=FALSE)
+    }
+    if(specType=="variance"){
+      printCoefmat(x$gum.variance, dig.tst=0, tst.ind=c(1,2),
       signif.stars=FALSE, P.values=FALSE, has.Pvalue=FALSE)
+    }
   }
   if(!is.null(x$gum.diagnostics)){
     cat("\n")
     cat("Diagnostics:\n")
     cat("\n")
-    printCoefmat(x$gum.diagnostics[1:3,], dig.tst=0, tst.ind=2,
+    printCoefmat(x$gum.diagnostics, dig.tst=0, tst.ind=2,
       signif.stars=FALSE)
   }
 
@@ -106,7 +103,7 @@ function(x, ...)
     signif.stars=FALSE)
 
   ##specific model:
-  if(spec=="mean" && !is.null(x$specific.spec)){
+  if(specType=="mean" && !is.null(x$specific.spec)){
     cat("\n")
     cat("SPECIFIC mean equation:\n")
     cat("\n")
@@ -126,23 +123,36 @@ function(x, ...)
     cat("SPECIFIC log-variance equation:\n")
     cat("\n")
     printCoefmat(x$variance.results, signif.stars=FALSE)
+#    printCoefmat(x$variance.results, dig.tst=0, tst.ind=c(1,2),
+#      signif.stars=FALSE, P.values=FALSE, has.Pvalue=FALSE)
   }
+
+  ##diagnostics and fit:
   if(!is.null(x$specific.diagnostics)){
+
+    #fit-measures:
+    mGOF <- matrix(NA, 3, 1)
+    rownames(mGOF) <- c("SE of regression", "R-squared",
+      paste("Log-lik.(n=", length(na.trim(x$resids.std)), ")", sep=""))
+    colnames(mGOF) <- ""
+    mGOF[1,1] <- sigma.gets(x) #OLD: sqrt( RSS/(nobs-DFs) )
+    mGOF[2,1] <- rsquared(x) #OLD: x$specific.diagnostics[4,1]
+    mGOF[3,1] <- as.numeric(logLik.arx(x))
+
     cat("\n")
     cat("Diagnostics:\n")
     cat("\n")
     printCoefmat(x$specific.diagnostics, dig.tst=0, tst.ind=2,
       signif.stars=FALSE)
+    printCoefmat(mGOF, digits=6, signif.stars=FALSE)
+  #OLD: print(mGOF)
+
   }
 
-  ##notes:
-  if(!is.null(x$notes)){
-    cat("\n")
-    cat("Notes:\n")
-    cat("\n")
-    for(i in 1:length(x$notes)){
-      cat("-",x$notes[[i]],"\n")
-    }
-    cat("\n")
+  ##messages:
+  if(!is.null(x$messages)){
+    message("\n", appendLF=FALSE)
+    message(x$messages)
   }
+
 }

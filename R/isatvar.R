@@ -5,7 +5,7 @@ function(x, lr=FALSE, conscorr=FALSE, effcorr=FALSE, mcor = 1,  mxfull = NULL, m
   
   
   if (lr == TRUE && !is.null(mxfull)){
-    print("Warning: LR currently not defined with user-specified break variables. LR set to FALSE")
+    message("Warning: LR currently not defined with user-specified break variables. LR set to FALSE")
     lr <- FALSE
   }
   
@@ -14,7 +14,7 @@ function(x, lr=FALSE, conscorr=FALSE, effcorr=FALSE, mcor = 1,  mxfull = NULL, m
   if(!is.null(as.list(x$call)$uis) && is.null(mxfull)){
     
     if (!is.null(as.list(x$call)$iis) || !is.null(as.list(x$call)$sis) ){
-      print("Warning: uis specified but no mxfull variable given. Using mconst instead.")
+      message("Warning: uis specified but no mxfull variable given. Using mconst instead.")
       mxfull <- "mconst"
     } else {
       stop("uis specified but no mxfull variable given")

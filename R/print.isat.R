@@ -1,8 +1,8 @@
 print.isat <-
 function(x, ...)
 {
-  ##determine type:
-  spec <- "mean"
+  ##specification type:
+  specType <- "mean"
 
   ##header:
   cat("\n")
@@ -16,15 +16,18 @@ function(x, ...)
   ##header - sample info:
   cat("No. of observations (mean eq.):", x$aux$y.n, "\n")
   tmp <- zoo(x$aux$y, order.by=x$aux$y.index)
+
   indexTrimmed <- index(na.trim(tmp))
-  if(is.regular(tmp, strict=TRUE)){
+  isRegular <- is.regular(tmp, strict=TRUE)
+  isCyclical <- frequency(tmp) > 1
+  if(isRegular && isCyclical){
     cycleTrimmed <- cycle(na.trim(tmp))
     startYear <- floor(as.numeric(indexTrimmed[1]))
     startAsChar <- paste(startYear,
       "(", cycleTrimmed[1], ")", sep="")
     endYear <- floor(as.numeric(indexTrimmed[length(indexTrimmed)]))
     endAsChar <- paste(endYear,
-        "(", cycleTrimmed[length(indexTrimmed)], ")", sep="")
+      "(", cycleTrimmed[length(indexTrimmed)], ")", sep="")
   }else{
     startAsChar <- as.character(indexTrimmed[1])
     endAsChar <- as.character(indexTrimmed[length(indexTrimmed)])
@@ -32,12 +35,23 @@ function(x, ...)
   cat("Sample:", startAsChar, "to", endAsChar, "\n")
 
 #OLD:
-#  cat("Sample (mean eq.):",
-#    as.character(x$aux$y.index[1]), "to",
-#    as.character(x$aux$y.index[x$aux$y.n]), "\n")
+#  indexTrimmed <- index(na.trim(tmp))
+#  if(is.regular(tmp, strict=TRUE)){
+#    cycleTrimmed <- cycle(na.trim(tmp))
+#    startYear <- floor(as.numeric(indexTrimmed[1]))
+#    startAsChar <- paste(startYear,
+#      "(", cycleTrimmed[1], ")", sep="")
+#    endYear <- floor(as.numeric(indexTrimmed[length(indexTrimmed)]))
+#    endAsChar <- paste(endYear,
+#        "(", cycleTrimmed[length(indexTrimmed)], ")", sep="")
+#  }else{
+#    startAsChar <- as.character(indexTrimmed[1])
+#    endAsChar <- as.character(indexTrimmed[length(indexTrimmed)])
+#  }
+#  cat("Sample:", startAsChar, "to", endAsChar, "\n")
 
   ##gum:
-  if(spec=="mean"){
+  if(specType=="mean"){
     cat("\n")
     cat("GUM mean equation:\n")
     cat("\n")
@@ -48,8 +62,7 @@ function(x, ...)
     cat("\n")
     cat("GUM log-variance equation:\n")
     cat("\n")
-    printCoefmat(x$gum.variance, signif.stars=FALSE,
-      P.values=FALSE, has.Pvalue=FALSE)
+    printCoefmat(x$gum.variance, signif.stars=FALSE)
   }
   cat("\n")
   cat("Diagnostics:\n")
@@ -84,9 +97,8 @@ function(x, ...)
       signif.stars=FALSE)
   }
 
-
   ##specific model:
-  if(spec=="mean" && !is.null(x$specific.spec)){
+  if(specType=="mean" && !is.null(x$specific.spec)){
     cat("\n")
     cat("SPECIFIC mean equation:\n")
     cat("\n")
@@ -104,23 +116,33 @@ function(x, ...)
       cat("Not estimated\n")
     }
   }
+  
+  ##diagnostics and fit:
   if(!is.null(x$specific.diagnostics)){
+
+    #fit-measures:
+    mGOF <- matrix(NA, 3, 1)
+    rownames(mGOF) <- c("SE of regression", "R-squared",
+      paste("Log-lik.(n=", length(na.trim(x$resids.std)), ")", sep=""))
+    colnames(mGOF) <- ""
+    mGOF[1,1] <- sigma.isat(x) #OLD: sqrt( RSS/(nobs-DFs) )
+    mGOF[2,1] <- rsquared(x) #OLD: x$specific.diagnostics[4,1]
+    mGOF[3,1] <- as.numeric(logLik.arx(x))
+
     cat("\n")
     cat("Diagnostics:\n")
     cat("\n")
     printCoefmat(x$specific.diagnostics, dig.tst=0, tst.ind=2,
       signif.stars=FALSE)
+    printCoefmat(mGOF, digits=6, signif.stars=FALSE)
+  #OLD: print(mGOF)
+
   }
 
-  ##delete this one? or at least change?:
-  ##notes:
-#  if(!is.null(x$notes)){
-#    cat("\n")
-#    cat("Notes:\n")
-#    cat("\n")
-#    for(i in 1:length(x$notes)){
-#      cat("-",x$notes[[i]],"\n")
-#    }
-#    cat("\n")
-#  }
+  ##messages:
+  if(!is.null(x$messages)){
+    message("\n", appendLF=FALSE)
+    message(x$messages)
+  }
+
 }

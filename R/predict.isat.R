@@ -1,6 +1,6 @@
 predict.isat <-
 function(object, n.ahead=12,
-  newmxreg=NULL, newindex=NULL, return=TRUE, plot=TRUE,
+  newmxreg=NULL, newindex=NULL, return=TRUE, plot=NULL,
   plot.options=list(), ...)
 {
 

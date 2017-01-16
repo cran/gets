@@ -12,10 +12,10 @@ The AR-X mean specification can contain an intercept, AR-terms, lagged moving av
 arx(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL, vc=FALSE,
   arch=NULL, asym=NULL, log.ewma=NULL, vxreg=NULL, zero.adj=0.1,
   vc.adj=TRUE, vcov.type=c("ordinary", "white", "newey-west"),
-  qstat.options=NULL, tol=1e-07, LAPACK=FALSE, verbose=TRUE,
-  plot=TRUE)
+  qstat.options=NULL, user.diagnostics=NULL, tol=1e-07, LAPACK=FALSE,
+  verbose=TRUE, plot=NULL)
 }
-
+    
 \arguments{
   \item{y}{numeric vector, time-series or \code{\link{zoo}} object. Missing values in the beginning and at the end of the series is allowed, as they are removed with the \code{\link{na.trim}} command}
   \item{mc}{logical. TRUE includes an intercept in the mean specification, whereas FALSE (default) does not}
@@ -29,12 +29,13 @@ arx(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL, vc=FALSE,
   \item{vxreg}{numeric vector or matrix, say, a \code{\link{zoo}} object, of conditioning variables. If both y and mxreg are \code{zoo} objects, then their samples are chosen to match}
   \item{zero.adj}{numeric value between 0 and 1. The quantile adjustment for zero values. The default 0.1 means the zero residuals are replaced by the 10 percent quantile of the absolute residuals before taking the logarithm}
   \item{vc.adj}{logical. If TRUE (default), then the log-variance intercept is adjusted by the estimate of E[ln(z^2)]. This adjustment is needed for the conditional scale of e to be equal to the conditional standard deviation. If FALSE, then the log-variance intercept is not adjusted}
-  \item{vcov.type}{character vector, "ordinary" (default) or "white". If "ordinary", then the ordinary variance-covariance matrix is used for inference. Otherwise the White (1980) heteroscedasticity robust matrix is used}
+  \item{vcov.type}{character vector, "ordinary" (default), "white" or "newey-west". If "ordinary", then the ordinary variance-covariance matrix is used for inference. If "white", then the White (1980) heteroscedasticity-robust matrix is used. If "newey-west", then the Newey and West (1987) heteroscedasticity and autocorrelation-robust matrix is used}
   \item{qstat.options}{NULL (default) or an integer vector of length two, say, c(1,1). The first value sets the order of the AR diagnostic test, whereas the second value sets the order of the ARCH diagnostic test. If NULL, then the two values of the vector are set automatically}
+  \item{user.diagnostics}{\code{NULL} or a \code{\link{list}} with two entries, \code{name} and \code{pval}, see the \code{user.fun} argument in \code{\link{diagnostics}} }
   \item{tol}{numeric value (default = 1e-07). The tolerance for detecting linear dependencies in the columns of the regressors (see \code{\link{qr}} function). Only used if LAPACK is FALSE (default)}
   \item{LAPACK}{logical. If TRUE, then use LAPACK. If FALSE (default), then use LINPACK (see \code{\link{qr}} function)}
   \item{verbose}{logical. TRUE (default) returns (slightly) more output than FALSE}
-  \item{plot}{logical. If TRUE (default), then the fitted values and the residuals are plotted}
+  \item{plot}{NULL or logical. If TRUE, then the fitted values and the residuals are plotted. If NULL (default), then the value set by \code{\link{options}} determines whether a plot is produced or not.}
 }
 
 \details{See Sucarrat and Escribano (2012)}
@@ -45,13 +46,15 @@ arx(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL, vc=FALSE,
 Genaro Sucarrat and Alvaro Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility Specifications', Oxford Bulletin of Economics and Statistics 74, Issue no. 5 (October), pp. 716-735
 
 Halbert White (1980): 'A Heteroskedasticity-Consistent Covariance Matrix Estimator and a Direct Test for Heteroskedasticity', Econometrica 48, pp. 817-838
+
+Whitney K. Newey and Kenned D. West (1987): 'A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix', Econometrica 55, pp. 703-708
 }
 
 \author{Genaro Sucarrat, \url{http://www.sucarrat.net/}}
 
 \seealso{
 Extraction functions (S3 methods): \code{\link{coef.arx}}, \code{\link{fitted.arx}}, \code{\link{plot.arx}}, \code{\link{print.arx}},\cr
-\code{\link{residuals.arx}}, \code{\link{summary.arx}} and \code{\link{vcov.arx}}\cr
+\code{\link{residuals.arx}}, \code{\link{sigma.arx}}, \code{\link{summary.arx}} and \code{\link{vcov.arx}}\cr
 
 Related functions: \code{\link{getsm}}, \code{\link{getsv}}, \code{\link{eqwma}}, \code{\link{leqwma}}
 }
@@ -59,13 +62,13 @@ Related functions: \code{\link{getsm}}, \code{\link{getsv}}, \code{\link{eqwma}}
 \examples{
 ##Simulate from an AR(1):
 set.seed(123)
-y <- arima.sim(list(ar=0.4), 100)
-
-##Simulate four independent Gaussian regressors:
-xregs <- matrix(rnorm(4*100), 100, 4)
+y <- arima.sim(list(ar=0.4), 70)
 
 ##estimate an AR(2) with intercept:
 arx(y, mc=TRUE, ar=1:2)
+
+##Simulate four independent Gaussian regressors:
+xregs <- matrix(rnorm(4*70), 70, 4)
 
 ##estimate an AR(2) with intercept and four conditioning
 ##regressors in the mean:
