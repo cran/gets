@@ -2,13 +2,20 @@ plot.arx <-
 function(x, spec=NULL, col=c("red","blue"),
   lty=c("solid","solid"), lwd=c(1,1), ...)
 {
-  ##check if there is a model to plot:
-  if(is.null(x$mean.results) && is.null(x$variance.results)){
-  
+  ##check whether to plot:
+  doPlot <- TRUE #default
+  if( is.null(x$mean.results) && is.null(x$variance.results) ){
+    doPlot <- FALSE
     warning("No estimated model, so no plot produced")
+  }
+  if(doPlot && !is.null(x$aux$user.estimator) ){
+    doPlot <- FALSE
+    warning("User defined estimation, so no plot produced")
+  }
 
-  }else{
-  
+  ##proceed with plotting:
+  if(doPlot){
+
     ##lwd argument:
     if(length(lwd)==1){
       print("lwd needs two arguments, but only one provided. Single argument applied to all lines plotted.")
@@ -70,7 +77,7 @@ function(x, spec=NULL, col=c("red","blue"),
         print("Wrong number of colours specified; using random set of colours instead.")
         col<-randomcol()
       }
-    } #if length(col!=2)
+    } #end col argument
 
     ##spec argument:
     ##(logically, this part should come before the col, lty and lwd arguments)
@@ -109,6 +116,9 @@ function(x, spec=NULL, col=c("red","blue"),
       actual.name <- x$aux$y.name
       residsStd <- x$resids.std
 
+      ##do the plotting:
+      ##----------------
+
       ##get current par-values:
       def.par <- par(no.readonly=TRUE)
 
@@ -119,8 +129,10 @@ function(x, spec=NULL, col=c("red","blue"),
         par(mfrow=c(2,1))
       }
 
-      ##what is happening here (add comment)?:
+      #set the plot margins:
       par(mar=c(2,2,0.5,0.5))
+
+      ##plot the mean:
       if(spec=="mean" || spec=="both") {##plotting mean variables
 
         ##check whether ?? zoo object is regular, then plot:
@@ -142,9 +154,9 @@ function(x, spec=NULL, col=c("red","blue"),
         }
         legend("topleft",lty=lty,lwd=lwd,ncol=2,col=col[c(2,1)],legend=c(actual.name,"fitted"),bty="n")
 
-      } #close ##comment? what is happening here?
+      } #close mean plotting
 
-      ##plotting variance parts:
+      ##plot the variance:
       if(spec=="variance" || spec=="both") {
 
         ##add comment?
@@ -169,20 +181,22 @@ function(x, spec=NULL, col=c("red","blue"),
 
       } #close plotting variance parts
 
-      ##add comment?
-      if(is.regular(residsStd)) {
-        plot(residsStd,type="h",col=col[1])
-      } else {
-        plot(as.Date(index(residsStd)),coredata(residsStd),type="h",col=col[1])
+      ##if any standardised residuals:
+      if(!is.null(residsStd)){
+        if(is.regular(residsStd)) {
+          plot(residsStd,type="h",col=col[1])
+        } else {
+          plot(as.Date(index(residsStd)),coredata(residsStd),type="h",col=col[1])
+        }
+        abline(0,0)
+        legend("topleft",lty=1,col=col[1],legend=c("standardised residuals"),bty="n")
       }
-      abline(0,0)
-      legend("topleft",lty=1,col=col[1],legend=c("standardised residuals"),bty="n")
 
       #return to old par-values:
       par(def.par)
 
     } #close if(!is.null(spec))
 
-  } #close if(is.null(x$mean.results) && ...
+  } #close if(doPlot)
 
 }

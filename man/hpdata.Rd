@@ -4,7 +4,7 @@
 
 \title{Hoover and Perez (1999) data}
 
-\description{Data used by Hoover and Perez (1999) in their evaluation of General-to-Specific (GETS) modelling. A detailed description of the data is found in their Table 1 (page 172). The data are quarterly, comprise 20 variables and runs from 1959:1 to 1995:1. This corresponds to 145 observations. The source of the data is Citibank.}
+\description{Data used by Hoover and Perez (1999) in their evaluation of General-to-Specific (GETS) modelling. A detailed description of the data is found in their Table 1 (page 172). The data are quarterly, comprise 20 variables (the first variable is the quarterly index) and runs from 1959:1 to 1995:1. This corresponds to 145 observations. The original source of the data is Citibank.}
 \usage{data(hpdata)}
 \format{
   \describe{
@@ -61,7 +61,7 @@ Genaro Sucarrat and Alvaro Escribano (2012): 'Automated Financial
 data(hpdata)
 
 ##make quarterly data-matrix of zoo type:
-newhpdata <- zooreg(hpdata[,-1], start=c(1959,1), end=c(1995,1), frequency=4)
+newhpdata <- zooreg(hpdata[,-1], start=c(1959,1), frequency=4)
 
 ##plot data:
 plot(newhpdata)

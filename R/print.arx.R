@@ -2,68 +2,58 @@ print.arx <-
 function(x, signif.stars=FALSE, ...)
 {
   ##check if mean and variance have been fitted:
-  if(is.null(x$mean.results)){
-    meanResults <- FALSE
-  }else{
-    meanResults <- TRUE
-  }
-  if(is.null(x$variance.results)){
-    varianceResults <- FALSE
-  }else{
-    varianceResults <- TRUE
-  }
+  xNames <- names(x)
+  meanResults <- ifelse("mean.results" %in% xNames, TRUE, FALSE)
+  varianceResults <- ifelse("variance.results" %in% xNames, TRUE, FALSE)
 
   ##header - first part:
   cat("\n")
   cat("Date:", x$date, "\n")
   if(meanResults || varianceResults){
+    estType <- ifelse(is.null(x$aux$user.estimator),
+      "Ordinary Least Squares (OLS)", "User defined")
     cat("Dependent var.:", x$aux$y.name, "\n")
-    cat("Method: Ordinary Least Squares (OLS)\n")
+    cat("Method:", estType, "\n")
   }
 
   ##header - if mean results:
   if(meanResults){
-    cat("Variance-Covariance:", switch(x$aux$vcov.type,
-      ordinary = "Ordinary", white = "White (1980)",
-      "newey-west" = "Newey and West (1987)"), "\n")
-    cat("No. of observations (mean eq.):",
-      length(na.trim(x$resids)), "\n")
+    if(is.null(x$aux$user.estimator)){
+      cat("Variance-Covariance:", switch(x$aux$vcov.type,
+        ordinary = "Ordinary", white = "White (1980)",
+        "newey-west" = "Newey and West (1987)"), "\n")
+    }
+    if("resids" %in% xNames){
+      cat("No. of observations (mean eq.):",
+        length(na.trim(x$resids)), "\n")
+    }
   }
 
   ##header - if variance results:
-  if(varianceResults){
+  if( varianceResults && "resids.std" %in% xNames ){
     cat("No. of observations (variance eq.):",
       length(na.trim(x$resids.std)), "\n")
   }
 
   ##header - sample info:
-  indexTrimmed <- index(na.trim(x$resids))
-  isRegular <- is.regular(x$resids, strict=TRUE)
-  isCyclical <- frequency(x$resids) > 1
-  if(isRegular && isCyclical){
-    cycleTrimmed <- cycle(na.trim(x$resids))
-    startYear <- floor(as.numeric(indexTrimmed[1]))
-    startAsChar <- paste(startYear,
-      "(", cycleTrimmed[1], ")", sep="")
-    endYear <- floor(as.numeric(indexTrimmed[length(indexTrimmed)]))
-    endAsChar <- paste(endYear,
-      "(", cycleTrimmed[length(indexTrimmed)], ")", sep="")
-
-#OLD:
-#  if(is.regular(x$resids, strict=TRUE)){
-#    cycleTrimmed <- cycle(na.trim(x$resids))
-#    startYear <- floor(as.numeric(indexTrimmed[1]))
-#    startAsChar <- paste(startYear,
-#      "(", cycleTrimmed[1], ")", sep="")
-#    endYear <- floor(as.numeric(indexTrimmed[length(indexTrimmed)]))
-#    endAsChar <- paste(endYear,
-#      "(", cycleTrimmed[length(indexTrimmed)], ")", sep="")
-
-  }else{
-    startAsChar <- as.character(indexTrimmed[1])
-    endAsChar <- as.character(indexTrimmed[length(indexTrimmed)])
-  }
-  cat("Sample:", startAsChar, "to", endAsChar, "\n")
+  if( "resids" %in% xNames ){
+    indexTrimmed <- index(na.trim(x$resids))
+    isRegular <- is.regular(x$resids, strict=TRUE)
+    isCyclical <- frequency(x$resids) > 1
+    if(isRegular && isCyclical){
+      cycleTrimmed <- cycle(na.trim(x$resids))
+      startYear <- floor(as.numeric(indexTrimmed[1]))
+      startAsChar <- paste(startYear,
+        "(", cycleTrimmed[1], ")", sep="")
+      endYear <- floor(as.numeric(indexTrimmed[length(indexTrimmed)]))
+      endAsChar <- paste(endYear,
+        "(", cycleTrimmed[length(indexTrimmed)], ")", sep="")
+    }else{
+      startAsChar <- as.character(indexTrimmed[1])
+      endAsChar <- as.character(indexTrimmed[length(indexTrimmed)])
+    }
+    cat("Sample:", startAsChar, "to", endAsChar, "\n")
+  } #end if( "resids" %in% xNames )
 
   ##print mean results:
   if(meanResults){
@@ -82,26 +72,31 @@ function(x, signif.stars=FALSE, ...)
   }
 
   ##print if no results:
-  if(meanResults==FALSE && varianceResults==FALSE){
+  if( !meanResults && !varianceResults ){
     cat("\n")
-    cat("   No model estimated\n")
+    cat("   No estimation results\n")
   }
 
   ##goodness-of-fit:
-  mGOF <- matrix(NA, 3, 1)
-  rownames(mGOF) <- c("SE of regression", "R-squared",
-    paste("Log-lik.(n=", length(na.trim(x$resids.std)), ")", sep=""))
-  colnames(mGOF) <- ""
-  mGOF[1,1] <- sigma.arx(x)
-  mGOF[2,1] <- rsquared(x)
-  mGOF[3,1] <- as.numeric(logLik.arx(x))
+  if( !"gof" %in% xNames && is.null(x$aux$user.estimator) ){
+    gof <- matrix(NA, 3, 1)
+    rownames(gof) <- c("SE of regression", "R-squared",
+      paste("Log-lik.(n=", length(na.trim(x$resids.std)), ")", sep=""))
+    colnames(gof) <- ""
+    gof[1,1] <- sigma.arx(x)
+    gof[2,1] <- rsquared(x)
+    gof[3,1] <- as.numeric(logLik.arx(x))
+    x$gof <- gof
+  }
 
   ##print diagnostics and fit:
-  cat("\n")
-  cat("Diagnostics:\n")
-  cat("\n")
-  printCoefmat(x$diagnostics, dig.tst=0, tst.ind=2,
-    signif.stars=FALSE)
-  printCoefmat(mGOF, digits=6, signif.stars=FALSE)
+  if( !is.null(x$diagnostics) ) {
+    cat("\n")
+    cat("Diagnostics:\n")
+    cat("\n")
+    printCoefmat(x$diagnostics, dig.tst=0, tst.ind=2,
+      signif.stars=FALSE)
+    if( !is.null(x$gof) ){printCoefmat(x$gof, digits=6, signif.stars=FALSE) }
+  }
 
 }

@@ -3,8 +3,8 @@ function(x, s2=1, y=NULL, xreg=NULL,
   ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
   normality.JarqueB=NULL, verbose=TRUE, user.fun=NULL)
 {
+  if( identical(s2,1) ){ zhat <- x }else{ zhat <- x/sqrt(s2) }
   diagnosticsGood <- TRUE
-  if(s2 == 1){ zhat <- x }else{ zhat <- x/sqrt(s2) }
 
   ##serial correlation:
   if(!is.null(ar.LjungB)){

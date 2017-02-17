@@ -29,6 +29,9 @@ function(object, t.pval=0.05, wald.pval=t.pval,
   if(is.null(max.regs)){ max.regs <- 10*object$aux$y.n }
   tol <- object$aux$tol
   LAPACK <- object$aux$LAPACK
+  if( !is.null(object$aux$user.estimator) ){
+    stop("Sorry, not available for user-defined estimators")
+  }
 
   ### INITIALISE ##########
 
@@ -49,7 +52,7 @@ function(object, t.pval=0.05, wald.pval=t.pval,
 
   ## GUM: ##################
 
-  if(is.null(object$aux$mX)){ stop("Mean equation empty") }
+  if( is.null(object$aux$mX) ){ stop("Mean equation empty") }
 
   ##deletable, non-deletable regressors, re-organise:
   keep.n <- length(keep)
@@ -73,7 +76,6 @@ function(object, t.pval=0.05, wald.pval=t.pval,
   p.val <- pt(abs(t.stat), est$df, lower.tail=FALSE)*2
 
   ##diagnostics:
-#OLD:  diagnostics.table <- object$diagnostics
   userY <- userXreg <- NULL
   if(!is.null(user.diagnostics)){
     userY <- object$aux$y
@@ -83,76 +85,6 @@ function(object, t.pval=0.05, wald.pval=t.pval,
     s2=1, y=userY, xreg=userXreg, ar.LjungB=ar.LjungB,
     arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
     verbose=FALSE, user.fun=user.diagnostics)
-
-#OLD:
-#  ##Ljung-Box test of zhat:
-#  if(is.null(ar.LjungB)){ ar.gum.chk <- 1 }else{
-#
-#    ##check if new test is needed:
-#    if(ar.LjungB[1]==object$aux$qstat.options[1]){
-#      ar.LjungB.new <- FALSE
-#    }else{ ar.LjungB.new <- TRUE }
-#
-#    ##if new test needed:
-#    if(ar.LjungB.new){
-#      ar.LjungBox <- Box.test(coredata(na.trim(object$resids.std)),
-#        lag = ar.LjungB[1], type="L")
-#      if(ar.LjungBox$p.value <= ar.LjungB[2]){
-#        ar.gum.chk <- 0
-#      }else{ ar.gum.chk <- 1 }
-#      rownames(diagnostics.table)[1] <- paste("Ljung-Box AR(",
-#        ar.LjungB[1], ")", sep="")
-#      diagnostics.table[1,1] <- ar.LjungBox$statistic
-#      diagnostics.table[1,2] <- ar.LjungB[1]
-#      diagnostics.table[1,3] <- ar.LjungBox$p.value
-#    }
-#
-#    ##new test not needed:
-#    if(!ar.LjungB.new){
-#      if(diagnostics.table[1,3] <= ar.LjungB[2]){
-#        ar.gum.chk <- 0
-#      }else{ ar.gum.chk <- 1 }
-#    }
-#
-#  } #end Ljung-Box test of zhat
-#
-#  #Ljung-Box test of zhat^2:
-#  if(is.null(arch.LjungB)){ arch.gum.chk <- 1 }else{
-#
-#    ##check if new test is needed:
-#    if(arch.LjungB[1]==object$aux$qstat.options[2]){
-#      arch.LjungB.new <- FALSE
-#    }else{ arch.LjungB.new <- TRUE }
-#
-#    ##if new test needed:
-#    if(arch.LjungB.new){
-#      arch.LjungBox <- Box.test(coredata(na.trim(object$resids.std))^2,
-#        lag = arch.LjungB[1], type="L")
-#      if(arch.LjungBox$p.value <= arch.LjungB[2]){
-#        arch.gum.chk <- 0
-#      }else{ arch.gum.chk <- 1 }
-#      rownames(diagnostics.table)[2] <- paste("Ljung-Box ARCH(",
-#        arch.LjungB[1], ")", sep="")
-#      diagnostics.table[2,1] <- arch.LjungBox$statistic
-#      diagnostics.table[2,2] <- arch.LjungB[1]
-#      diagnostics.table[2,3] <- arch.LjungBox$p.value
-#    }
-#
-#    ##new test not needed:
-#    if(!arch.LjungB.new){
-#      if(diagnostics.table[2,3] <= arch.LjungB[2]){
-#        arch.gum.chk <- 0
-#      }else{ arch.gum.chk <- 1 }
-#    }
-#
-#  } #end Ljung-Box test of zhat^2:
-#
-#  ## Jarque-Bera test of zhat:
-#  if(is.null(normality.JarqueB)){ normality.gum.chk <- 1 }else{
-#    if(diagnostics.table[3,3] <= normality.JarqueB[1]){
-#      normality.gum.chk <- 0
-#    }else{ normality.gum.chk <- 1 }
-#  }#end Jarque-Bera test of zhat
 
   ## results:
   if(verbose){
@@ -165,15 +97,17 @@ function(object, t.pval=0.05, wald.pval=t.pval,
     out$gum.mean <- tmpdf
     out$gum.variance <- object$variance.results
     out$gum.diagnostics <- object$diagnostics
-    #OLD: out$gum.diagnostics <- diagnostics.table
   } #end if(verbose)
 
   ## if GUM passes diagnostic checks:
-#OLD:  gum.chk <- ar.gum.chk*arch.gum.chk*normality.gum.chk
   if(gum.chk){
-#OLD: if(gum.chk != 0){
 
     spec[[1]] <- spec.gum <- gum
+
+    ##check if loge2.n exists:
+    if(is.null(object$aux$loge2.n) ){
+      object$aux$loge2.n <- object$aux$y.n
+    }
 
     #specification results
     info.results <- info.criterion(object$logl, object$aux$loge2.n,
@@ -199,7 +133,6 @@ function(object, t.pval=0.05, wald.pval=t.pval,
   ## EMPTY MODEL: ################
 
   if( gum.chk && delete.n>0 && include.empty ){
-#OLD:  if( gum.chk !=0 && delete.n>0 && include.empty==TRUE ){
 
     ## DO NOT do pet in order to enable reality check!
 
@@ -226,8 +159,7 @@ function(object, t.pval=0.05, wald.pval=t.pval,
         arch=object$aux$arch, asym=object$aux$asym,
         log.ewma=object$aux$log.ewma, vxreg=object$aux$vxreg,
         zero.adj=object$aux$zero.adj, vc.adj=object$aux$vc.adj,
-        tol=object$aux$tol, LAPACK=object$aux$LAPACK,
-        verbose=TRUE, plot=FALSE)
+        tol=object$aux$tol, LAPACK=object$aux$LAPACK, plot=FALSE)
       sigma2.fit <- coredata(na.trim(est.var$var.fit))
       resids.adj <- resids[c(object$aux$y.n-object$aux$loge2.n+1):object$aux$y.n]
       resids.adj.n <- length(resids.adj)
@@ -246,10 +178,6 @@ function(object, t.pval=0.05, wald.pval=t.pval,
       xreg=userXreg, ar.LjungB=ar.LjungB, arch.LjungB=arch.LjungB,
       normality.JarqueB=normality.JarqueB, verbose=FALSE,
       user.fun=user.diagnostics)
-#OLD:
-#    diagnostics.chk <- diagnostics(zhat, s2=1,
-#      ar.LjungB=ar.LjungB, arch.LjungB=arch.LjungB,
-#      normality.JarqueB=normality.JarqueB, verbose=FALSE)
 
     ##if empty model passes diagnostic checks:
     if(diagnostics.chk){
@@ -258,7 +186,6 @@ function(object, t.pval=0.05, wald.pval=t.pval,
       spec[[length(spec)+1]] <- if(is.null(keep)){0}else{keep}
 
       ##specification results
-#check this??:
       logl <- -resids.adj.n*log(2*pi)/2 - sum(log(sigma2.fit))/2 - sum(zhat^2)/2
       info.results <- info.criterion(logl, resids.adj.n, keep.n,
         method = info.method)
@@ -349,7 +276,7 @@ if( gum.chk && delete.n>1 ){
           t.stat <- est$coefficients/stderrs
           p.val <- pt(abs(t.stat), est$df, lower.tail=FALSE)*2
           fit <- est$fit
-          resids <- est$residuals
+          resids <- est$resids
           sigma2 <- est$sigma2
         }else{
           fit <- rep(0, object$aux$y.n)
@@ -378,11 +305,9 @@ if( gum.chk && delete.n>1 ){
           residsAdj <- zoo(resids, order.by=object$aux$y.index)
           est.var <- arx(residsAdj, vc=object$aux$vc,
             arch=object$aux$arch, asym=object$aux$asym,
-            log.ewma=object$aux$log.ewma,
-            vxreg=object$aux$vxreg,
-            zero.adj=object$aux$zero.adj,
-            vc.adj=object$aux$vc.adj, tol=object$aux$tol,
-            LAPACK=object$aux$LAPACK, verbose=TRUE, plot=FALSE)
+            log.ewma=object$aux$log.ewma, vxreg=object$aux$vxreg,
+            zero.adj=object$aux$zero.adj, vc.adj=object$aux$vc.adj,
+            tol=object$aux$tol, LAPACK=object$aux$LAPACK, plot=FALSE)
           sigma2.fit <- coredata(na.trim(est.var$var.fit))
           resids.adj <- resids[c(object$aux$y.n-object$aux$loge2.n+1):object$aux$y.n]
           resids.adj.n <- length(resids.adj)
@@ -402,10 +327,6 @@ if( gum.chk && delete.n>1 ){
           xreg=userXreg, ar.LjungB=ar.LjungB, arch.LjungB=arch.LjungB,
           normality.JarqueB=normality.JarqueB, verbose=FALSE,
           user.fun=user.diagnostics)
-#OLD:
-#        diagnostics.chk <- diagnostics(zhat, s2=1,
-#          ar.LjungB=ar.LjungB, arch.LjungB=arch.LjungB,
-#          normality.JarqueB=normality.JarqueB, verbose=FALSE)
 
         ## if diagnostics.chk fails (i.e. FALSE),
         ## then move path[length(path)] to keep.adj
@@ -527,9 +448,6 @@ if( gum.chk && delete.n>1 ){
     }else{
       if(length(spec)==1){
         where <- 1
-#        messages <- paste(messages,
-#           "- MGUM added to terminals since there were no other terminals",
-#           sep="")
       }else{
         min.value <- min(models[-1,2])
         where <- which(min.value==models[-1,2]) + 1
@@ -584,14 +502,6 @@ if( gum.chk && delete.n>1 ){
 
     if(estimate.specific){
 
-#      if(best.spec[1]==0){
-#        resids <- zoo(cbind(object$aux$y), order.by=object$aux$y.index)
-#        colnames(resids) <- object$aux$y.name
-#        specific.mean <- "empty"
-#        Rsquared <- 0
-#        vcov.mean <- NULL
-#      }else{
-
       ##prepare for estimation:
       yadj <- zoo(cbind(object$aux$y),
         order.by=object$aux$y.index)
@@ -625,20 +535,11 @@ if( gum.chk && delete.n>1 ){
         vc.adj=object$aux$vc.adj, vcov.type=vcov.type,
         qstat.options=c(ar.LjungB[1],arch.LjungB[1]),
         user.diagnostics=user.diagnostics, tol=object$aux$tol,
-        LAPACK=object$aux$LAPACK, verbose=TRUE, plot=FALSE)
+        LAPACK=object$aux$LAPACK, plot=FALSE)
 
       ##rename various stuff:
       est$call <- est$date <- NULL
-#        where.mean.results <- which(names(est)=="mean.results")
-#        if(length(where.mean.results)>0){
-#          names(est)[where.mean.results] <- "specific.mean"
-#        }
-#        where.variance.results <- which(names(est)=="variance.results")
-#        if(length(where.variance.results)>0){
-#          names(est)[where.variance.results] <- "specific.variance"
-#        }
       where.diagnostics <- which(names(est)=="diagnostics")
-      #est$diagnostics <- est$diagnostics[1:3,]
       if(length(where.diagnostics)>0){
         names(est)[where.diagnostics] <- "specific.diagnostics"
       }

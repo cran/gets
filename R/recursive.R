@@ -3,12 +3,16 @@ function(object, spec=c("mean","variance"),
   std.errors=TRUE, from=40, tol=1e-07, LAPACK=FALSE,
   plot=NULL, return=TRUE)
 {
+  ##check if user-defined estimator:
+  if( !is.null(object$aux$user.estimator) ){
+    stop("Not available for user-defined estimators")
+  }
+
   ##which specification:
   specType <- match.arg(spec)
-#OLD:
-#  specType <- c("mean", "variance", "both")
+#Change to?:
+#  specType <- c("mean", "variance")
 #  whichType <- charmatch(spec, specType)
-#  if(whichType==3){ stop("Sorry, 'both' not possible.") }
 #  specType <- specType[whichType]
 
   ##if mean-specification:
@@ -88,7 +92,7 @@ function(object, spec=c("mean","variance"),
 
     ##if variance-specification:
     if(specType=="variance"){
-      Elnz2est <- -log(mean(exp(tmpEst$residuals)))
+      Elnz2est <- -log(mean(exp(tmpEst$resids)))
       recursiveEstimates[compute.at[i], "vconst"] <- recursiveEstimates[compute.at[i], "vconst"] - Elnz2est
       recursiveEstimatesElnz2[compute.at[i]] <- Elnz2est
     }

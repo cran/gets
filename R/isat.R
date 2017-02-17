@@ -16,7 +16,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   info.method <- match.arg(info.method)
   mod <- arx(y, mc=mc, ar=ar, ewma=ewma, mxreg=mxreg,
     vcov.type=vcov.type, qstat.options=NULL, user.diagnostics=user.diagnostics,
-    tol=tol, LAPACK=LAPACK, verbose=FALSE, plot=FALSE)
+    tol=tol, LAPACK=LAPACK, plot=FALSE)
   y <- mod$aux$y
   y.n <- mod$aux$y.n
   y.index <- mod$aux$y.index
@@ -210,7 +210,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       ##gum:
       mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
         qstat.options=qstat.options, user.diagnostics=user.diagnostics,
-        tol=tol, LAPACK=LAPACK, verbose=TRUE, plot=FALSE)
+        tol=tol, LAPACK=LAPACK, plot=FALSE)
 #future?: keep=NULL instead of mxkeep?
 #      getsis <- getsm(mod, keep=NULL, t.pval=t.pval,
       getsis <- getsm(mod, keep=mxkeep, t.pval=t.pval,
@@ -270,7 +270,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         silent=print.searchinfo)
       mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
         qstat.options=NULL, tol=tol, LAPACK=LAPACK,
-        verbose=TRUE, plot=FALSE)
+        plot=FALSE)
       getsis <- getsm(mod, keep=mxkeep, t.pval=t.pval,
         do.pet=do.pet, wald.pval=wald.pval, ar.LjungB=ar.LjungB,
         arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
@@ -332,7 +332,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   y <- zoo(y, order.by=y.index)
   mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
     qstat.options=qstat.options, user.diagnostics=user.diagnostics,
-    tol=tol, LAPACK=LAPACK, verbose=TRUE, plot=FALSE)
+    tol=tol, LAPACK=LAPACK, plot=FALSE)
   getsis <- getsm(mod, keep=mxkeep, t.pval=t.pval,
     do.pet=do.pet, wald.pval=wald.pval, ar.LjungB=ar.LjungB,
     arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,

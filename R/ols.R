@@ -2,10 +2,20 @@ ols <-
 function(y, x, tol=1e-07 , LAPACK=FALSE,
   method=1, user.fun=NULL, user.options=NULL)
 {
+
+  ##to do number 1:
+  ## - rename ols to estFun
+  ## - merge user.fun and user.options into a single argument,
+  ## user.estimator, which is a list containing at least one
+  ## entry, name, i.e. the name of the estimator-function
+  ##
+  ##to do number 2:
+  ## - split estFun into two functions, estFun and vcovFun
+
   ##user-specified:
   if(method==0){
     user.options <- c(list(y=y, x=x), user.options)
-    out <- do.call(user.fun, user.options)
+    out <- do.call(user.fun, user.options, envir=.GlobalEnv)
   }
 
   ##fastest (usually only for estimates):
@@ -24,7 +34,9 @@ function(y, x, tol=1e-07 , LAPACK=FALSE,
     out$coefficients <- solve.qr(qx, y, tol=tol)
     out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
     out$fit <- as.vector(x %*% out$coefficients)
-    out$residuals <- y - out$fit
+    out$resids <- y - out$fit
+#OLD:
+#    out$residuals <- y - out$fit
   }
 
   ##ordinary vcov:
@@ -35,8 +47,10 @@ function(y, x, tol=1e-07 , LAPACK=FALSE,
     out$coefficients <- solve.qr(qx, y, tol=tol)
     out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
     out$fit <- as.vector(x %*% out$coefficients)
-    out$residuals <- y - out$fit
-    out$resids2 <- out$residuals^2
+    out$resids <- y - out$fit
+#OLD:
+#    out$residuals <- y - out$fit
+    out$resids2 <- out$resids^2
     out$rss <- sum(out$resids2)
     out$n <- length(y)
     out$df <- out$n - NCOL(x)
@@ -52,8 +66,10 @@ function(y, x, tol=1e-07 , LAPACK=FALSE,
     out$coefficients <- solve.qr(qx, y, tol=tol)
     out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
     out$fit <- as.vector(x %*% out$coefficients)
-    out$residuals <- y - out$fit
-    out$resids2 <- out$residuals^2
+    out$resids <- y - out$fit
+#OLD:
+#    out$residuals <- y - out$fit
+    out$resids2 <- out$resids^2
     out$rss <- sum(out$resids2)
     out$n <- length(y)
     out$df <- out$n - NCOL(x)
@@ -70,8 +86,10 @@ function(y, x, tol=1e-07 , LAPACK=FALSE,
     out$coefficients <- solve.qr(qx, y, tol=tol)
     out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
     out$fit <- as.vector(x %*% out$coefficients)
-    out$residuals <- y - out$fit
-    out$resids2 <- out$residuals^2
+    out$resids <- y - out$fit
+#OLD:
+#    out$residuals <- y - out$fit
+    out$resids2 <- out$resids^2
     out$rss <- sum(out$resids2)
     out$n <- length(y)
     out$df <- out$n - NCOL(x)
@@ -81,7 +99,7 @@ function(y, x, tol=1e-07 , LAPACK=FALSE,
     iL <- round(y.n^(1/4), digits=0)
     vW <- 1 - 1:iL/(iL+1)
     vWsqrt <- sqrt(vW)
-    mXadj <- out$residuals*x
+    mXadj <- out$resids*x
     mS0 <- crossprod(mXadj)
 
     mSum <- 0

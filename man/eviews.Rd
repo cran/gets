@@ -1,10 +1,10 @@
 \name{eviews}
 \alias{eviews}
 \alias{stata}
-\title{Exporting results to EViews and Stata}
+\title{Exporting results to EViews and STATA}
 
 \description{
-Functions that facilitate the export of results to the commercial econometric softwares EViews and Stata, respectively.
+Functions that facilitate the export of results to the commercial econometric softwares EViews and STATA, respectively.
 }
 
 \usage{
@@ -14,7 +14,7 @@ stata(object, file=NULL, print=TRUE, return=FALSE)
 \arguments{
   \item{object}{an \code{arx}, \code{gets} or \code{isat} object}
   \item{file}{filename, i.e. the destination of the exported data}
-  \item{print}{logical. If TRUE, then the estimation code in EViews (or Stata) is printed}
+  \item{print}{logical. If TRUE, then the estimation code in EViews (or STATA) is printed}
   \item{return}{logical. If TRUE, then a list is returned}
 }
 

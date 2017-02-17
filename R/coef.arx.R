@@ -12,7 +12,7 @@ function(object, spec=NULL, ...)
     spec <- spec.type[which.type]
   } #end if(..)else(..)
 
-  ##mean:
+  ##mean results:
   result1 <- NULL
   if(spec=="mean" || spec=="both"){
     if(!is.null(object$mean.results)){
@@ -21,7 +21,7 @@ function(object, spec=NULL, ...)
     }
   } #end if(spec==..)
 
-  ##variance:
+  ##variance results:
   result2 <- NULL
   if(spec=="variance" || spec=="both"){
     if(!is.null(object$variance.results)){

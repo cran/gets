@@ -34,22 +34,6 @@ function(x, ...)
   }
   cat("Sample:", startAsChar, "to", endAsChar, "\n")
 
-#OLD:
-#  indexTrimmed <- index(na.trim(tmp))
-#  if(is.regular(tmp, strict=TRUE)){
-#    cycleTrimmed <- cycle(na.trim(tmp))
-#    startYear <- floor(as.numeric(indexTrimmed[1]))
-#    startAsChar <- paste(startYear,
-#      "(", cycleTrimmed[1], ")", sep="")
-#    endYear <- floor(as.numeric(indexTrimmed[length(indexTrimmed)]))
-#    endAsChar <- paste(endYear,
-#        "(", cycleTrimmed[length(indexTrimmed)], ")", sep="")
-#  }else{
-#    startAsChar <- as.character(indexTrimmed[1])
-#    endAsChar <- as.character(indexTrimmed[length(indexTrimmed)])
-#  }
-#  cat("Sample:", startAsChar, "to", endAsChar, "\n")
-
   ##gum:
   if(specType=="mean"){
     cat("\n")
@@ -135,7 +119,6 @@ function(x, ...)
     printCoefmat(x$specific.diagnostics, dig.tst=0, tst.ind=2,
       signif.stars=FALSE)
     printCoefmat(mGOF, digits=6, signif.stars=FALSE)
-  #OLD: print(mGOF)
 
   }
 

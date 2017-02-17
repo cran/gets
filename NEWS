@@ -1,3 +1,20 @@
+Version 0.11 (17 February 2017):
+================================
+
+* ES, VaR: new extraction functions for arx, gets and isat objects. The former extracts the conditional Expected Shortfall (ES) for the chosen risk level(s), whereas the latter extracts the conditional Value-at-Risk (VaR).
+ 
+* arx:
+
+- new argument: user.estimator
+- deleted argument: verbose
+
+* fitted.isat: new argument, spec, which works in the same way as for arx and gets objects
+
+* predict.isat: when applied to isat-objects with retained indicators (impulse, step, trend), it is not necessary anymore to include indicator-values in the newmxreg argument (the out-of-sample indicator-values are automatically generated)
+
+* eviews, stata: their messages can now also be suppressed with the suppressMessages() command, in addition to print=FALSE
+
+
 Version 0.10 (16 January 2017):
 ===============================
 
@@ -109,7 +126,7 @@ Version 0.7 (11 April 2016):
 Version 0.6 (9 March 2016):
 ===========================
 
-* Minor change in the object returned by isat: The entry aux$mX now have column-names equal to aux$mXnames (in version 0.5 colnames(aux$mX) was NULL)
+* Minor change in the object returned by isat: The entry aux$mX now has column-names equal to aux$mXnames (in version 0.5 colnames(aux$mX) was NULL)
 
 * Fixes:
 

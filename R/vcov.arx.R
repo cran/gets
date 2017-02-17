@@ -30,5 +30,10 @@ function(object, spec=NULL, ...)
 #  ##check and change if 0 x 0?:
 #  if(all(dim(result)==0)){ result <- NULL }
 
+  ##check if user-specified estimator:
+  if( !is.null(object$aux$user.estimator) && is.null(result) ){
+    result <- object$vcov
+  }
+  
   return(result)
 }

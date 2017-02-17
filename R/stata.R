@@ -42,17 +42,24 @@ function(object, file=NULL, print=TRUE,
   if(print && is.null(file)){
 
     ##Stata code to estimate the model:
-    cat("Stata code to estimate the model:\n")
-    cat("\n")
-    cat(" ", out$regress, "\n")
-    cat("\n")
+    message("Stata code to estimate the model:\n")
+    message(" ", out$regress, "\n")
+
+#OLD:
+#    cat("Stata code to estimate the model:\n")
+#    cat("\n")
+#    cat(" ", out$regress, "\n")
+#    cat("\n")
 
     ##R code to export the data:
-    cat("R code (example) to export the data of the model:\n")
-    cat("\n")
-    cat(paste("  stata(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
-    cat("\n")
+    message("R code (example) to export the data of the model:\n")
+    message(paste("  stata(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
 
+#OLD:
+#    cat("R code (example) to export the data of the model:\n")
+#    cat("\n")
+#    cat(paste("  stata(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
+#    cat("\n")
   } #close if(print && is.null(file))
 
   ##if save data:
@@ -60,14 +67,19 @@ function(object, file=NULL, print=TRUE,
     write.csv(out$data, file, row.names=FALSE)
     ##if print=TRUE:
     if(print){
-      cat("Data saved in:\n")
-      cat("\n")
-      cat("  ", file, "\n", sep="")
-      cat("\n")
-      cat("Stata code to estimate the model:\n")
-      cat("\n")
-      cat(" ", out$regress, "\n")
-      cat("\n")
+      message("Data saved in:\n")
+      message("  ", file, "\n", sep="")
+      message("Stata code to estimate the model:\n")
+      message(" ", out$regress, "\n")
+#OLD:
+#      cat("Data saved in:\n")
+#      cat("\n")
+#      cat("  ", file, "\n", sep="")
+#      cat("\n")
+#      cat("Stata code to estimate the model:\n")
+#      cat("\n")
+#      cat(" ", out$regress, "\n")
+#      cat("\n")
     }
   } #end if(!is.null(file))
 

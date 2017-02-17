@@ -50,14 +50,14 @@ function(x, ...)
   } #end if(!is.null..)
 
   ##gum:
-  if(specType=="mean"){
+  if( specType=="mean" && !is.null(x$gum.mean) ){
     cat("\n")
     cat("GUM mean equation:\n")
     cat("\n")
     printCoefmat(x$gum.mean, dig.tst=0, tst.ind=c(1,2),
       signif.stars=FALSE, P.values=FALSE, has.Pvalue=FALSE)
   }
-  if(!is.null(x$gum.variance)){
+  if( !is.null(x$gum.variance) ){
     cat("\n")
     cat("GUM log-variance equation:\n")
     cat("\n")

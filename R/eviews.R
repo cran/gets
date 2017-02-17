@@ -31,16 +31,24 @@ function(object, file=NULL, print=TRUE,
   if(print && is.null(file)){
 
     ##EViews code to estimate the model:
-    cat("EViews code to estimate the model:\n")
-    cat("\n")
-    cat(" ", out$equation, "\n")
-    cat("\n")
+    message("EViews code to estimate the model:\n")
+    message("  ", out$equation, "\n")
+
+#OLD:
+#    cat("EViews code to estimate the model:\n")
+#    cat("\n")
+#    cat(" ", out$equation, "\n")
+#    cat("\n")
 
     ##R code to export the data:
-    cat("R code (example) to export the data of the model:\n")
-    cat("\n")
-    cat(paste("  eviews(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
-    cat("\n")
+    message("R code (example) to export the data of the model:\n")
+    message(paste("  eviews(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
+
+#OLD:
+#    cat("R code (example) to export the data of the model:\n")
+#    cat("\n")
+#    cat(paste("  eviews(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
+#    cat("\n")
 
   } #close if(print)
 
@@ -49,14 +57,20 @@ function(object, file=NULL, print=TRUE,
     write.csv(out$data, file, row.names=FALSE)
     ##if print=TRUE:
     if(print){
-      cat("Data saved in:\n")
-      cat("\n")
-      cat("  ", file, "\n", sep="")
-      cat("\n")
-      cat("EViews code to estimate the model:\n")
-      cat("\n")
-      cat(" ", out$equation, "\n")
-      cat("\n")
+      message("Data saved in:\n")
+      message("  ", file, "\n", sep="")
+      message("EViews code to estimate the model:\n")
+      message(" ", out$equation, "\n")
+
+#OLD:
+#      cat("Data saved in:\n")
+#      cat("\n")
+#      cat("  ", file, "\n", sep="")
+#      cat("\n")
+#      cat("EViews code to estimate the model:\n")
+#      cat("\n")
+#      cat(" ", out$equation, "\n")
+#      cat("\n")
     }
   } #end if(!is.null(file))
 
