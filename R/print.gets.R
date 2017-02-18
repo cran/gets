@@ -90,18 +90,22 @@ function(x, ...)
   } #end if(is.null(x$paths))
 
   ##terminal models and results:
-  cat("\n")
-  cat("Terminal models: \n")
   if(!is.null(x$terminals)){
     cat("\n")
-    for(i in 1:length(x$terminals)){
-      cat("spec",i,":",x$terminals[[i]],"\n")
+    cat("Terminal models: \n")
+    if(!is.null(x$terminals)){
+      cat("\n")
+      for(i in 1:length(x$terminals)){
+        cat("spec",i,":",x$terminals[[i]],"\n")
+      }
     }
   }
-  cat("\n")
-  printCoefmat(x$terminals.results, dig.tst=0, tst.ind=c(3,4),
-    signif.stars=FALSE)
-
+  if(!is.null(x$terminals.results)){
+    cat("\n")
+    printCoefmat(x$terminals.results, dig.tst=0, tst.ind=c(3,4),
+      signif.stars=FALSE)
+  }
+  
   ##specific model:
   if(specType=="mean" && !is.null(x$specific.spec)){
     cat("\n")

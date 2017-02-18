@@ -1,6 +1,6 @@
-e237170008774d17da98b7df05e6eb15 *DESCRIPTION
+8ad5f2fb96df70f570a8fd9bdb7ebce5 *DESCRIPTION
 32b3bee42fe1b656385f00d62ad57d73 *NAMESPACE
-98b9aa004e2e9e2b91ee4e959949edf5 *NEWS
+7665dc8c7a378a63e4674e3ff6885dd2 *NEWS
 c6b237233a66bcaa8e1ef35685bbfdb0 *R/ES.R
 d4b31a0387039880c3df15c5be74e52a *R/VaR.R
 33fc26af8fe024cce2c8fe0ff9b282e4 *R/arx.R
@@ -15,7 +15,7 @@ d4b31a0387039880c3df15c5be74e52a *R/VaR.R
 38fa45bb50402257de723dbb6e1b031c *R/fitted.arx.R
 b628e1a80015bacbc20a7c8f94b00bf2 *R/fitted.gets.R
 6acf31c223e6660d0ba6518cd55446f5 *R/fitted.isat.R
-cd208b7b35509af69b9c8d72cb80ceb5 *R/gets-internal.R
+8d6f415b3db21c1f3f7c42271412d2ce *R/gets-internal.R
 a6d3f115cf11008eaef9515572d55289 *R/getsm.R
 e664a31c574941f4e20f5789f6910cf1 *R/getsv.R
 47b56bdbfa6c5be4d4567be9a762157a *R/iim.R
@@ -39,7 +39,7 @@ f306d4c6e42790843d6a33a5f4ce11b0 *R/predict.arx.R
 1b09bacf5199c51ed13f4ceb0eae27ad *R/predict.gets.R
 298d3f2b481e6e8d2d13074854ea545f *R/predict.isat.R
 975b4810c8e7c9de9341fae959d52710 *R/print.arx.R
-42d09d1a13d1ff87b2fee8f3132109fa *R/print.gets.R
+2fff760de37a26bdc37f14319de18358 *R/print.gets.R
 64977e4ee938edd649da5288d3b40974 *R/print.isat.R
 dd91d4be6e487d5f9b56f4611da039d1 *R/recursive.R
 a97e8006c2b67d50e99fa95002e6d51d *R/residuals.arx.R
@@ -73,7 +73,7 @@ a16f06faa1df0b7053559ef069e3f0c2 *man/diagnostics.Rd
 4e0afef2d649ef6dcb09a41fb12f8617 *man/dropvar.Rd
 e61ab2194b73a0050b1d88b3d7ec2c54 *man/eqwma.Rd
 abd345be6e20e351aaa0b71b3148335d *man/eviews.Rd
-b92291e1fdba7dba41ac8d84051b13a5 *man/gets-package.Rd
+9fe9669f86ab42df1e6aa75b193fa7fc *man/gets-package.Rd
 2749035bf5287071d4d8051feda268f0 *man/getsm.Rd
 e357b0705c2614ab6ab12a8a2be64bed *man/hpdata.Rd
 312108f02fc364b8d309500b66ea9629 *man/iim.Rd
