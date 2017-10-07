@@ -92,7 +92,7 @@ function(object, spec=c("mean","variance"),
 
     ##if variance-specification:
     if(specType=="variance"){
-      Elnz2est <- -log(mean(exp(tmpEst$resids)))
+      Elnz2est <- -log(mean(exp(tmpEst$residuals)))
       recursiveEstimates[compute.at[i], "vconst"] <- recursiveEstimates[compute.at[i], "vconst"] - Elnz2est
       recursiveEstimatesElnz2[compute.at[i]] <- Elnz2est
     }

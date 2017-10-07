@@ -5,23 +5,27 @@
 \title{General-to-Specific (GETS) Modelling of an AR-X model with log-ARCH-X errors}
 
 \description{The starting model, an object of the 'arx' class, is referred to as the General Unrestricted Model (GUM). The \code{getsm} function undertakes multi-path GETS modelling of the mean specification, whereas \code{getsv} does the same for the log-variance specification. The diagnostic tests are undertaken on the standardised residuals, and the \code{keep} option enables regressors to be excluded from possible removal.}
+
 \usage{
 ##gets of mean specification:
-getsm(object, t.pval=0.05, wald.pval=t.pval, vcov.type=NULL,
-    do.pet=TRUE, ar.LjungB=list(lag=NULL, pval=0.025),
-    arch.LjungB=list(lag=NULL, pval=0.025), normality.JarqueB=NULL,
-    user.diagnostics=NULL, info.method=c("sc", "aic", "hq"),
-    keep=NULL, include.gum=FALSE, include.empty=FALSE, max.regs=NULL,
-    zero.adj=NULL, vc.adj=NULL, verbose=TRUE, print.searchinfo=TRUE,
-    estimate.specific=TRUE, plot=NULL, alarm=FALSE)
-  
+getsm(object, t.pval=0.05, wald.pval=t.pval, vcov.type=NULL, do.pet=TRUE,
+  ar.LjungB=list(lag=NULL, pval=0.025), arch.LjungB=list(lag=NULL, pval=0.025),
+  normality.JarqueB=NULL, user.diagnostics=NULL,
+  info.method=c("sc","aic","hq"), keep=NULL, include.gum=FALSE,
+  include.empty=FALSE, max.paths=NULL, max.regs=NULL, zero.adj=NULL,
+  vc.adj=NULL, verbose=TRUE, print.searchinfo=TRUE, estimate.specific=TRUE,
+  plot=NULL, alarm=FALSE)
+
 ##gets of variance specification:
 getsv(object, t.pval=0.05, wald.pval=t.pval, do.pet=TRUE,
   ar.LjungB=list(lag=NULL, pval=0.025), arch.LjungB=list(lag=NULL, pval=0.025),
   normality.JarqueB=NULL, user.diagnostics=NULL,
-  info.method=c("sc", "aic", "hq"), keep=c(1), include.gum=FALSE,
-  include.empty=FALSE, max.regs=NULL, zero.adj=NULL, vc.adj=NULL,
-  print.searchinfo=TRUE, estimate.specific=TRUE, plot=NULL, alarm=FALSE)
+  info.method=c("sc","aic","hq"), keep=c(1), include.gum=FALSE,
+  include.1cut=FALSE, include.empty=FALSE, max.paths=NULL, turbo=FALSE,
+  max.regs=NULL, zero.adj=NULL, vc.adj=NULL, print.searchinfo=TRUE,
+  estimate.specific=TRUE, plot=NULL, alarm=FALSE)
+
+
 }
 
 \arguments{
@@ -37,7 +41,10 @@ getsv(object, t.pval=0.05, wald.pval=t.pval, do.pet=TRUE,
   \item{info.method}{character string, "sc" (default), "aic" or "hq", which determines the information criterion to be used when selecting among terminal models. The abbreviations are short for the Schwarz or Bayesian information criterion (sc), the Akaike information criterion (aic) and the Hannan-Quinn (hq) information criterion}
   \item{keep}{the regressors to be excluded from removal in the specification search. Note that \code{keep=c(1)} is obligatory when using \code{getsv}. This excludes the log-variance intercept from removal. The regressor numbering is contained in the \code{reg.no} column of the GUM}
   \item{include.gum}{logical. If \code{TRUE}, then the GUM (i.e. the starting model) is included among the terminal models. If \code{FALSE} (default), then the GUM is not included}
+  \item{include.1cut}{logical. If \code{TRUE}, then the 1-cut model is added to the list of terminal models. If \code{FALSE} (default), then the 1-cut is not added, unless it is a terminal model in one of the paths }
   \item{include.empty}{logical. If \code{TRUE}, then an empty model is included among the terminal models, if it passes the diagnostic tests, even if it is not equal to one of the terminals. If \code{FALSE} (default), then the empty model is not included (unless it is one of the terminals)}
+  \item{max.paths}{\code{NULL} (default) or an integer greater than 0. If \code{NULL}, then there is no limit to the number of paths. If an integer (e.g. 1), then this integer constitutes the maximum number of paths searched (e.g. a single path) }
+  \item{turbo}{logical. If \code{TRUE}, then (parts of) paths are not searched twice (or more) unnecessarily, thus yielding a significant potential for speed-gain. However, the checking of whether the search has arrived at a point it has already been comes with a slight computational overhead. Accordingly, if \code{turbo=TRUE}, then the total search time might in fact be higher than if \code{turbo=FALSE}. This happens if estimation is very fast, say, less than quarter of a second. Hence the default is \code{FALSE}}
   \item{max.regs}{integer. The maximum number of regressions along a deletion path. It is not recommended that this is altered}
   \item{zero.adj}{numeric value between 0 and 1. The quantile adjustment for zero values. The default 0.1 means the zero residuals are replaced by the 10 percent quantile of the absolute residuals before taking the logarithm}
   \item{vc.adj}{logical. If \code{TRUE} (default), then the log-variance intercept is adjusted by the estimate of E[ln(z^2)]. This adjustment is needed for the conditional scale of e to be equal to the conditional standard deviation. If \code{FALSE}, then the log-variance intercept is not adjusted}
@@ -65,13 +72,14 @@ C. Jarque and A. Bera (1980): 'Efficient Tests for Normality,
 G. Ljung and G. Box (1979): 'On a Measure of Lack of Fit in Time
   Series Models'. Biometrika 66, pp. 265-270
 }
+
 \author{Genaro Sucarrat, \url{http://www.sucarrat.net/} }
 
 \seealso{
 Extraction functions: \code{\link{coef.gets}}, \code{\link{fitted.gets}}, \code{\link{paths}}, \code{\link{plot.gets}}, \code{\link{print.gets}},\cr
 \code{\link{residuals.gets}}, \code{\link{summary.gets}}, \code{\link{terminals}}, \code{\link{vcov.gets}}\cr
 
-Related functions: \code{\link{arx}}, \code{\link{isat}}, \code{\link{eqwma}}, \code{\link{leqwma}}, \code{\link{zoo}}
+Related functions: \code{\link{arx}}, \code{\link{isat}}, \code{\link{eqwma}}, \code{\link{leqwma}}, \code{\link{zoo}}, \code{\link{getsFun}}
 }
 
 \examples{

@@ -8,7 +8,7 @@
 }
 
 \usage{
-  isattest(x, hnull=0, lr=FALSE, ci.pval=0.99, plot=TRUE, plot.turn=FALSE,
+  isattest(x, hnull=0, lr=FALSE, ci.pval=0.99, plot=NULL, plot.turn=FALSE,
     conscorr=FALSE, effcorr=FALSE, mcor = 1, biascorr=FALSE, mxfull = NULL,
     mxbreak=NULL)
 }

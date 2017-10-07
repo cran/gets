@@ -77,7 +77,7 @@ function(x, col=c("red","blue"),
     ##get fitted and actual values, and dependent variable name
     fitted <- x$mean.fit
     actual <- zoo(x$aux$y, order.by=x$aux$y.index)
-    residuals <- x$resids.std
+    residuals <- x$std.residuals
     actual.name <- x$aux$y.name
 
     ##get current par-values, set new ones:

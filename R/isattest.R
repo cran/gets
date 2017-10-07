@@ -1,6 +1,8 @@
 isattest <-
-function(x, hnull=0, lr=FALSE, ci.pval = 0.99, plot=TRUE, plot.turn = FALSE, conscorr=FALSE, effcorr=FALSE, mcor = 1, biascorr=FALSE, mxfull = NULL, mxbreak=NULL){
-  
+function(x, hnull=0, lr=FALSE, ci.pval = 0.99,
+  plot=NULL, plot.turn = FALSE, conscorr=FALSE, effcorr=FALSE,
+  mcor = 1, biascorr=FALSE, mxfull = NULL, mxbreak=NULL)
+{
   trend.incl <- FALSE
   if(!is.null(as.list(x$call)$tis)){
     if (as.list(x$call)$tis) {
@@ -8,150 +10,156 @@ function(x, hnull=0, lr=FALSE, ci.pval = 0.99, plot=TRUE, plot.turn = FALSE, con
       trend.incl <- TRUE
     }
   }
-  
+
   arcall <- as.list(x$call)$ar
   x.var <- isatvar(x,lr=lr, conscorr=conscorr, effcorr=effcorr, mcor = mcor, mxfull = mxfull, mxbreak=mxbreak)
-  
+
   #misy1.var
-  
-  
+
+
   if (biascorr==TRUE){
-    
+
     if (!is.null(as.list(x$call)$mxreg) | !is.null(arcall) | trend.incl){
-      
+
       biascorr <- FALSE
       message("Bias Correction not applicable in isat regression with additional non-step covariates. Has been set to FALSE.")
     }
   }
-  
-  
+
+
   T <- dim(x$aux$mX)[1]
   N <- dim(x$aux$mX)[2]
-  
+
   crit <- abs(qt((1-ci.pval)/2, T-N))
   bias.low <- matrix(0, T, 1)
   bias.high <- matrix(0, T, 1)
-  
+
   ci.low <- matrix(0, T, 1)
   ci.high <- matrix(0, T, 1)
   x.mean <- matrix(0, T, 1)
-  
+
   if (lr == TRUE & !is.null(arcall))
   {
     x.is.lr <- x.var$lr.path
     x.is.const <- x.var$const.path
-    
+
   } else {
-    
+
     x.is.lr <- NA
-    
+
     if (biascorr){
-      
+
       xbias <-biascorr(b=x.var$const.path, b.se=x.var$const.se, p.alpha = x$aux$t.pval, T=length(x.var$const.path))
       x.is.const <- xbias$beta.2step
-      
+
     } else {
       x.is.const <- x.var$const.path
-      
+
     }
-    
-    
+
+
   }
-  
-  
+
+
   if (lr == TRUE & !is.null(arcall))
   {
-    
+
     ci.low <- x.var$lr.path-crit*x.var$lr.se
     ci.high <- x.var$lr.path+crit*x.var$lr.se
-    
+
     bias.low[which((ci.low) > hnull)] <- 1
     bias.high[which((ci.high) < hnull)] <- 1
-    
+
     bias.low <- bias.low*(x.var$lr.path-hnull)
     bias.high <- bias.high*(x.var$lr.path-hnull)
-    
+
     x.mean <- x.var$lr.path
-    
+
   } else {
-    
+
     ci.low <- x.is.const-crit*x.var$const.se
     ci.high <- x.is.const+crit*x.var$const.se
-    
+
     bias.low[which((ci.low) > hnull)] <- 1
     bias.high[which((ci.high) < hnull)] <- 1
-    
-    
+
+
     bias.low <- bias.low*(x.is.const-hnull)
     bias.high <- bias.high*(x.is.const-hnull)
-    
+
     x.mean <- x.is.const
-    
+
   }
-  
+
   ###determining the turning points
   time <- x$aux$y.index
   bias.sum.ar <- bias.low+bias.high
   lr.path.d <- diff(bias.sum.ar)
-  
-  
+
+
   if(all(lr.path.d==0)){
     plot.turn <- FALSE
     turn.ar <- NULL
   } else {
     turn.ar <- time[which(lr.path.d != 0)]+1
   }
-  
+
   turn.ar.y <- bias.sum.ar[which(lr.path.d != 0)]
-  
+
   turn.x.lab <- turn.ar
   turn.x <- turn.ar
-  
+
   fitted <- x$mean.fit
   actual <- zoo(x$aux$y, order.by=x$aux$y.index)
-  
+
   ylabel_a <- "Coefficient"
   ylabel_b <- "Bias"
-  
-  
-  par(mfrow=c(2,1), mar = c(2, 4,1,3))
+
+
+
   Ylim_main <- c(min(actual, na.rm=TRUE)*1.2,max(actual, na.rm=TRUE)*1.2)
   Ylim_bias <- c(min(bias.high, na.rm=TRUE)*1.2,max(bias.low, na.rm=TRUE)*1.2)
-  
+
+  ##plot argument:
+  if( is.null(plot) ){
+    plot <- getOption("plot")
+    if( is.null(plot) ){ plot <- FALSE }
+  }
+
   if (plot){
-    
-    plot(time, x.mean, ylim=Ylim_main, col="red", title(main=NULL, xlab=NULL), xlab=NA, ylab=ylabel_a, sub=NA, type="l")
+    par(mfrow=c(2,1), mar = c(2, 4,1,3))
+    plot(time, x.mean, ylim=Ylim_main, col="red", main=NULL, xlab=NA, ylab=ylabel_a, sub=NA, type="l")
+
     lines(ci.low, col="red", lty=2)
     lines(ci.high, col="red", lty=2)
-    
+
     if (is.null(mxbreak))
     {
       lines(actual, col="blue")
     }
     abline(a =hnull, b=0, col="black", lty=3, lwd=2)
-    plot(time, bias.low, type="h", col="red", ylim=Ylim_bias, title(main=NULL, xlab=NULL), xlab=NA, ylab=ylabel_b, sub=NA)
+    plot(time, bias.low, type="h", col="red", ylim=Ylim_bias, main=NULL, xlab=NA, ylab=ylabel_b, sub=NA)
     lines(bias.high, type="h", col="red")
-    
+
     if ( plot.turn ){
       text(turn.x.lab, y=turn.ar.y, x=turn.x, pos=4, offset=-0.5, cex=0.8)
     }
-    
   }
-  
-  
+
+
   if (lr==TRUE & !is.null(arcall))
   {
     mean.var <- cbind(ci.low, ci.high, bias.low,  bias.high)
     colnames(mean.var) <- c("ci.low", "ci.high", "bias.high",  "bias.low")
-    
-    
+
+
   } else {
     mean.var <- cbind( ci.low, ci.high, bias.low,  bias.high)
     colnames(mean.var) <- c("ci.low", "ci.high", "bias.high",  "bias.low")
-    
+
   }
-  
-  
+
+
   return(mean.var)
-  
+
 }

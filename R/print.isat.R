@@ -49,7 +49,7 @@ function(x, ...)
     printCoefmat(x$gum.variance, signif.stars=FALSE)
   }
   cat("\n")
-  cat("Diagnostics:\n")
+  cat("Diagnostics and fit:\n")
   cat("\n")
   printCoefmat(x$gum.diagnostics, dig.tst=0, tst.ind=2,
     signif.stars=FALSE, P.values=FALSE, has.Pvalue=FALSE)
@@ -107,14 +107,14 @@ function(x, ...)
     #fit-measures:
     mGOF <- matrix(NA, 3, 1)
     rownames(mGOF) <- c("SE of regression", "R-squared",
-      paste("Log-lik.(n=", length(na.trim(x$resids.std)), ")", sep=""))
+      paste("Log-lik.(n=", length(na.trim(x$std.residuals)), ")", sep=""))
     colnames(mGOF) <- ""
     mGOF[1,1] <- sigma.isat(x) #OLD: sqrt( RSS/(nobs-DFs) )
     mGOF[2,1] <- rsquared(x) #OLD: x$specific.diagnostics[4,1]
     mGOF[3,1] <- as.numeric(logLik.arx(x))
 
     cat("\n")
-    cat("Diagnostics:\n")
+    cat("Diagnostics and fit:\n")
     cat("\n")
     printCoefmat(x$specific.diagnostics, dig.tst=0, tst.ind=2,
       signif.stars=FALSE)

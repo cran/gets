@@ -8,9 +8,9 @@ function(object, std=FALSE, ...)
   }
 
   if(std){
-    result <- object$resids.std
+    result <- object$std.residuals
   }else{
-    result <- object$resids
+    result <- object$residuals
   }
   return(result)
 }

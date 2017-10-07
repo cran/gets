@@ -1,7 +1,60 @@
+Version 0.13 (5 October 2017):
+==============================
+
+* new package dependency: 'parallel'
+ 
+* isat: 
+
+- new argument, parallel.options, for parallel computation in the block search
+- new argument, max.paths, that controls the number of backwards elimination paths. If NULL (the default), then there is no maximum
+- improved block composition algorithm (sometimes NCOL(uis) > length(y) resulted in too few blocks, so that isat() crashed, whenever uis was a matrix)
+- isattest: the default of plot argument changed to NULL
+- some of the values in the returned list have been renamed (e.g. resids changed to residuals), and some new values have been added
+
+* getsm:
+
+- new argument, max.paths, that controls the maximum number of backwards elimination paths. If NULL (the default), then there is no maximum
+- now works if the user.estimator is not NULL in the arx-object it is applied to
+- some of the values in the returned list have been renamed (e.g. resids changed to residuals), and some new values have been added
+
+* new function: getsFun. Computationally efficient GETS-modelling with - optionally - user-defined estimation, and - optionally - user-defined diagnostics. In the future, getsm() and isat() will be re-written so that they call and rely on getsFun()
+
+* new function: infocrit. Essentially equal to info.crit, but the main argument is a list (typically an estimation object, e.g. produced by ols())
+
+* new S3 method: gets
+
+* getsv:
+
+- has been re-written in order to call and rely on the new getsFun() function (see above)
+- new arguments: include.1cut (default FALSE), max.paths (default NULL, i.e. no maximum), turbo (default FALSE)
+- some of the values in the returned list have been renamed (e.g. resids changed to residuals), and some new values have been added
+
+* diagnostics:
+
+- the main argument, x, is now expected to be a list containing estimation results, e.g. from ols()
+- deleted arguments: s2, y, xreg
+
+* ols:
+
+- method=3: new default
+- methods 3, 4 and 5 now accept empty regressor matrices
+- re-naming of some of the items in the returned value (e.g. resids changed to residuals)
+- new estimation method (method=6): estimation of log-variance model
+- new argument: untransformed.residuals (default NULL), which is needed when method=6
+
+* fixes:
+
+- getsv: if the gum has a mean-specification, then the fitted values of the mean (i.e. the mean.fit entry) are now the fitted values of the gum-mean (i.e. not zeros, as previously)
+- logLik.arx: fix of a bug that occurred whenever the estimator was user-defined (i.e. whenever user.estimator argument was not NULL in the arx-call)
+- rsquared: cannot be applied anymore on the specific model obtained by getsv() (an NA value will be returned)
+
+* numerous minor changes have been made throughout the code, which should not be noticeable for the average user. Also, numerous minor changes have been made throughout the documentation
+
+
 Version 0.12 (18 February 2017):
 ================================
 
-* the R version dependency changed to R (>= 3.3.0)
+* the R version dependency changed to >= 3.3.0
 
 * fix of minor issue in print.gets, which occurred when no search was undertaken
 

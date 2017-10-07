@@ -30,12 +30,12 @@ function(x, ...)
   }
 
   ##header - sample info:
-  if(!is.null(x$resids)){
-    indexTrimmed <- index(na.trim(x$resids))
-    isRegular <- is.regular(x$resids, strict=TRUE)
-    isCyclical <- frequency(x$resids) > 1
+  if(!is.null(x$residuals)){
+    indexTrimmed <- index(na.trim(x$residuals))
+    isRegular <- is.regular(x$residuals, strict=TRUE)
+    isCyclical <- frequency(x$residuals) > 1
     if(isRegular && isCyclical){
-      cycleTrimmed <- cycle(na.trim(x$resids))
+      cycleTrimmed <- cycle(na.trim(x$residuals))
       startYear <- floor(as.numeric(indexTrimmed[1]))
       startAsChar <- paste(startYear,
         "(", cycleTrimmed[1], ")", sep="")
@@ -135,21 +135,34 @@ function(x, ...)
   if(!is.null(x$specific.diagnostics)){
 
     #fit-measures:
-    mGOF <- matrix(NA, 3, 1)
-    rownames(mGOF) <- c("SE of regression", "R-squared",
-      paste("Log-lik.(n=", length(na.trim(x$resids.std)), ")", sep=""))
+    mGOFnames <- "SE of regression"
+    mGOF <- sigma.gets(x) #OLD: sqrt( RSS/(nobs-DFs) )
+    if(specType == "mean"){
+      mGOFnames <- c(mGOFnames, "R-squared")
+      mGOF <- rbind(mGOF, rsquared(x))
+    }
+    mGOFnames <- c(mGOFnames,
+      paste("Log-lik.(n=", length(na.trim(x$std.residuals)), ")", sep=""))
+    mGOF <- rbind(mGOF, as.numeric(logLik.arx(x)))
+    rownames(mGOF) <- mGOFnames
     colnames(mGOF) <- ""
-    mGOF[1,1] <- sigma.gets(x) #OLD: sqrt( RSS/(nobs-DFs) )
-    mGOF[2,1] <- rsquared(x) #OLD: x$specific.diagnostics[4,1]
-    mGOF[3,1] <- as.numeric(logLik.arx(x))
+
+#OLD:
+#    #fit-measures:
+#    mGOF <- matrix(NA, 3, 1)
+#    rownames(mGOF) <- c("SE of regression", "R-squared",
+#      paste("Log-lik.(n=", length(na.trim(x$std.residuals)), ")", sep=""))
+#    colnames(mGOF) <- ""
+#    mGOF[1,1] <- sigma.gets(x) #OLD: sqrt( RSS/(nobs-DFs) )
+#    mGOF[2,1] <- rsquared(x) #OLD: x$specific.diagnostics[4,1]
+#    mGOF[3,1] <- as.numeric(logLik.arx(x))
 
     cat("\n")
-    cat("Diagnostics:\n")
+    cat("Diagnostics and fit:\n")
     cat("\n")
     printCoefmat(x$specific.diagnostics, dig.tst=0, tst.ind=2,
       signif.stars=FALSE)
     printCoefmat(mGOF, digits=6, signif.stars=FALSE)
-  #OLD: print(mGOF)
 
   }
 

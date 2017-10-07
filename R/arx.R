@@ -6,6 +6,8 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   qstat.options=NULL, user.estimator=NULL, user.diagnostics=NULL,
   tol=1e-07, LAPACK=FALSE, plot=NULL)
 {
+  ### ARGUMENTS: ###########
+
   vcov.type <- match.arg(vcov.type)
 
   ##regressand:
@@ -153,9 +155,8 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   ### INITIALISE ##########
 
-  out <- list()
-  out$call <- sys.call()
-#for the future: make the following objects part of the out-list?
+  sysCall <- sys.call()
+  #for the future: make the following objects part of the out-list?
   vcov.var <- NULL #make sure this object exists
   variance.results <- NULL #make sure this object exists
 
@@ -163,87 +164,75 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   #### user.estimator$spec is NULL, "mean", "variance" or "both"
   #### in order to determine what kind of estimator it is
 
-  ##check if mean and/or log-garch spec:
-  noMeanSpec <- is.null(mX)
+  ##check if mean and log-garch spec:
+  meanSpec <- !is.null(mX)
   noVarianceSpec <- if( vc==FALSE && is.null(arch)
     && is.null(asym) && is.null(log.ewma)
     && is.null(vxreg) ){ TRUE }else{ FALSE }
 
   #### MEAN ###############
 
-  if( noMeanSpec ){
+  ##estimate:
+  if( is.null(user.estimator) ){
 
-    estMean <- list()
-    estMean$resids <- aux$y
-    estMean$mean.fit <- rep(0, aux$y.n)
+    estMethod <- which(vcov.type==c("none", "none", "ordinary",
+      "white", "newey-west"))
+    out <- ols(y, mX, tol=tol, LAPACK=LAPACK,
+      method=estMethod, user.fun=NULL, user.options=NULL)
+
+    ##delete unneeded entries:
+    #out$n <- NULL #this might have to be changed in order to enable gum.result in getsFun
+    #out$k <- NULL ##this might have to be changed in order to enable gum.result in getsFun
+    #out$df <- NULL: Do not delete!
+    out$qr <- NULL
+    out$rank <- NULL
+    out$qraux <- NULL
+    out$pivot <- NULL
+    out$xtxinv <- NULL
+    out$residuals2 <- NULL
+    #out$rss <- NULL
+
+    ##add entries if no variance spec:
     if(noVarianceSpec){
-      estMean$sigma2 <- var(estMean$resids)
-      estMean$var.fit <- rep(estMean$sigma2, aux$y.n)
-      estMean$resids.std <- estMean$resids/sqrt( estMean$sigma2 )
-      estMean$logl <- -aux$y.n*log(estMean$sigma2*2*pi)/2 - sum(estMean$resids.std^2)/2
+      out$var.fit <- rep(out$sigma2, aux$y.n)
+      out$std.residuals <- out$residuals/sqrt(out$sigma2)
+      aux$loge2.n <- aux$y.n #change to out$n?
     }
 
   }else{
 
-    ##estimate:
-    if( is.null(user.estimator) ){
-
-      estMethod <- which(vcov.type==c("none", "none", "ordinary",
-        "white", "newey-west"))
-      estMean <- ols(y, mX, tol=tol, LAPACK=LAPACK,
-        method=estMethod, user.fun=NULL, user.options=NULL)
-
-      ##delete unneeded entries:
-      estMean$qr <- NULL
-      estMean$rank <- NULL
-      estMean$qraux <- NULL
-      estMean$pivot <- NULL
-      estMean$xtxinv <- NULL
-      estMean$resids2 <- NULL
-      estMean$rss <- NULL
-      estMean$n <- NULL
-
-      ##add entries if no variance spec:
-      if(noVarianceSpec){
-        estMean$var.fit <- rep(estMean$sigma2, aux$y.n)
-        estMean$resids.std <- estMean$resids/sqrt(estMean$sigma2)
-        estMean$logl <- -aux$y.n*log(estMean$sigma2*2*pi)/2 - sum(estMean$resids.std^2)/2
-        aux$loge2.n <- aux$y.n
-      }
-
-    }else{
-
-      ##user-defined estimator:
-      estMean <- do.call(user.estimator$name, list(y, mX),
-        envir=.GlobalEnv)
-      if( is.null(estMean$vcov) && !is.null(estMean$vcov.mean) ){
-        estMean$vcov <- estMean$vcov.mean
-      }
-
+    ##user-defined estimator:
+    out <- do.call(user.estimator$name, list(y, mX),
+      envir=.GlobalEnv)
+    #delete?:
+    if( is.null(out$vcov) && !is.null(out$vcov.mean) ){
+      out$vcov <- out$vcov.mean
     }
 
-    stderrs <- sqrt(diag(estMean$vcov))
-    colnames(estMean$vcov) <- mXnames
-    rownames(estMean$vcov) <- mXnames
-    t.stat <- estMean$coefficients/stderrs
-    p.val <- pt(abs(t.stat), estMean$df, lower.tail=FALSE)*2
+  } #end if(..)else(..)
 
-    estMean$mean.results <- as.data.frame(cbind(estMean$coefficients,
+  ##make estimation results (a data frame):
+  if(meanSpec){
+    stderrs <- sqrt(diag(out$vcov))
+    colnames(out$vcov) <- mXnames
+    rownames(out$vcov) <- mXnames
+    t.stat <- out$coefficients/stderrs
+    p.val <- pt(abs(t.stat), out$df, lower.tail=FALSE)*2
+    out$mean.results <- as.data.frame(cbind(out$coefficients,
       stderrs, t.stat, p.val))
-    colnames(estMean$mean.results) <- c("coef", "std.error",
+    colnames(out$mean.results) <- c("coef", "std.error",
       "t-stat", "p-value")
-    rownames(estMean$mean.results) <- mXnames
+    rownames(out$mean.results) <- mXnames
+  } #end if(meanSpec)
 
-    ##rename some stuff:
-    if( is.null(user.estimator) ){
-      estMeanNames <- names(estMean)
-      whereIs <- which(estMeanNames=="vcov")
-      names(estMean)[whereIs] <- "vcov.mean"
-      whereIs <- which(estMeanNames=="fit")
-      names(estMean)[whereIs] <- "mean.fit"
-    }
-
-  } #end if(is.null(mX))else(..)
+  ##rename some stuff:
+  if( is.null(user.estimator) ){
+    outNames <- names(out)
+    whereIs <- which(outNames=="vcov")
+    if( length(whereIs) > 0 ){ names(out)[whereIs] <- "vcov.mean" }
+    whereIs <- which(outNames=="fit")
+    names(out)[whereIs] <- "mean.fit"
+  }
 
 
   #### VARIANCE #############
@@ -252,8 +241,8 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   if( noVarianceSpec==FALSE ){
 
     ##regressand
-    zero.where <- which(estMean$resids==0)
-    eabs <- abs(estMean$resids)
+    zero.where <- which(out$residuals==0)
+    eabs <- abs(out$residuals)
     if(length(zero.where) > 0){
       eabs[zero.where] <- quantile(eabs[-zero.where], zero.adj)
     }
@@ -281,7 +270,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
       nas <- rep(NA, max(asym))
       tmpfun <- function(i){
         tmp <<- cbind(tmp, c(nas[1:i],
-          loge2[1:c(y.n-i)]*as.numeric(estMean$resids[1:c(y.n-i)]<0)))
+          loge2[1:c(y.n-i)]*as.numeric(out$residuals[1:c(y.n-i)]<0)))
       }
       tmpfun <- sapply(asym,tmpfun)
       vX <- cbind(vX, tmp)
@@ -295,7 +284,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
       }else{
         log.ewma <- list(length=log.ewma)
       }
-      tmp <- do.call(leqwma, c(list(estMean$resids),log.ewma) )
+      tmp <- do.call(leqwma, c(list(out$residuals),log.ewma) )
       vXnames <- c(vXnames, colnames(tmp))
       colnames(tmp) <- NULL
       vX <- cbind(vX, tmp)
@@ -346,90 +335,67 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     aux$log.ewma <- log.ewma
     aux$vxreg <- vxreg #note: NROW(vxreg)!=NROW(vX) is possible
 
-    ##estimate:
-    est.v <- ols(loge2, vX, tol=tol, LAPACK=LAPACK,
-      method=2)
-    fit.v <- as.vector(vX%*%cbind(est.v$coefficients))
-    ustar <- loge2-fit.v
-    ustar2 <- ustar^2
-    d.f.v. <- loge2.n - aux$vXncol
-    sigma2.v <- sum(ustar2)/d.f.v.
-
-    ##covariance coefficient matrix:
-    varcovmat.v <- sigma2.v*est.v$xtxinv
-    s.e. <- sqrt(as.vector(diag(varcovmat.v)))
-    vcov.var <- as.matrix(varcovmat.v[-1,-1])
-    colnames(vcov.var) <- vXnames[-1]
-    rownames(vcov.var) <- vXnames[-1]
-    t.stat <- est.v$coefficients/s.e.
-    p.val <- pt(abs(t.stat), d.f.v., lower.tail=FALSE)*2
-
-    Elnz2 <- -log(mean(exp(ustar)))
+    ##estimate, prepare results:
+    estVar <- ols(loge2, vX, tol=tol, LAPACK=LAPACK,
+      method=3)
+    s.e. <- sqrt(as.vector(diag(estVar$vcov)))
+    estVar$vcov <- as.matrix(estVar$vcov[-1,-1])
+    colnames(estVar$vcov) <- vXnames[-1]
+    rownames(estVar$vcov) <- vXnames[-1]
+    Elnz2 <- -log(mean(exp(estVar$residuals)))
+    t.stat <- estVar$coefficients/s.e.
+    p.val <- pt(abs(t.stat), estVar$df, lower.tail=FALSE)*2
     if(vc.adj){
-      t.stat[1] <- ((est.v$coefficients[1]-Elnz2)^2)/s.e.[1]^2
+      t.stat[1] <- ((estVar$coefficients[1]-Elnz2)^2)/s.e.[1]^2
       p.val[1] <- pchisq(t.stat[1], 1, lower.tail=FALSE)
-      est.v$coefficients[1] <- est.v$coefficients[1] - Elnz2
+      estVar$coefficients[1] <- estVar$coefficients[1] - Elnz2
     }
-    fit.v <- exp(fit.v - Elnz2)
-    resids.std <- estMean$resids[c(y.n-loge2.n+1):y.n]/sqrt(fit.v)
 
-    variance.results <- as.data.frame(cbind(est.v$coefficients, s.e., t.stat, p.val))
-    colnames(variance.results) <- c("coef", "std.error", "t-stat", "p-value")
-    rownames(variance.results) <- vXnames
-  } #end if(noVarianceSpec)
+    ##add/modify entries in out:
+    out$n <- estVar$n
+    out$vcov.var <- estVar$vcov
+    out$var.fit <- exp(estVar$fit - Elnz2)
+    out$ustar.residuals <- estVar$residuals
+    out$std.residuals <- out$residuals[c(y.n-loge2.n+1):y.n]/sqrt(out$var.fit)
+    out$logl <- -loge2.n*log(2*pi)/2 - sum(log(out$var.fit))/2 - sum(out$std.residuals^2)/2
+    out$Elnz2 <- Elnz2
+    out$variance.results <- as.data.frame(cbind(estVar$coefficients, s.e., t.stat, p.val))
+    colnames(out$variance.results) <- c("coef", "std.error", "t-stat", "p-value")
+    rownames(out$variance.results) <- vXnames
+
+  } #end if( noVarianceSpec==FALSE )
+
 
   ### OUTPUT: ######################
 
-  ##add zoo-indices:
-  if(!is.null(estMean$resids)){
-    estMean$resids <- zoo(estMean$resids, order.by=y.index)
-  }
-  if(!is.null(estMean$resids.std)){
-    estMean$resids.std <- zoo(estMean$resids.std, order.by=y.index)
-  }
-  if(!is.null(estMean$mean.fit)){
-    estMean$mean.fit <- zoo(estMean$mean.fit, order.by=y.index)
-  }
-  if(!is.null(estMean$var.fit)){
-    estMean$var.fit <- zoo(estMean$var.fit, order.by=y.index)
-  }
-
-  out <- c(out, estMean)
-  #rm(estMean)? Clean up?
-
-  if( noVarianceSpec==FALSE ){
-
-    ##log-variance
-    add.nas2var <- rep(NA,y.n-loge2.n)
-    out$var.fit <- zoo(c(add.nas2var,fit.v),
-      order.by=y.index)
-    out$resids.ustar <- zoo(c(add.nas2var,ustar),
-        order.by=y.index)
-    out$resids.std <- zoo(c(add.nas2var,resids.std),
-      order.by=y.index)
-    out$Elnz2 <- Elnz2
-#check?, since it is made up of the standardised residuals?
-    out$logl <- -loge2.n*log(2*pi)/2 - sum(log(fit.v))/2 - sum(na.trim(out$resids.std)^2)/2
-
-  } #end if( varianceSpec )
-
   ##diagnostics:
-  if( !is.null(out$resids.std) ){
-    tmpY <- tmpXreg <- NULL
-    if(!is.null(user.diagnostics)){
-      tmpY <- out$aux$y
-      tmpXreg <- out$aux$mX
-    }
-    out$diagnostics <- diagnostics( coredata(na.trim(out$resids.std, sides="both", is.na="any")),
-      s2=1, y=tmpY, xreg=tmpXreg, ar.LjungB=c(qstat.options[1],0),
-      arch.LjungB=c(qstat.options[2],0), normality.JarqueB=0,
-      user.fun=user.diagnostics, verbose=TRUE)
+  out$diagnostics <- diagnostics(out,
+    ar.LjungB=c(qstat.options[1],0), arch.LjungB=c(qstat.options[2],0),
+      normality.JarqueB=0, user.fun=user.diagnostics, verbose=TRUE)
+
+  ##add NAs to variance series:
+  if( noVarianceSpec==FALSE ){
+    NAs2add <- rep(NA,y.n-loge2.n)
+    out$var.fit <- c(NAs2add, out$var.fit)
+    out$ustar.residuals <- c(NAs2add, out$ustar.residuals)
+    out$std.residuals <- c(NAs2add, out$std.residuals)
+  }
+
+  ##add zoo-indices:
+  out$mean.fit <- zoo(out$mean.fit, order.by=y.index)
+  out$residuals <- zoo(out$residuals, order.by=y.index)
+  if(!is.null(out$var.fit)){
+    out$var.fit <- zoo(out$var.fit, order.by=y.index)
+  }
+  if(!is.null(out$ustar.residuals)){
+    out$ustar.residuals <- zoo(out$ustar.residuals, order.by=y.index)
+  }
+  if(!is.null(out$std.residuals)){
+    out$std.residuals <- zoo(out$std.residuals, order.by=y.index)
   }
 
   ##result:
-  out$vcov.var <- vcov.var
-  out$variance.results <- variance.results
-  out <- c(list(date=date(),aux=aux), out)
+  out <- c(list(call=sysCall, date=date(), aux=aux), out)
   class(out) <- "arx"
 
   ##plot:

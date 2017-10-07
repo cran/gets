@@ -1,4 +1,5 @@
-\name{info.criterion}
+\name{infocrit}
+\alias{infocrit}
 \alias{info.criterion}
 
 \title{Computes the Average Value of an Information Criterion}
@@ -8,25 +9,31 @@ Given a log-likelihood, the number of observations and the number of estimated p
 }
 
 \usage{
-info.criterion(logl, n=NULL, k=NULL, method=c("sc", "aic", "aicc", "hq"))
+infocrit(x, method=c("sc","aic","aicc","hq"))
+
+info.criterion(logl, n=NULL, k=NULL, method=c("sc","aic","aicc","hq"))
 }
 
 \arguments{
+  \item{x}{a \code{list} that contains, at least, three items: \code{logl} (a numeric, the log-likelihood), \code{k} (a numeric, usually the number of estimated parameters) and \code{n} (a numeric, the number of observations)}
+  \item{method}{character, either "sc" (default), "aic", "aicc" or "hq"}
   \item{logl}{numeric, the value of the log-likelihood}
   \item{n}{integer, number of observations}
   \item{k}{integer, number of parameters}
-  \item{method}{character, either "sc" (default), "aic", "aicc" or "hq"}
 }
 
 \details{
 Contrary to \code{\link{AIC}} and \code{\link{BIC}}, \code{info.criterion} computes the average criterion value (i.e. division by the number of observations). This facilitates comparison of models that are estimated with a different number of observations, e.g. due to different lags.
 }
 
-\value{a list with elements:
-  \item{method}{type of information criterion}
-  \item{n}{number of observations}
-  \item{k}{number of parameters}
-  \item{value}{the value on the information criterion}
+\value{
+  \code{infocrit}: a numeric (i.e. the value of the chosen information criterion)
+
+  \code{info.criterion}: a list with elements
+    \item{method}{type of information criterion}
+    \item{n}{number of observations}
+    \item{k}{number of parameters}
+    \item{value}{the value on the information criterion}
 }
 
 \references{

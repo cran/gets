@@ -105,7 +105,7 @@ function(x, spec=NULL, col=c("red","blue"),
       ##if variance modelled, plot square root of fitted variance and absolute residuals against time
       if(spec=="variance" || spec=="both"){
         vfitted <- sqrt(x$var.fit)
-        vactual <- abs(x$resids)
+        vactual <- abs(x$residuals)
       }
 
       ##if mean modelled, plot fitted and actual values against time
@@ -114,7 +114,7 @@ function(x, spec=NULL, col=c("red","blue"),
         mactual <- zoo(x$aux$y, order.by=x$aux$y.index)
       }
       actual.name <- x$aux$y.name
-      residsStd <- x$resids.std
+      residsStd <- x$std.residuals
 
       ##do the plotting:
       ##----------------

@@ -2,15 +2,14 @@
 {
   ##start-up message:
   txt <- c("\n",
-    paste(sQuote("gets"), "version 0.12\n"),
+    paste(sQuote("gets"), "version 0.13\n"),
     "\n",
-    paste("An R package for general-to-specific (gets) modelling and"),
-    paste("indicator saturation methods, see", sQuote("help(gets)"), "for details"),
+    paste("An R package for general-to-specific (gets) modelling and indicator saturation methods, see", sQuote("help(gets)"), "for details"),
     "\n",
     paste("CRAN website: https://cran.r-project.org/package=gets"),
     paste("For an introduction (PDF): http://www.sucarrat.net/R/gets"),
     "\n",
-    paste("Set plot=TRUE in options to turn plots on: options(plot=TRUE)"),
+    paste("Set plot=TRUE in options to turn plots on: options(plot = TRUE)"),
     "\n")
 
   ##print message at startup:

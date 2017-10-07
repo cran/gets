@@ -23,25 +23,25 @@ function(x, signif.stars=FALSE, ...)
         ordinary = "Ordinary", white = "White (1980)",
         "newey-west" = "Newey and West (1987)"), "\n")
     }
-    if("resids" %in% xNames){
+    if("residuals" %in% xNames){
       cat("No. of observations (mean eq.):",
-        length(na.trim(x$resids)), "\n")
+        length(na.trim(x$residuals)), "\n")
     }
   }
 
   ##header - if variance results:
   if( varianceResults && "resids.std" %in% xNames ){
     cat("No. of observations (variance eq.):",
-      length(na.trim(x$resids.std)), "\n")
+      length(na.trim(x$std.residuals)), "\n")
   }
 
   ##header - sample info:
-  if( "resids" %in% xNames ){
-    indexTrimmed <- index(na.trim(x$resids))
-    isRegular <- is.regular(x$resids, strict=TRUE)
-    isCyclical <- frequency(x$resids) > 1
+  if( "residuals" %in% xNames ){
+    indexTrimmed <- index(na.trim(x$residuals))
+    isRegular <- is.regular(x$residuals, strict=TRUE)
+    isCyclical <- frequency(x$residuals) > 1
     if(isRegular && isCyclical){
-      cycleTrimmed <- cycle(na.trim(x$resids))
+      cycleTrimmed <- cycle(na.trim(x$residuals))
       startYear <- floor(as.numeric(indexTrimmed[1]))
       startAsChar <- paste(startYear,
         "(", cycleTrimmed[1], ")", sep="")
@@ -53,7 +53,7 @@ function(x, signif.stars=FALSE, ...)
       endAsChar <- as.character(indexTrimmed[length(indexTrimmed)])
     }
     cat("Sample:", startAsChar, "to", endAsChar, "\n")
-  } #end if( "resids" %in% xNames )
+  } #end if( "residuals" %in% xNames )
 
   ##print mean results:
   if(meanResults){
@@ -81,7 +81,7 @@ function(x, signif.stars=FALSE, ...)
   if( !"gof" %in% xNames && is.null(x$aux$user.estimator) ){
     gof <- matrix(NA, 3, 1)
     rownames(gof) <- c("SE of regression", "R-squared",
-      paste("Log-lik.(n=", length(na.trim(x$resids.std)), ")", sep=""))
+      paste("Log-lik.(n=", length(na.trim(x$std.residuals)), ")", sep=""))
     colnames(gof) <- ""
     gof[1,1] <- sigma.arx(x)
     gof[2,1] <- rsquared(x)
@@ -92,7 +92,7 @@ function(x, signif.stars=FALSE, ...)
   ##print diagnostics and fit:
   if( !is.null(x$diagnostics) ) {
     cat("\n")
-    cat("Diagnostics:\n")
+    cat("Diagnostics and fit:\n")
     cat("\n")
     printCoefmat(x$diagnostics, dig.tst=0, tst.ind=2,
       signif.stars=FALSE)

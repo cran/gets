@@ -11,8 +11,6 @@ function(object, file=NULL, print=TRUE,
   out$data <- as.data.frame(out$data)
   out$data <- cbind(as.character(out$index), out$data)
   out$names <- gsub("[.]","",tolower(c("index", object$aux$y.name, object$aux$mXnames)))
-#OLD:
-#  out$names <- c("index", object$aux$y.name, object$aux$mXnames)
   where.mconst <- which(out$names=="mconst")
   if(length(where.mconst) > 0){
     out$data <- out$data[-where.mconst]
@@ -36,6 +34,7 @@ function(object, file=NULL, print=TRUE,
     }
     cmdOptions <- paste(cmdOptions, collapse=" ")
     out$regress <- paste(out$regress, ",", cmdOptions, collapse="")
+
   }
 
   ##if print=TRUE and is.null(file):
@@ -45,21 +44,10 @@ function(object, file=NULL, print=TRUE,
     message("Stata code to estimate the model:\n")
     message(" ", out$regress, "\n")
 
-#OLD:
-#    cat("Stata code to estimate the model:\n")
-#    cat("\n")
-#    cat(" ", out$regress, "\n")
-#    cat("\n")
-
     ##R code to export the data:
     message("R code (example) to export the data of the model:\n")
     message(paste("  stata(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
 
-#OLD:
-#    cat("R code (example) to export the data of the model:\n")
-#    cat("\n")
-#    cat(paste("  stata(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
-#    cat("\n")
   } #close if(print && is.null(file))
 
   ##if save data:
@@ -71,15 +59,6 @@ function(object, file=NULL, print=TRUE,
       message("  ", file, "\n", sep="")
       message("Stata code to estimate the model:\n")
       message(" ", out$regress, "\n")
-#OLD:
-#      cat("Data saved in:\n")
-#      cat("\n")
-#      cat("  ", file, "\n", sep="")
-#      cat("\n")
-#      cat("Stata code to estimate the model:\n")
-#      cat("\n")
-#      cat(" ", out$regress, "\n")
-#      cat("\n")
     }
   } #end if(!is.null(file))
 

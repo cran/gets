@@ -233,7 +233,7 @@ function(object, spec=NULL, n.ahead=12,
     if(backcastMax>0){
       lnz2hat <- rep(NA, n.ahead + backcastMax)
       lnz2hat.n <- length(lnz2hat)
-      lnz2Fit <- coredata(object$resids.ustar + Elnz2hat)
+      lnz2Fit <- coredata(object$ustar.residuals + Elnz2hat)
       lnz2hat[1:backcastMax] <- lnz2Fit[c(length(lnz2Fit)-backcastMax+1):length(lnz2Fit)]
       mLnz2Hat <- matrix(NA, lnz2hat.n, n.sim)
       mLnz2Hat[,1:NCOL(mLnz2Hat)] <- lnz2hat
@@ -244,7 +244,7 @@ function(object, spec=NULL, n.ahead=12,
 
       ##bootstrap innov (not user-provided):
       if(is.null(innov)){
-        zhat <- coredata(na.trim(object$resids.std))
+        zhat <- coredata(na.trim(object$std.residuals))
         where.zeros <- which(zhat==0)
         if(length(where.zeros)>0){ zhat <- zhat[-where.zeros] }
         draws <- runif(n.ahead*n.sim, min=0.5+.Machine$double.eps,
@@ -265,7 +265,7 @@ function(object, spec=NULL, n.ahead=12,
       mLnz2Hat[c(backcastMax+1):NROW(mLnz2Hat),] <- log(mZhat2)
 
       vEpsilon2 <- rep(NA, n.ahead+backcastMax)
-      vEpsilon2[1:backcastMax] <- as.numeric(object$resids[c(length(object$resids)-backcastMax+1):length(object$resids)]^2)
+      vEpsilon2[1:backcastMax] <- as.numeric(object$residuals[c(length(object$residuals)-backcastMax+1):length(object$residuals)]^2)
       mZhat2 <- rbind(matrix(NA,backcastMax,NCOL(mZhat2)),mZhat2)
     }
 
@@ -273,7 +273,7 @@ function(object, spec=NULL, n.ahead=12,
     if(asymMax>0){
       zhatIneg <- rep(NA, n.ahead + backcastMax)
       zhatIneg.n <- length(zhatIneg)
-      zhatFit <- coredata(object$resids.std)
+      zhatFit <- coredata(object$std.residuals)
       zhatIneg[1:backcastMax] <- zhatFit[c(length(zhatFit)-backcastMax+1):length(zhatFit)]
       zhatIneg <- as.numeric(zhatIneg<0)
       mZhatIneg <- matrix(NA, zhatIneg.n, n.sim)
@@ -421,7 +421,7 @@ function(object, spec=NULL, n.ahead=12,
                           as.numeric(out)+2*as.numeric(outVariance),
                           as.numeric(out)-2*as.numeric(outVariance))
     } else if (spec=="mean") {
-      reg.st.error <- sum(object$resids^2)/(object$aux$y.n - object$aux$mXncol)
+      reg.st.error <- sum(object$residuals^2)/(object$aux$y.n - object$aux$mXncol)
       y.range.values <- c(y.range.values,as.numeric(out+2*reg.st.error),
                           as.numeric(out-2*reg.st.error))
     } else {
