@@ -15,8 +15,8 @@ The package also provides auxiliary functions used by the main functions, in add
 \tabular{ll}{
 Package: \tab gets\cr
 Type: \tab Package\cr
-Version: \tab 0.13\cr
-Date: \tab 2017-10-05\cr
+Version: \tab 0.14\cr
+Date: \tab 2017-12-25\cr
 License: \tab GPL-2\cr
 }
 The code originated in relation with G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility

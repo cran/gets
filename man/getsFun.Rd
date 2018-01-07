@@ -92,17 +92,17 @@ myEstimator <- function(y, x)
 ##generate some data:
 ##a series w/structural break and eleven step-dummies near the break
 set.seed(123)
-eps <- arima.sim(list(ar=0.4, ma=0.1), 100)
-x <- coredata(sim(eps, which.ones=45:55)) #eleven step-dummies
-y <- 4*x[,"sis50"] + eps #create shift upwards at observation 50
+eps <- arima.sim(list(ar=0.4, ma=0.1), 60)
+x <- coredata(sim(eps, which.ones=25:35)) #eleven step-dummies
+y <- 4*x[,"sis30"] + eps #create shift upwards at observation 30
 plot(y)
 
 ##estimate the gum and then do gets in a single step:
 getsFun(y, x, user.estimator=list(name="myEstimator"))
 
 ##estimate the gum and then do gets in two steps:
-mygum <- myEstimator(y,x)
-getsFun(y, x, user.estimator=list(name="myEstimator"), gum.result=mygum)
+#mygum <- myEstimator(y,x)
+#getsFun(y, x, user.estimator=list(name="myEstimator"), gum.result=mygum)
 
 }
 

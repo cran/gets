@@ -1,3 +1,15 @@
+Version 0.14 (25 December 2017):
+================================
+
+* isat:
+
+- new arguments: include.1cut, turbo
+
+* fixes:
+
+- isat: the max.paths argument now works
+
+
 Version 0.13 (5 October 2017):
 ==============================
 

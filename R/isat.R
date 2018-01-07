@@ -6,15 +6,19 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   do.pet=FALSE, ar.LjungB=NULL, arch.LjungB=NULL,
   normality.JarqueB=NULL, user.diagnostics=NULL,
   info.method=c("sc", "aic", "hq"), include.gum=FALSE,
-  include.empty=FALSE, max.paths=NULL, parallel.options=NULL,
-  tol=1e-07, LAPACK=FALSE, max.regs=NULL, print.searchinfo=TRUE,
-  plot=NULL, alarm=FALSE)
+  include.1cut=FALSE, include.empty=FALSE, max.paths=NULL,
+  parallel.options=NULL, turbo=FALSE, tol=1e-07, LAPACK=FALSE,
+  max.regs=NULL, print.searchinfo=TRUE, plot=NULL, alarm=FALSE)
 {
 
   ##arguments:
   isat.call <- sys.call()
   vcov.type <- match.arg(vcov.type)
   info.method <- match.arg(info.method)
+
+  ##determine ols method (needed for getsFun):
+  olsMethod <- switch(vcov.type,
+    "ordinary"=3, "white"=4, "newey-west"=5)
 
   ##max paths argument:
   if( !is.null(max.paths) && max.paths < 1 ){
@@ -30,6 +34,8 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     if(parallel.options > OScores){
       stop("parallel.options > number of cores/threads")
     }
+    #to do: enable exportCluster argument?
+    #add: memory.limit()/memory.size() = max cores check?
   }
 
   ##estimate gum:
@@ -49,6 +55,28 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   vcov.type <- mod$aux$vcov.type
   qstat.options <- mod$aux$qstat.options
   if(is.null(mX)){ mxkeep <- NULL }else{ mxkeep <- 1:mXncol }
+
+  ##ar.LjungB argument for getsFun:
+  arLjungB <- NULL
+  if(!is.null(ar.LjungB)){
+    arLjungB <- c(NA, ar.LjungB$pval)
+    if(is.null(ar.LjungB$lag)){
+      arLjungB[1] <- qstat.options[1]
+    }else{
+      arLjungB[1] <- ar.LjungB$lag
+    }
+  }
+
+  ##arch.LjungB argument:
+  archLjungB <- NULL
+  if(!is.null(arch.LjungB)){
+    archLjungB <- c(NA, arch.LjungB$pval)
+    if(is.null(arch.LjungB$lag)){
+      archLjungB[1] <- qstat.options[2]
+    }else{
+      archLjungB[1] <- arch.LjungB$lag
+    }
+  }
 
   ##indicator saturation matrices:
   ISmatrices <- list()
@@ -121,6 +149,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   ##if uis is a list of matrices:
   if(is.list(uis)){
+
     #check nrow(uis[[i]]):
     for(i in 1:length(uis)){
       uis[[i]] <- as.matrix(coredata(as.zoo(uis[[i]])))
@@ -143,6 +172,8 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       } #close for..loop
     }
     ISmatrices <- c(ISmatrices,uis)
+
+    ##to do: check indices of matrix against index(y)?
   }
 
   ##check blocks:
@@ -169,8 +200,6 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       if(is.null(blocks)){
         blockratio.value <- ncol.adj/(ratio.threshold*ncol.adj - mXncol)
         blocksize.value <- ncol.adj/min(y.n*ratio.threshold, max.block.size)
-#OLD:
-#        blocksize.value <- ncol.adj/max.block.size
         no.of.blocks <- max(2,blockratio.value,blocksize.value)
         no.of.blocks <- ceiling(no.of.blocks)
         no.of.blocks <- min(ncol.adj, no.of.blocks) #ensure blocks < NCOL
@@ -203,11 +232,11 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
     ##make blocks function:
     ISblocksFun <- function(j, i, ISmatrices, ISblocks, mX,
-      parallel.options, tol, LAPACK, print.searchinfo, y,
-      vcov.type, qstat.options, user.diagnostics, mxkeep,
-      t.pval, wald.pval, do.pet, ar.LjungB, arch.LjungB,
-      normality.JarqueB, info.method, include.empty,
-      max.paths, max.regs){
+      parallel.options, y, olsMethod, t.pval, wald.pval, do.pet,
+      arLjungB, archLjungB, normality.JarqueB, user.diagnostics,
+      info.method, mxkeep, include.gum, include.1cut,
+      include.empty, max.paths, turbo, tol, LAPACK, max.regs,
+      print.searchinfo){
 
       ##check if block contains 1 regressor:
       if( length(ISblocks[[i]][[j]])==1 ){
@@ -220,8 +249,10 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       }
 
       ##apply dropvar:
-      mXis <- gets:::dropvar(mXis, tol=tol, LAPACK=LAPACK,
+      mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK,
         silent=print.searchinfo)
+#      mXis <- gets:::dropvar(mXis, tol=tol, LAPACK=LAPACK,
+#        silent=print.searchinfo)
 
       ##print info:
       if(is.null(parallel.options)){
@@ -235,18 +266,34 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       }
 
       ##gum:
-      mod <- gets:::arx(y, mxreg=mXis, vcov.type=vcov.type,
-        qstat.options=qstat.options, user.diagnostics=user.diagnostics,
-        tol=tol, LAPACK=LAPACK, plot=FALSE)
-#future?: keep=NULL instead of mxkeep?
-#      getsis <- getsm(mod, keep=NULL, t.pval=t.pval,
-      getsis <- gets:::getsm(mod, keep=mxkeep, t.pval=t.pval,
-        wald.pval=wald.pval, do.pet=do.pet, ar.LjungB=ar.LjungB,
-        arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
-        user.diagnostics=user.diagnostics, info.method=info.method,
-        include.empty=include.empty, max.regs=max.regs,
-        estimate.specific=FALSE,
-        print.searchinfo=print.searchinfo, plot=FALSE)
+##future?: keep=NULL instead of mxkeep?
+#      getsis <- gets:::getsFun(y, mXis, untransformed.residuals=NULL,
+      getsis <- getsFun(y, mXis, untransformed.residuals=NULL,
+        user.estimator=list(name="ols", tol=tol, LAPACK=LAPACK,
+        method=olsMethod), gum.result=NULL, t.pval=t.pval,
+        wald.pval=wald.pval, do.pet=do.pet, ar.LjungB=arLjungB,
+        arch.LjungB=archLjungB, normality.JarqueB=normality.JarqueB,
+        user.diagnostics=user.diagnostics,
+        gof.function=list(name="infocrit", method=info.method),
+        gof.method="min", keep=mxkeep, include.gum=include.gum,
+        include.1cut=include.1cut, include.empty=include.empty,
+        max.paths=max.paths, turbo=turbo, tol=tol, LAPACK=LAPACK,
+        max.regs=max.regs, print.searchinfo=print.searchinfo,
+        alarm=FALSE)
+
+#      OLD:
+#      mod <- gets:::arx(y, mxreg=mXis, vcov.type=vcov.type,
+#        qstat.options=qstat.options, user.diagnostics=user.diagnostics,
+#        tol=tol, LAPACK=LAPACK, plot=FALSE)
+##future?: keep=NULL instead of mxkeep?
+##      getsis <- getsm(mod, keep=NULL, t.pval=t.pval,
+#      getsis <- gets:::getsm(mod, keep=mxkeep, t.pval=t.pval,
+#        wald.pval=wald.pval, do.pet=do.pet, ar.LjungB=ar.LjungB,
+#        arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
+#        user.diagnostics=user.diagnostics, info.method=info.method,
+#        include.empty=include.empty, max.regs=max.regs,
+#        estimate.specific=FALSE,
+#        print.searchinfo=print.searchinfo, plot=FALSE)
 
       if(is.null(getsis$specific.spec)){
         ISspecific.models <- NULL
@@ -265,26 +312,29 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
     } #close ISblocksFun
 
-#OLD:
-#    ##print info:
-#    if(print.searchinfo){
-#      message("\n", appendLF=FALSE)
-#      message(names(ISmatrices)[i],
-#        " block ", j, " of ", length(ISblocks[[i]]), ":",
-#        appendLF=TRUE)
-#      message("\n", appendLF=FALSE)
-#    }
-
-    ##do gets on each block:
+    ##do gets on each block: no parallel computing
     if(is.null(parallel.options)){
       ISspecific.models <- lapply(1:length(ISblocks[[i]]),
         ISblocksFun, i, ISmatrices, ISblocks, mX,
-        parallel.options, tol, LAPACK, print.searchinfo, y,
-        vcov.type, qstat.options, user.diagnostics, mxkeep,
-        t.pval, wald.pval, do.pet, ar.LjungB, arch.LjungB,
-        normality.JarqueB, info.method, include.empty,
-        max.paths, max.regs)
-    }else{
+        parallel.options, y, olsMethod,
+        t.pval, wald.pval, do.pet, arLjungB, archLjungB,
+        normality.JarqueB, user.diagnostics, info.method, mxkeep,
+        include.gum, include.1cut, include.empty, max.paths, turbo,
+        tol, LAPACK, max.regs, print.searchinfo)
+
+#      OLD:
+#      ISspecific.models <- lapply(1:length(ISblocks[[i]]),
+#        ISblocksFun, i, ISmatrices, ISblocks, mX,
+#        parallel.options, tol, LAPACK, print.searchinfo, y,
+#        vcov.type, qstat.options, user.diagnostics, mxkeep,
+#        t.pval, wald.pval, do.pet, ar.LjungB, arch.LjungB,
+#        normality.JarqueB, info.method, include.empty,
+#        max.paths, max.regs)
+
+    }
+
+    ##do gets on each block: with parallel computing
+    if(!is.null(parallel.options)){
 
       ##print info:
       if(print.searchinfo){
@@ -300,77 +350,39 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
       #to do:
       # clusterArgs <- list(spec=numberOfCores, type, ...)
+      # (note: type should be "PSOCK", since "FORK" is not supported
+      # on Windows)
       # do.call("makeCluster", clusterArgs)
       blocksClust <- makeCluster(clusterSpec,
-        outfile="")
+        outfile="") #make cluster
+#      clusterExport(blocksClust,
+#        c("dropvar", "getsFun", "ols", "infocrit"),
+#        envir=as.environment("package:gets"))
+      clusterExport(blocksClust,
+        c("dropvar", "getsFun", "ols", "infocrit"),
+        envir=.GlobalEnv)
+      # additional line in the future?:
+      #clusterExport(blocksClust, varlist, envir=varlist.envir)
       ISspecific.models <- parLapply(blocksClust,
         1:length(ISblocks[[i]]), ISblocksFun, i, ISmatrices,
-        ISblocks, mX, parallel.options, tol, LAPACK,
-        print.searchinfo, y, vcov.type, qstat.options,
-        user.diagnostics, mxkeep, t.pval, wald.pval, do.pet,
-        ar.LjungB, arch.LjungB, normality.JarqueB, info.method,
-        include.empty, max.paths, max.regs)
+        ISblocks, mX, parallel.options, y, olsMethod,
+        t.pval, wald.pval, do.pet, arLjungB, archLjungB,
+        normality.JarqueB, user.diagnostics, info.method, mxkeep,
+        include.gum, include.1cut, include.empty, max.paths, turbo,
+        tol, LAPACK, max.regs, print.searchinfo)
+
+#      OLD:
+#      ISspecific.models <- parLapply(blocksClust,
+#        1:length(ISblocks[[i]]), ISblocksFun, i, ISmatrices,
+#        ISblocks, mX, parallel.options, tol, LAPACK,
+#        print.searchinfo, y, vcov.type, qstat.options,
+#        user.diagnostics, mxkeep, t.pval, wald.pval, do.pet,
+#        ar.LjungB, arch.LjungB, normality.JarqueB, info.method,
+#        include.empty, max.paths, max.regs)
+
       stopCluster(blocksClust)
 
     } #end if..
-
-###START OLD:
-#
-#    ##gets on each block:
-#    ISspecific.models <- list()
-#    #for the future?: ISgums <- list(); ISpaths <- list(); ISterminals.results <- list()
-#    for( j in 1:length(ISblocks[[i]]) ){
-#
-#      ##print info:
-#      if(print.searchinfo){
-#        message("\n", appendLF=FALSE)
-#        message(names(ISmatrices)[i],
-#          " block ", j, " of ", length(ISblocks[[i]]), ":",
-#          appendLF=TRUE)
-#        message("\n", appendLF=FALSE)
-#      }
-#
-#      ##check if block contains 1 regressor:
-#      if( length(ISblocks[[i]][[j]])==1 ){
-#        tmp <- colnames(ISmatrices[[i]])[ ISblocks[[i]][[j]] ]
-#        mXis <- cbind(ISmatrices[[i]][, ISblocks[[i]][[j]] ])
-#        colnames(mXis) <- tmp
-#        mXis <- cbind(mX, mXis)
-#      }else{
-#        mXis <- cbind(mX,ISmatrices[[i]][, ISblocks[[i]][[j]] ])
-#      }
-#
-#      ##apply dropvar:
-#      mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK,
-#        silent=print.searchinfo)
-#
-#      ##gum:
-#      mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
-#        qstat.options=qstat.options, user.diagnostics=user.diagnostics,
-#        tol=tol, LAPACK=LAPACK, plot=FALSE)
-##future?: keep=NULL instead of mxkeep?
-##      getsis <- getsm(mod, keep=NULL, t.pval=t.pval,
-#      getsis <- getsm(mod, keep=mxkeep, t.pval=t.pval,
-#        wald.pval=wald.pval, do.pet=do.pet, ar.LjungB=ar.LjungB,
-#        arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
-#        user.diagnostics=user.diagnostics, info.method=info.method,
-#        include.empty=include.empty, paths.method=paths.method,
-#        max.regs=max.regs, estimate.specific=FALSE,
-#        print.searchinfo=print.searchinfo, plot=FALSE)
-#
-#      if(is.null(getsis$specific.spec)){
-#        ISspecific.models[[j]] <- NULL
-#      }else{
-#        ISspecific.models[[j]] <- names(getsis$specific.spec)
-##For the future?:
-##        ISgums[[j]] <- getsis$gum.mean
-##        ISpaths[[j]] <- getsis$paths
-##        ISterminals.results[[j]] <- getsis$terminals.results
-#      }
-#
-#    } #end for(j in 1:length(ISblocks[[i]]))
-#
-###END OLD
 
     ##print info:
     if(print.searchinfo){
@@ -412,17 +424,33 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         colnames(mXis) <- mXisNames
         mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK,
           silent=print.searchinfo)
-        mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
-          qstat.options=NULL, tol=tol, LAPACK=LAPACK,
-          plot=FALSE)
-        getsis <- getsm(mod, keep=mxkeep, t.pval=t.pval,
-          do.pet=do.pet, wald.pval=wald.pval, ar.LjungB=ar.LjungB,
-          arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
-          user.diagnostics=user.diagnostics, info.method=info.method,
-          include.gum=include.gum, include.empty=include.empty,
-          max.paths=max.paths, max.regs=max.regs,
-          print.searchinfo=print.searchinfo,
-          estimate.specific=FALSE, plot=FALSE)
+
+        getsis <- getsFun(y, mXis, untransformed.residuals=NULL,
+          user.estimator=list(name="ols", tol=tol, LAPACK=LAPACK,
+          method=olsMethod), gum.result=NULL, t.pval=t.pval,
+          wald.pval=wald.pval, do.pet=do.pet, ar.LjungB=arLjungB,
+          arch.LjungB=archLjungB, normality.JarqueB=normality.JarqueB,
+          user.diagnostics=user.diagnostics,
+          gof.function=list(name="infocrit", method=info.method),
+          gof.method="min", keep=mxkeep, include.gum=include.gum,
+          include.1cut=include.1cut, include.empty=include.empty,
+          max.paths=max.paths, turbo=turbo, tol=tol, LAPACK=LAPACK,
+          max.regs=max.regs, print.searchinfo=print.searchinfo,
+          alarm=FALSE)
+
+#        OLD:
+#        mod <- arx(y, mxreg=mXis, vcov.type=vcov.type,
+#          qstat.options=NULL, tol=tol, LAPACK=LAPACK,
+#          plot=FALSE)
+#        getsis <- getsm(mod, keep=mxkeep, t.pval=t.pval,
+#          do.pet=do.pet, wald.pval=wald.pval, ar.LjungB=ar.LjungB,
+#          arch.LjungB=arch.LjungB, normality.JarqueB=normality.JarqueB,
+#          user.diagnostics=user.diagnostics, info.method=info.method,
+#          include.gum=include.gum, include.empty=include.empty,
+#          max.paths=max.paths, max.regs=max.regs,
+#          print.searchinfo=print.searchinfo,
+#          estimate.specific=FALSE, plot=FALSE)
+
         ISfinalmodels[[i]] <- names(getsis$specific.spec)
       }
 
@@ -474,6 +502,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     mXis <- dropvar(cbind(mX,mIS), tol=tol, LAPACK=LAPACK,
       silent=print.searchinfo)
     mXis <- zoo(mXis, order.by=y.index)
+
   } #end if(length(ISfinalmodels)>0)
 
   ##gum and gets:
@@ -508,4 +537,5 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   }
   if(plot){ plot.isat(getsis, coef.path=TRUE) }
   return(getsis)
+
 }
