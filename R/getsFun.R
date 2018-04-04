@@ -14,6 +14,8 @@ function(y, x, untransformed.residuals=NULL,
   ## - turbo: replace length(regsDeleteList) with regsDeleteList.n?
   ## - turbo: redefine regsFun function (careful!: setequal is delicate)
   ## - add checks on y (e.g. is.vector) and x (e.g. is.matrix)?
+  ## - let out$specific.spec be equal to the GUM in the case where
+  ##   all regressors are significant in the GUM?
 
   ### ARGUMENTS: ###########
 

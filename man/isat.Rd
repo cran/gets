@@ -13,7 +13,7 @@ isat(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL, iis=FALSE, sis=TRUE,
   t.pval=0.001, wald.pval=t.pval,
   vcov.type= c("ordinary","white","newey-west"), do.pet=FALSE, ar.LjungB=NULL,
   arch.LjungB=NULL, normality.JarqueB=NULL, user.diagnostics=NULL,
-  info.method=c("sc","aic","hq"), include.gum=FALSE, include.1cut=FALSE,
+  info.method=c("sc","aic","hq"), include.gum=NULL, include.1cut=FALSE,
   include.empty=FALSE, max.paths=NULL, parallel.options=NULL, turbo=FALSE,
   tol=1e-07, LAPACK=FALSE, max.regs=NULL, print.searchinfo=TRUE, plot=NULL,
   alarm=FALSE)
@@ -41,7 +41,7 @@ isat(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL, iis=FALSE, sis=TRUE,
   \item{normality.JarqueB}{a value between 0 and 1, or \code{NULL}. In the former case, a test for non-normality is conducted using a significance level equal to the numeric value. If \code{NULL}, then no test for non-normality is undertaken}
   \item{user.diagnostics}{\code{NULL} or a \code{\link{list}} with two entries, \code{name} and \code{pval}, see the \code{user.fun} argument in \code{\link{diagnostics}} }
   \item{info.method}{character string, "sc" (default), "aic" or "hq", which determines the information criterion to be used when selecting among terminal models. The abbreviations are short for the Schwarz or Bayesian information criterion (sc), the Akaike information criterion (aic) and the Hannan-Quinn (hq) information criterion}
-  \item{include.gum}{logical. If \code{TRUE}, then the GUM (i.e. the starting model) is included among the terminal models. If \code{FALSE} (default), then the GUM is not included}
+  \item{include.gum}{ignored (temporarily deprecated)}
   \item{include.1cut}{logical. If \code{TRUE}, then the 1-cut model is included among the terminal models, if it passes the diagnostic tests, even if it is not equal to one of the terminals. If FALSE (default), then the 1-cut model is not included (unless it is one of the terminals)}
   \item{include.empty}{logical. If \code{TRUE}, then an empty model is included among the terminal models, if it passes the diagnostic tests, even if it is not equal to one of the terminals. If FALSE (default), then the empty model is not included (unless it is one of the terminals)}
   \item{max.paths}{\code{NULL} (default) or an integer indicating the maximum number of paths to search}

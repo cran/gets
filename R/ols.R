@@ -15,7 +15,7 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
 
   ##user-specified:
   if(method==0){
-    message("NOTE: method=0 will be deprecated in version 0.14")
+    message("NOTE: method=0 will be deprecated in future versions")
     user.options <- c(list(y = y, x = x), user.options)
     out <- do.call(user.fun, user.options, envir = .GlobalEnv)
   }

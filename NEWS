@@ -1,9 +1,22 @@
+Version 0.15 (4 April 2018):
+============================
+
+* isat:
+
+- temporarily deprecated argument: include.gum
+
+* fixes:
+
+- isat: it is not necessary to set include.gum=TRUE for impulses to be retained (this bug was introduces in version 0.14)
+
+
 Version 0.14 (25 December 2017):
 ================================
 
 * isat:
 
 - new arguments: include.1cut, turbo
+- gets-search is now undertaken by the getsFun() function (rather than arx + getsm)
 
 * fixes:
 

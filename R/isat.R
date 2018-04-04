@@ -5,7 +5,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   wald.pval=t.pval, vcov.type=c("ordinary", "white", "newey-west"),
   do.pet=FALSE, ar.LjungB=NULL, arch.LjungB=NULL,
   normality.JarqueB=NULL, user.diagnostics=NULL,
-  info.method=c("sc", "aic", "hq"), include.gum=FALSE,
+  info.method=c("sc", "aic", "hq"), include.gum=NULL,
   include.1cut=FALSE, include.empty=FALSE, max.paths=NULL,
   parallel.options=NULL, turbo=FALSE, tol=1e-07, LAPACK=FALSE,
   max.regs=NULL, print.searchinfo=TRUE, plot=NULL, alarm=FALSE)
@@ -15,6 +15,11 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   isat.call <- sys.call()
   vcov.type <- match.arg(vcov.type)
   info.method <- match.arg(info.method)
+  ##check include.gum argument:
+  if(!is.null(include.gum)){
+    warning("The 'include.gum' argument is ignored (temporarily deprecated in isat)")
+  }
+  include.gum <- TRUE
 
   ##determine ols method (needed for getsFun):
   olsMethod <- switch(vcov.type,
@@ -38,7 +43,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     #add: memory.limit()/memory.size() = max cores check?
   }
 
-  ##estimate gum:
+  ##estimate gum (no indicators):
   mod <- arx(y, mc=mc, ar=ar, ewma=ewma, mxreg=mxreg,
     vcov.type=vcov.type, qstat.options=NULL,
     user.diagnostics=user.diagnostics, tol=tol, LAPACK=LAPACK,
@@ -145,7 +150,8 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     #check nrow(uis):
     if(nrow(uis) != y.n) stop("nrow(uis) is unequal to no. of observations")
     ISmatrices <- c(ISmatrices,list(UIS=uis))
-  }
+
+  } #end if uis is a matrics
 
   ##if uis is a list of matrices:
   if(is.list(uis)){
@@ -174,7 +180,8 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     ISmatrices <- c(ISmatrices,uis)
 
     ##to do: check indices of matrix against index(y)?
-  }
+
+  } #end if uis is a list of matrices
 
   ##check blocks:
   if(is.list(blocks)){
@@ -359,7 +366,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 #        c("dropvar", "getsFun", "ols", "infocrit"),
 #        envir=as.environment("package:gets"))
       clusterExport(blocksClust,
-        c("dropvar", "getsFun", "ols", "infocrit"),
+        c("dropvar", "getsFun", "ols", "infocrit", "diagnostics"),
         envir=.GlobalEnv)
       # additional line in the future?:
       #clusterExport(blocksClust, varlist, envir=varlist.envir)
@@ -393,13 +400,13 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     }
 
     ##if no indicators retained from the blocks:
-    if(length(ISspecific.models)==0){
+    if(length(ISspecific.models) == 0){
       isNames <- NULL
       ISfinalmodels[[i]] <- NULL
     }
 
     ##when indicators/variables(uis) retained from the blocks:
-    if(length(ISspecific.models)>0){
+    if(length(ISspecific.models) > 0){
 
       isNames <- NULL
 
@@ -416,10 +423,10 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 ##BEGIN MODIFIED (panel):
 
       #redo gets with union of retained indicators:
-      if(length(isNames)==0){
+      if(length(isNames) == 0){
         ISfinalmodels[[i]] <- mXnames
       }else{
-        mXisNames <- c(mXnames,isNames)
+        mXisNames <- c(mXnames, isNames)
         mXis <- cbind(mX,ISmatrices[[i]][,isNames])
         colnames(mXis) <- mXisNames
         mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK,
