@@ -1,15 +1,15 @@
 .onAttach <- function(libname, pkgname)
 {
-  ##start-up message:
+  ##set start-up message:
   txt <- c("\n",
-    paste(sQuote("gets"), "version 0.15\n"),
+    paste(sQuote("gets"), "version 0.16\n"),
     "\n",
-    paste("An R package for general-to-specific (gets) modelling and indicator saturation methods, see", sQuote("help(gets)"), "for details"),
+    paste("An R package for General-to-Specific (GETS) modelling and indicator saturation methods, see", sQuote("help(gets)"), "for details"),
     "\n",
     paste("CRAN website: https://CRAN.R-project.org/package=gets"),
     paste("For an introduction (PDF): http://www.sucarrat.net/R/gets"),
     "\n",
-    paste("Set plot=TRUE in options to turn plots on: options(plot = TRUE)"),
+    paste("For automatic plotting, set plot=TRUE in options: options(plot = TRUE)"),
     "\n")
 
   ##print message at startup:
@@ -17,5 +17,4 @@
     packageStartupMessage(paste(strwrap(txt, indent = 2,
       exdent = 4), collapse = "\n"))
   }
-
 }

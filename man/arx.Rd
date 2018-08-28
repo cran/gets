@@ -38,12 +38,12 @@ arx(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL, vc=FALSE,
   \item{plot}{\code{NULL} or logical. If \code{TRUE}, then the fitted values and the residuals are plotted. If \code{NULL} (default), then the value set by \code{\link{options}} determines whether a plot is produced or not.}
 }
 
-\details{See Sucarrat and Escribano (2012)}
+\details{See Pretis, Reade and Sucarrat (2018)}
 
 \value{A list of class 'arx'}
 
 \references{
-Genaro Sucarrat and Alvaro Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility Specifications', Oxford Bulletin of Economics and Statistics 74, Issue no. 5 (October), pp. 716-735
+Pretis, Felix, Reade, James and Sucarrat, Genaro (2018): 'Automated General-to-Specific (GETS) Regression Modeling and Indicator Saturation for Outliers and Structural Breaks'. Journal of Statistical Software 86, Number 3, pp. 1-44
 
 Halbert White (1980): 'A Heteroskedasticity-Consistent Covariance Matrix Estimator and a Direct Test for Heteroskedasticity', Econometrica 48, pp. 817-838
 

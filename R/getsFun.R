@@ -114,7 +114,13 @@ function(y, x, untransformed.residuals=NULL,
     gum.tstat <- est$coefficients/stderrs
     gum.pval <- pt(abs(gum.tstat), est$df, lower.tail=FALSE)*2
 
+#    ##these two lines are repeated later under 1-cut and in
+#    ##the multi-path search:
+#    insig.regs <- setdiff( which(gum.pval > t.pval), keep)
+#    n.paths <- length(insig.regs)
+
     ##include gum as terminal?:
+    #NEW?: if(include.gum || n.paths==0){
     if(include.gum){
 
       out$terminals[[1]]  <- gum #add gum to list of terminal specs
@@ -139,6 +145,7 @@ function(y, x, untransformed.residuals=NULL,
   if( gumDiagnosticsOK && delete.n>0 && include.1cut ){
 
     ##these two lines are repeated later in the multi-path search:
+    ##move these two up under gum (see "NEW..")?
     insig.regs <- setdiff( which(gum.pval > t.pval), keep)
     n.paths <- length(insig.regs)
 

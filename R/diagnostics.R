@@ -57,7 +57,7 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
     }
   }
 
-  ##if(verbose): make diagnostics table
+  ##if(verbose): return diagnostics table
   if(verbose){
     result <- NULL
     resultRowNames <- NULL
@@ -97,7 +97,7 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
     }
   } #end verbose
 
-  ##if(!verbose): logical
+  ##if(!verbose): return logical
   if(!verbose){ result <- diagnosticsGood }
 
   ##return result:

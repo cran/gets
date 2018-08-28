@@ -21,6 +21,9 @@ Quarterly Norwegian year-on-year CPI inflation from 1989(1) to 2015(4).
 \source{
 Statistics Norway (SSB): \url{http://www.ssb.no/}. The raw data comprise monthly CPI data obtained via \url{http://www.ssb.no/tabell/08183/}.
 }
+\references{
+Pretis, Felix, Reade, James and Sucarrat, Genaro (2018): 'Automated General-to-Specific (GETS) Regression Modeling and Indicator Saturation for Outliers and Structural Breaks'. Journal of Statistical Software 86, Number 3, pp. 1-44
+}
 \examples{
 data(infldata)
 infldata <- zooreg(infldata[,-1], frequency=4, start=c(1989,1))

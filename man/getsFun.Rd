@@ -3,7 +3,7 @@
 
 \title{General-to-Specific (GETS) modelling function}
 
-\description{Auxiliary function (i.e. not intended for the average user) that enables fast and efficient GETS-modelling with user-specified estimators and models, and user-specified diagnostics. In future versions of the package, the function will be called and relied upon by \code{\link{getsm}}, \code{\link{getsv}} and \code{\link{isat}}.}
+\description{Auxiliary function (i.e. not intended for the average user) that enables fast and efficient GETS-modelling with user-specified estimators and models, and user-specified diagnostics and goodness-of-fit criteria. The function is called by and relied upon by \code{\link{getsv}} and \code{\link{isat}}, and in future versions of the package the same will be the case for \code{\link{getsm}}.}
 
 \usage{
 getsFun(y, x, untransformed.residuals=NULL,
@@ -46,12 +46,12 @@ getsFun(y, x, untransformed.residuals=NULL,
 }
 
 \details{
-  The value returned by the estimator specified in \code{user.estimator} should be a list containing at least six items: "coefficients", "df", "vcov", "logl", "n" and "k". The item "coefficients" should be a vector of length equal to \code{NCOL(x)} that contains the estimated coefficients. The item named "df" is used to compute the p-values associated with the t-statistics, i.e. coef/std.err. The item named "vcov" contains the (symmetric) coefficient-covariance matrix of the estimated coefficients. The items "logl" (the log-likelihood), "n" (the number of observations) and "k" (the number of estimated parameters; not necessarily equal to the number of coefficients) are used to compute the information criterion. Finally, the estimator MUST be able to handle \code{NULL} regressor-matrices (i.e. \code{is.null(x)=TRUE} or \code{NCOL(x)=0}). In this case, then the first three items (i.e. "coefficients2", "df" and "vcov") can - and should - be \code{NULL}.
+  The value returned by the estimator specified in \code{user.estimator} should be a list containing at least six items: "coefficients", "df", "vcov", "logl", "n" and "k". The item "coefficients" should be a vector of length \code{NCOL(x)} containing the estimated coefficients. The item named "df" is used to compute the p-values associated with the t-statistics, i.e. coef/std.err. The item named "vcov" contains the (symmetric) coefficient-covariance matrix of the estimated coefficients. The items "logl" (the log-likelihood), "n" (the number of observations) and "k" (the number of estimated parameters; not necessarily equal to the number of coefficients) are used to compute the information criterion. Finally, the estimator MUST be able to handle \code{NULL} regressor-matrices (i.e. \code{is.null(x)=TRUE} or \code{NCOL(x)=0}). In this case, then the first three items (i.e. "coefficients", "df" and "vcov") can - and should - be \code{NULL}.
   The argument \code{user.diagnostics} enables the user to specify additional - or alternative - diagnostics, see \code{\link{diagnostics}}.
 }
 
 \value{
-  The returned value depends on the \code{user.estimator}. For the default, see \code{\link{ols}} with \code{method=3}.
+  The returned value, a \code{\link{list}}, depends on the \code{user.estimator}. For the default, see \code{\link{ols}} with \code{method=3}.
 }
 
 \references{

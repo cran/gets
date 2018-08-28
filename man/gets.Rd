@@ -4,7 +4,7 @@
 
 \title{General-to-Specific (GETS) Modelling}
 
-\description{Generic function which means new GETS methods can easily be added for new classes}
+\description{Generic function that enables new GETS methods for new classes}
 
 \usage{
 gets(x, ...)

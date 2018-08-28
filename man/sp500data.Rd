@@ -23,6 +23,9 @@ Daily Standard and Poor's 500 (SP500) index data from 3 January 1950 to 8 March 
 \source{
 Yahoo Finance, retrieved 9 March 2016
 }
+\references{
+Pretis, Felix, Reade, James and Sucarrat, Genaro (2018): 'Automated General-to-Specific (GETS) Regression Modeling and Indicator Saturation for Outliers and Structural Breaks'. Journal of Statistical Software 86, Number 3, pp. 1-44
+}
 \examples{
 data(sp500data)
 sp500data <- zoo(sp500data[, -1], order.by = as.Date(sp500data[, "Date"]))

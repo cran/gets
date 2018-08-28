@@ -46,6 +46,8 @@ E. Hannan and B. Quinn (1979): 'The determination of the order of an
 C.M. Hurvich and C.-L. Tsai (1989): 'Regression and Time Series Model
   Selection in Small Samples'. Biometrika 76, pp. 297-307
 
+Pretis, Felix, Reade, James and Sucarrat, Genaro (2018): 'Automated General-to-Specific (GETS) Regression Modeling and Indicator Saturation for Outliers and Structural Breaks'. Journal of Statistical Software 86, Number 3, pp. 1-44
+
 G. Schwarz (1978): 'Estimating the dimension of a model'. The Annals of
   Statistics 6, pp. 461-464
 }

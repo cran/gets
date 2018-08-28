@@ -37,7 +37,6 @@ The data have been used for comparison and illustration of GETS model selection 
 Retrieved 14 October 2014 from:
 \url{http://www.csus.edu/indiv/p/perezs/Data/data.htm}
 }
-
 \references{
 David F. Hendry and Hans-Martin Krolzig (1999): 'Improving on 'Data
   mining reconsidered' by K.D. Hoover and S.J Perez', Econometrics
@@ -51,10 +50,7 @@ Jurgen Doornik (2009): 'Autometrics', in Jennifer L. Castle and Neil
   Festschrift in Honour of David F. Hendry', Oxford University Press,
   Oxford, pp. 88-121.
 
-Genaro Sucarrat and Alvaro Escribano (2012): 'Automated Financial
-  Model Selection: General-to-Specific Modelling of the Mean and
-  Volatility Specifications', Oxford Bulletin of Economics and
-  Statistics 74, Issue no. 5 (October), pp. 716-735.
+Pretis, Felix, Reade, James and Sucarrat, Genaro (2018): 'Automated General-to-Specific (GETS) Regression Modeling and Indicator Saturation for Outliers and Structural Breaks'. Journal of Statistical Software 86, Number 3, pp. 1-44.
 }
 \examples{
 ##load Hoover and Perez (1999) data:

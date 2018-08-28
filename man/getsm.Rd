@@ -55,22 +55,19 @@ getsv(object, t.pval=0.05, wald.pval=t.pval, do.pet=TRUE,
   \item{alarm}{logical. If \code{TRUE}, then a sound or beep is emitted (in order to alert the user) when the model selection ends}
 }
 
-\details{ See Sucarrat and Escribano (2012) }
+\details{See Pretis, Reade and Sucarrat (2018)}
 
 \value{A list of class 'gets'}
 
 \references{
-Genaro Sucarrat and Alvaro Escribano (2012): 'Automated Financial
-  Model Selection: General-to-Specific Modelling of the Mean and
-  Volatility Specifications', Oxford Bulletin of Economics and
-  Statistics 74, Issue no. 5 (October), pp. 716-735
-
 C. Jarque and A. Bera (1980): 'Efficient Tests for Normality,
   Homoscedasticity and Serial Independence'. Economics Letters 6,
   pp. 255-259
 
 G. Ljung and G. Box (1979): 'On a Measure of Lack of Fit in Time
   Series Models'. Biometrika 66, pp. 265-270
+
+Pretis, Felix, Reade, James and Sucarrat, Genaro (2018): 'Automated General-to-Specific (GETS) Regression Modeling and Indicator Saturation for Outliers and Structural Breaks'. Journal of Statistical Software 86, Number 3, pp. 1-44
 }
 
 \author{Genaro Sucarrat, \url{http://www.sucarrat.net/} }

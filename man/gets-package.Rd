@@ -15,12 +15,11 @@ The package also provides auxiliary functions used by the main functions, in add
 \tabular{ll}{
 Package: \tab gets\cr
 Type: \tab Package\cr
-Version: \tab 0.15\cr
-Date: \tab 2018-04-04\cr
+Version: \tab 0.16\cr
+Date: \tab 2018-08-28\cr
 License: \tab GPL-2\cr
 }
-The code originated in relation with G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility
-Specifications', Oxford Bulletin of Economics and Statistics 74, Issue 5 (October), pp. 716-735. Subsequently, Felix Pretis and James Reade joined for the development of the \code{\link{isat}} code and related functions
+The code originated in relation with G. Sucarrat and A. Escribano (2012). Subsequently, Felix Pretis and James Reade joined for the development of the \code{\link{isat}} code and related functions. For a recent introduction to the package, see Pretis, Reade and Sucarrat (2018).
 }
 
 \author{
@@ -31,11 +30,13 @@ Maintainer: Genaro Sucarrat
 }
 
 \references{
-G. Sucarrat and A. Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility Specifications', Oxford Bulletin of Economics and Statistics 74, Issue 5 (October), pp. 716-735
+Jurgen, A. Doornik, Hendry, David F., and Pretis, Felix (2013): 'Step Indicator Saturation', Oxford Economics Discussion Paper, 658.
+
+Pretis, Felix, Reade, James and Sucarrat, Genaro (2018): 'Automated General-to-Specific (GETS) Regression Modeling and Indicator Saturation for Outliers and Structural Breaks'. Journal of Statistical Software 86, Number 3, pp. 1-44
 
 Carlos Santos, Hendry, David, F. and Johansen, Soren (2007):  'Automatic selection of indicators in a fully saturated regression'. Computational Statistics, vol 23:1, pp.317-335
 
-Jurgen, A. Doornik, Hendry, David F., and Pretis, Felix (2013): 'Step Indicator Saturation', Oxford Economics Discussion Paper, 658.
+Sucarrat, Genaro and Escribano, Alvaro (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility Specifications', Oxford Bulletin of Economics and Statistics 74, Issue 5 (October), pp. 716-735
 }
 
 \seealso{

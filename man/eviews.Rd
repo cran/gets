@@ -18,7 +18,7 @@ stata(object, file=NULL, print=TRUE, return=FALSE)
   \item{return}{logical. If TRUE, then a list is returned}
 }
 
-\value{Either printed text or a list (if return=TRUE)}
+\value{Either printed text or a \code{list} (if return=TRUE)}
 
 \author{
 Genaro Sucarrat, \url{http://www.sucarrat.net/}

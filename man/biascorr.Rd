@@ -26,6 +26,8 @@
 Hendry, D.F. and Krolzig, H.M. (2005): 'The properties of automatic Gets modelling'. Economic Journal, 115, C32-C61.
 
 Pretis, F. (2015): 'Testing for time-varying predictive accuracy using bias-corrected indicator saturation'. Oxford Department of Economics Discussion Paper.
+
+Pretis, Felix, Reade, James and Sucarrat, Genaro (2018): 'Automated General-to-Specific (GETS) Regression Modeling and Indicator Saturation for Outliers and Structural Breaks'. Journal of Statistical Software 86, Number 3, pp. 1-44
 }
 
 \author{

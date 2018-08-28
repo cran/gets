@@ -26,6 +26,8 @@ Smith, SJ, J van Aardenne, Z Klimont, RJ Andres, A Volke, and S Delgado Arias. (
 http://sedac.ciesin.columbia.edu/data/set/haso2-anthro-sulfur-dioxide-emissions-1850-2005-v2-86
 }
 \references{
+Pretis, Felix, Reade, James and Sucarrat, Genaro (2018): 'Automated General-to-Specific (GETS) Regression Modeling and Indicator Saturation for Outliers and Structural Breaks'. Journal of Statistical Software 86, Number 3, pp. 1-44
+
 Smith, SJ, J van Aardenne, Z Klimont, RJ Andres, A Volke, and S Delgado Arias. (2011). Anthropogenic Sulfur Dioxide Emissions: 1850-2005, Atmospheric Chemistry and Physics, 11:1101-1116.
 }
 \examples{
