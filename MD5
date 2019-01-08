@@ -1,6 +1,6 @@
-9b6388f2671a7e9bdaf58cba3107b1bd *DESCRIPTION
-58611a5f218ae3cf0cca6463dea6ac0d *NAMESPACE
-9feb427c1ca6dd35ef724b5daa259282 *NEWS
+c1d18a7fb03c46f3430d68b079953b9a *DESCRIPTION
+29c686e5d11547125338a676d95cccae *NAMESPACE
+07454a47311c58ea60fe340b97fbd0a9 *NEWS
 c6b237233a66bcaa8e1ef35685bbfdb0 *R/ES.R
 d4b31a0387039880c3df15c5be74e52a *R/VaR.R
 020e40a69bb78da857e7b417f1cee4ab *R/arx.R
@@ -15,7 +15,7 @@ ae1c636e5246cb9055899a5ea8eb62b4 *R/eviews.R
 38fa45bb50402257de723dbb6e1b031c *R/fitted.arx.R
 b628e1a80015bacbc20a7c8f94b00bf2 *R/fitted.gets.R
 6acf31c223e6660d0ba6518cd55446f5 *R/fitted.isat.R
-e2a5d219a3e14917087fa4bae5ec66f7 *R/gets-internal.R
+27904cfa9119c4080e72912a667a81ec *R/gets-internal.R
 0754a2413b553b46d101a205d3d94fce *R/gets.R
 b71b948ae3a308531e3cfb97251bc445 *R/gets.default.R
 ae2d00add5a56be8c428a3336b4838fb *R/getsFun.R
@@ -45,6 +45,7 @@ de842205aced813a7c1769c9be3473e0 *R/logLik.arx.R
 d12f6a10d36e3256d2e837edee6e5ce2 *R/print.arx.R
 cbc983e8618e8b03d07e5bc17d3dab75 *R/print.gets.R
 6477249136a91a08c273296fd1522201 *R/print.isat.R
+6fb22c9c146e37d9990b00d7cd25622b *R/printtex.R
 f948649793cb0d61412a1393815d1e69 *R/recursive.R
 e367f476fe2cb0b96aa8e1088ac9302e *R/residuals.arx.R
 c54a4beabe2f6f8b50e69fc398bfbaf1 *R/residuals.gets.R
@@ -78,7 +79,7 @@ c8eed4afd3b2b10b8dd261e0ef63b04b *man/diagnostics.Rd
 4e0afef2d649ef6dcb09a41fb12f8617 *man/dropvar.Rd
 84f4ec3b79079479dd3d1969a6919b37 *man/eqwma.Rd
 37b2b7c9bfd0f64d83f82038fd33228b *man/eviews.Rd
-8057eaaafab1978e1bbc1a8ae7b28baa *man/gets-package.Rd
+19a9cdae871d05255585927820a7b63a *man/gets-package.Rd
 838b3ff03449dfd295c7393237d501bb *man/gets.Rd
 9bf51f0eb4d2fcc3191ded094158a80a *man/getsFun.Rd
 124efd321a10c5b18d441e3626a92f72 *man/getsm.Rd
@@ -94,6 +95,7 @@ f02eaab4a524bb3258ec0a48db489f94 *man/isatvar.Rd
 4c09eae29fc8273b23e539f0901885db *man/ols.Rd
 42d9b7512226846c3a87d2a841fd1c76 *man/paths.Rd
 25acde7e6bd4e4d57de576059013f8cc *man/periodicdummies.Rd
+99b636d401144607d34b5c0d31679646 *man/printtex.Rd
 73714a13be51cd1a94e43ff55b288656 *man/recursive.Rd
 c2a17ba3f2003435949bff3ac9d4c1c9 *man/so2data.Rd
 baf9a7cc7dd19adc1fe323cfaaa31902 *man/sp500data.Rd
