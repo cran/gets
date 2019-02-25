@@ -1,7 +1,15 @@
+Version 0.18 (25 February 2019):
+================================
+
+* fixes:
+
+- predict.arx/predict.gets/predict.isat: backcasted values are now actual rather than fitted when spec="mean"; the argument fitted=TRUE in plot.options now also applies when spec="variance"; new allowable argument in the plot.options argument: newvactual; several minor improvements in the plotting; the errors.only argument in plot.options deprecated
+
+
 Version 0.17 (25 December 2018):
 ================================
 
-* new function: printtex. Convenience function that generates LaTeX-code of an estimation result (e.g. an arx-object, gets-object or isat-object). Can, in principle, be applied to any object for which coef, vcov and LogL methods exist
+* new function: printtex. Convenience function that generates LaTeX-code of an estimation result (e.g. an arx-object, gets-object or isat-object). The function can, in principle, be applied to any object for which coef, vcov and logLik methods exist
 
 
 Version 0.16 (28 August 2018):

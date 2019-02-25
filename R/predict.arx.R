@@ -4,6 +4,7 @@ function(object, spec=NULL, n.ahead=12,
   n.sim=1000, innov=NULL, return=TRUE, plot=NULL,
   plot.options=list(), ...)
 {
+
   ## contents:
   ## 0 initialise
   ## 1 if mean spec
@@ -134,9 +135,15 @@ function(object, spec=NULL, n.ahead=12,
     ##prepare prediction:
     yhat <- rep(NA, n.ahead + backcastMax)
     yhat.n <- length(yhat)
-    meanFit <- coredata(fitted.arx(object, spec="mean"))
-    if(backcastMax>0) { ##J-DOG SAYS: "I HAVE CHANGED THIS!!!!"
-      yhat[1:backcastMax] <- meanFit[c(length(meanFit)-backcastMax+1):length(meanFit)]
+#OLD:
+#    meanFit <- coredata(fitted.arx(object, spec="mean"))
+    if(backcastMax>0) {
+      ##actual y-values:
+      yhat[1:backcastMax] <- tail(object$aux$y, n=backcastMax)
+#        OR:
+#        object$aux$y[c(length(object$aux$y)-backcastMax+1):length(object$aux$y)]
+#        OLD (fitted y-values); this was erroneous!:
+#        meanFit[c(length(meanFit)-backcastMax+1):length(meanFit)]
     }
 
     ##predict:
@@ -240,34 +247,34 @@ function(object, spec=NULL, n.ahead=12,
     }
 
     ##zhat:
-    if(n.ahead>0){
+    ##-----
 
-      ##bootstrap innov (not user-provided):
-      if(is.null(innov)){
-        zhat <- coredata(na.trim(object$std.residuals))
-        where.zeros <- which(zhat==0)
-        if(length(where.zeros)>0){ zhat <- zhat[-where.zeros] }
-        draws <- runif(n.ahead*n.sim, min=0.5+.Machine$double.eps,
-                       max=length(zhat)+0.5+.Machine$double.eps)
-        draws <- round(draws, digits=0)
-        zhat <- zhat[draws]
-      }
-
-      ##user-provided innov:
-      if(!is.null(innov)){
-        if(length(innov)!=n.ahead*n.sim){ stop("length(innov) must equal n.ahead*n.sim") }
-        if(any(innov==0)){ stop("innov cannot contain zeros") }
-        zhat <- as.numeric(innov)
-      }
-
-      zhat <- matrix(zhat,n.ahead,n.sim)
-      mZhat2 <- zhat^2
-      mLnz2Hat[c(backcastMax+1):NROW(mLnz2Hat),] <- log(mZhat2)
-
-      vEpsilon2 <- rep(NA, n.ahead+backcastMax)
-      vEpsilon2[1:backcastMax] <- as.numeric(object$residuals[c(length(object$residuals)-backcastMax+1):length(object$residuals)]^2)
-      mZhat2 <- rbind(matrix(NA,backcastMax,NCOL(mZhat2)),mZhat2)
+    ##bootstrap innov (not user-provided):
+    if(is.null(innov)){
+      zhat <- coredata(na.trim(object$std.residuals))
+      where.zeros <- which(zhat==0)
+      if(length(where.zeros)>0){ zhat <- zhat[-where.zeros] }
+      draws <- runif(n.ahead*n.sim, min=0.5+.Machine$double.eps,
+                     max=length(zhat)+0.5+.Machine$double.eps)
+      draws <- round(draws, digits=0)
+      zhat <- zhat[draws]
     }
+
+    ##user-provided innov:
+    if(!is.null(innov)){
+      if(length(innov)!=n.ahead*n.sim){ stop("length(innov) must equal n.ahead*n.sim") }
+      if(any(innov==0)){ stop("innov cannot contain zeros") }
+      zhat <- as.numeric(innov)
+    }
+
+    zhat <- matrix(zhat,n.ahead,n.sim)
+    mZhat2 <- zhat^2
+    mLnz2Hat[c(backcastMax+1):NROW(mLnz2Hat),] <- log(mZhat2)
+
+    vEpsilon2 <- rep(NA, n.ahead+backcastMax)
+    vEpsilon2[1:backcastMax] <- as.numeric(object$residuals[c(length(object$residuals)-backcastMax+1):length(object$residuals)]^2)
+    mZhat2 <- rbind(matrix(NA,backcastMax,NCOL(mZhat2)),mZhat2)
+
 
     ##prepare asym:
     if(asymMax>0){
@@ -322,6 +329,11 @@ function(object, spec=NULL, n.ahead=12,
 
   } #end variance spec
 
+
+  ##--------------------
+  ## 3 out object
+  ##--------------------
+
   ##out:
   if(spec=="mean"){ out <- outMean }
   if(spec=="variance"){ out <- outVariance }
@@ -340,178 +352,193 @@ function(object, spec=NULL, n.ahead=12,
 
 
   ##----------------
-  ## 3 if plot=TRUE
+  ## 4 if plot=TRUE
   ##----------------
 
-  ##plot:
-  if( is.null(plot) ){
-    plot <- getOption("plot")
-    if( is.null(plot) ){ plot <- FALSE }
+  ##determine plot-argument:
+  plotArg <- plot
+  if( is.null(plotArg) ){
+    plotArg <- getOption("plot")
+    if( is.null(plotArg) ){ plotArg <- FALSE }
   }
-  if(plot){
 
-    ##plot.options:
+  ##if plot=TRUE:
+  if(plotArg){
+
+    ##how many observations to retain?:
     if(is.null(plot.options$keep)) {
-      plot.keep=10
-    } else {
-      plot.keep <- plot.options$keep
-    }
-    if(is.null(plot.options$fitted)) {
-      fitted <- FALSE
-    } else {
-      fitted <- TRUE
-      yhat <- tail(object$mean.fit,plot.keep)
-    }
-    if(!is.null(plot.options$errors.only)) {
-      errors.only=TRUE
-      if((spec=="mean")){
-        print("Cannot plot estimated error bars when mean specified")
-      }
-    }
-    if(is.null(plot.options$legend.loc)) {
-      legend.loc <- "topleft"
-    } else {
-      legend.loc <- plot.options$legend.loc
+      plot.options$keep=12L
     }
 
-    ##
-    if(is.null(newindex)){
-      xlabArg <- "Step ahead"
-    }else{
-      xlabArg <- ""
+    ##include retained fitted?
+    if(is.null(plot.options$fitted)) {
+      plot.options$fitted <- FALSE
     }
-    if(spec=="both"){
-      ylabArg <- c("Mean","Variance")
-      retained <- tail(yInSample,plot.keep)
-      retained.var <- tail(object$var.fit,plot.keep)
+
+#    ##WHAT DOES THIS DO???:
+#    ##errors only?
+#    if(!is.null(plot.options$errors.only)) {
+##      plot.options$errors.only <- TRUE
+#      if((spec=="mean")){
+#        print("Cannot plot estimated error bars when mean specified")
+#      }
+#    }
+
+    ##location of legend:
+    if(is.null(plot.options$legend.loc)) {
+      plot.options$legend.loc <- "topleft"
+    }
+
+    ##xlab:
+    xlabArg <- ifelse(is.null(newindex), "Step ahead", "")
+
+    ##make dataForPlot:
+    dataForPlot <- matrix(NA, NROW(out), 6)
+    colnames(dataForPlot) <- c("MeanActual", "MeanFitted",
+      "MeanPrediction", "VarianceActual", "VarianceFitted",
+      "VariancePrediction")
+    if(!is.null(plot.options$newmactual)){
+      dataForPlot[1:length(plot.options$newmactual),"MeanActual"] <-
+        plot.options$newmactual
+    }
+    if(!is.null(outMean)){ dataForPlot[,"MeanPrediction"] <- outMean }
+    if(!is.null(plot.options$newvactual)){
+      dataForPlot[1:length(plot.options$newvactual),"VarianceActual"] <-
+        plot.options$newvactual
+    }
+    if(is.null(outVariance)){
+      dataForPlot[,"VariancePrediction"] <- sigma.arx(object)^2
     }else{
-      if(spec=="mean"){
-        ylabArg <- "Mean"
-        retained <- tail(yInSample, plot.keep)
-      }
-      if(spec=="variance"){
-        ylabArg <- "Variance"
-        retained <- tail(object$var.fit,plot.keep)
-      }
+      dataForPlot[,"VariancePrediction"] <- outVariance
+    }
+    if(plot.options$keep > 0){
+      retainedData <- matrix(NA, plot.options$keep, NCOL(dataForPlot))
+      colnames(retainedData) <- c("MeanActual", "MeanFitted",
+        "MeanPrediction", "VarianceActual", "VarianceFitted",
+        "VariancePrediction")
+      retainedData[,"MeanActual"] <-
+        tail(coredata(yInSample), n=plot.options$keep)
+      retainedData[,"MeanFitted"] <-
+        tail(coredata(object$mean.fit), n=plot.options$keep)
+      retainedData[,"VarianceActual"] <-
+        tail(coredata(object$residuals^2), n=plot.options$keep)
+      retainedData[,"VarianceFitted"] <-
+        tail(coredata(object$var.fit), n=plot.options$keep)
+      dataForPlot <- rbind(retainedData, dataForPlot)
+      tmpIndx <- c(tail(index(yInSample), n=plot.options$keep),
+        index(out))
+      dataForPlot <- zoo(dataForPlot, order.by=tmpIndx)
+    }else{
+      dataForPlot <- zoo(dataForPlot, order.by=index(out))
     }
 
     ##get current par-values:
     def.par <- par(no.readonly=TRUE)
 
-    if(xlabArg=="") {
+    ##prepare plotting:
+    if(xlabArg=="") { #plot margins?
       par(mar = c(2,3,0.5,0.5) + 0.1) #b,l,t,r
-    } else {
+    }else{
       par(mar = c(3,3,0.5,0.5) + 0.1) #b,l,t,r
     }
+    plotTypeForecast <- ifelse(n.ahead==1, "p", "l")
+    plotTypeRetained <- ifelse(plot.options$keep > 1, "l", "p")
 
-    if(spec=="both" && is.null(errors.only)) {
-      par(mfrow = c(2,1))
-    }
+    ##if spec="mean" or "both":
+    ##-------------------------
 
-    ##get limits for y axis based on whether plotting error bars or not
-    y.range.values <- as.numeric(retained)
-    if(fitted) {#if want fitted values plotted
-      y.range.values <- c(y.range.values,as.numeric(yhat))
-    }
-    if(spec=="both") {
-      y.range.values <- c(y.range.values,as.numeric(out[,1]+2*out[,2]),
-                          as.numeric(out[,1]-2*out[,2]))
-    } else if(!is.null(outVariance)) {
-      y.range.values <- c(y.range.values,
-                          as.numeric(out)+2*as.numeric(outVariance),
-                          as.numeric(out)-2*as.numeric(outVariance))
-    } else if (spec=="mean") {
-      reg.st.error <- sum(object$residuals^2)/(object$aux$y.n - object$aux$mXncol)
-      y.range.values <- c(y.range.values,as.numeric(out+2*reg.st.error),
-                          as.numeric(out-2*reg.st.error))
-    } else {
-      y.range.values <- c(y.range.values,as.numeric(out))
-    }
-    if(!is.null(plot.options$newmactual)){
-      y.range.values <- c(y.range.values,as.numeric(plot.options$newmactual))
-    }
-    y.range <- range(y.range.values)
+    if( spec=="mean" || spec=="both" ){
 
-    ##plot forecast, but adjust limits of graph for final X observations of series
-    if(NROW(out)==1) {
-      plot.type = "p"
-    } else {
-      plot.type = "l"
-    }
-    plot(out[,1], xlab="", ylab="", #ylab=ylabArg, #main="Forecasts",
-         col="red",type=plot.type,
-         xlim=range(min(index(retained)),max(index(out))),
-         ylim=y.range)
-    if(fitted) {
-      lines(yhat,col="red")
-    }
-    ##add text closer to plot than xlab or ylab would do
-    if(xlabArg!="") {
-      mtext(xlabArg,side=1,line=2)
-    }
-    mtext(ylabArg[1],side=2,line=2)
+      ##y-axis (limits):
+      ylimVals <- range( na.trim(dataForPlot[,"MeanActual"]),
+        na.trim(dataForPlot[,"MeanFitted"]),
+        na.trim(dataForPlot[,"MeanPrediction"]
+          + 2*sqrt(dataForPlot[,"VariancePrediction"])),
+        na.trim(dataForPlot[,"MeanPrediction"]
+          - 2*sqrt(dataForPlot[,"VariancePrediction"])) )
 
-    ##if both specified, can add in forecast error bounds
-    if(spec=="both") {
-      lines(out[,1]+2*out[,2],col="darkgreen",lty=2,type=plot.type)
-      lines(out[,1]-2*out[,2],col="darkgreen",lty=2,type=plot.type)
-#    } else if (!is.null(outVariance)) {
-#      lines(out+2*as.numeric(outVariance),col="darkgreen",lty=2,type=plot.type)
-#      lines(out-2*as.numeric(outVariance),col="darkgreen",lty=2,type=plot.type)
-    } else if (spec=="mean") {
-      lines(out[,1]+2*reg.st.error,col="darkgreen",lty=2,type=plot.type)
-      lines(out[,1]-2*reg.st.error,col="darkgreen",lty=2,type=plot.type)
-    }
+      ##plot the mean-predictions:
+      plot.zoo(dataForPlot[,"MeanPrediction"], xlab="", ylab="",
+        col="red", type=plotTypeForecast, ylim=ylimVals)
 
-    ##add actual values if provided
-    if(!is.null(plot.options$newmactual)) {
-      while(NROW(newindex)>NROW(plot.options$newmactual)) {
-        plot.options$newmactual <- c(plot.options$newmactual,NA)
+      ##add 2 x SEs:
+      SE <- sqrt(dataForPlot[,"VariancePrediction"])
+      lines(dataForPlot[,"MeanPrediction"] + 2*SE,
+        col="darkgreen", lty=2, type=plotTypeForecast)
+      lines(dataForPlot[,"MeanPrediction"] - 2*SE,
+        col="darkgreen", lty=2, type=plotTypeForecast)
+
+      ##add actuals (pre- and post-prediction):
+      if(plot.options$keep > 0){
+        lines(dataForPlot[,"MeanActual"], col="blue",
+          type=plotTypeRetained)
       }
-      plot.options$newmactual <- zoo(plot.options$newmactual,order.by = newindex)
-      lines(plot.options$newmactual, col="blue")
-    }
 
-    ##add final X observations of series
-    if(is.null(outVariance)){
-      lineType <- 1
-    }else{
-      lineType <- 2
-    }
-    lines(retained, lty=lineType, col="blue")
+      ##add fitted (pre-prediction):
+      if( plot.options$keep > 0 && plot.options$fitted ){
+        lines(dataForPlot[,"MeanFitted"], col="red",
+          type=plotTypeRetained)
+      }
 
-    ##plot green line between last observation and first forecast
-    abline(v=(min(as.numeric(index(out)))+max(as.numeric(index(retained))))/2,col="darkgreen",lty=3)
+      ##add text closer to plot than xlab or ylab would do
+      if(xlabArg!="") {
+        mtext(xlabArg, side=1, line=2)
+      }
+      mtext("Mean", side=2, line=2)
 
-    ##write legend, which depends on what is specified
-    if(spec=="both") {
-      legend(legend.loc,col=c("red","darkgreen","blue"),lty=c(1,2,1),
-             legend=c("Forecast","+/- 2 x SE of regression (Forecast)","Actual"),
-             bty="n")
-    } else if (spec=="mean") {
-      legend(legend.loc,col=c("red","darkgreen","blue"),lty=c(1,2,1),
-             legend=c("Forecast","+/- 2 x SE of regression","Actual"),
-             bty="n")
-    } else {
-      legend(legend.loc,col=c("red","blue"),lty=c(1,2,1),
-             legend=c("Forecast", "Fitted"),
-             bty="n")
-    }
+      ##add legend:
+      legend(plot.options$legend.loc, col=c("red","darkgreen","blue"),
+        lty=c(1,2,1),
+        legend=c("Forecast","+/- 2 x SE of regression","Actual"),
+        bty="n")
+
+    } #close if spec="mean" or "both"
 
 
-    if(spec=="both" && is.null(errors.only)) { ##now add the variance plot
-      plot(out[,2], xlab="", ylab="",
-           col="red",
-           xlim=range(min(index(retained)),max(index(out))),
-           ylim=range(retained.var,out[,2]))
-      mtext(ylabArg[2],side=2,line=2)
-      ##add final X observations of series
-      lines(retained.var,col="blue")
-      ##plot green line between last observation and first forecast
-      abline(v=(min(as.numeric(index(out)))+max(as.numeric(index(retained))))/2,col="darkgreen",lty=3)
-      legend(legend.loc,col=c("red","blue"),lty=1,
-             legend=c("Forecast variance","Fitted variance"),
-             bty="n")
+    ##if spec="variance":
+    ##-------------------
+
+    if(spec=="variance"){
+
+      ##y-axis (limits):
+      ylimVals <- range( na.trim(dataForPlot[,"VarianceActual"]),
+        na.trim(dataForPlot[,"VarianceFitted"]),
+        na.trim(dataForPlot[,"VariancePrediction"]) )
+
+      ##plot the variance-predictions:
+      plot.zoo(dataForPlot[,"VariancePrediction"], xlab="", ylab="",
+        col="red", type=plotTypeForecast, ylim=ylimVals)
+
+      ##add fitted (pre-prediction):
+      if( plot.options$keep > 0 && plot.options$fitted ){
+        lines(dataForPlot[,"VarianceFitted"], col="red",
+          type=plotTypeRetained)
+      }
+
+      ##add actuals (pre- and post-prediction):
+      if(plot.options$keep > 0){
+        lines(dataForPlot[,"VarianceActual"], col="blue",
+          type=plotTypeRetained)
+      }
+
+      ##add text closer to plot than xlab or ylab would do
+      if(xlabArg!="") {
+        mtext(xlabArg, side=1, line=2)
+      }
+      mtext("Variance", side=2, line=2)
+
+      ##add legend:
+      legend(plot.options$legend.loc, col=c("red","blue"),
+        lty=c(1,1), legend=c("Forecast (conditional variance)", "Actual (residuals^2)"), bty="n")
+
+    } #close if spec="variance"
+
+
+    ##add vertical green line between last observation
+    ##and first forecast:
+    if(plot.options$keep > 0){
+      abline( v=( as.numeric(index(dataForPlot))[plot.options$keep] + as.numeric(index(dataForPlot))[plot.options$keep+1] )/2,
+        col="darkgreen", lty=3)
     }
 
     ##return to old par-values:
@@ -521,7 +548,7 @@ function(object, spec=NULL, n.ahead=12,
 
 
   ##------------------
-  ## 4 if return=TRUE
+  ## 5 if return=TRUE
   ##------------------
 
   if(return){ return(out) }

@@ -67,11 +67,11 @@
 \details{
 The \code{plot.options} argument is a list that can contain any of the following arguments:\cr
 
-\code{keep}: integer greater than zero (default is 10) that controls the number of in-sample actual values to plot\cr
+\code{keep}: integer greater than zero (default is 12) that controls the number of in-sample actual values to plot\cr
 \code{fitted}: If \code{TRUE}, then the fitted values as well as actual values are plotted in-sample. The default is \code{FALSE}\cr
-\code{errors.only}: logical or \code{NULL} (the default). If \code{TRUE}, then only mean forecasts are plotted when \code{spec} is set to "both"\cr
 \code{legend.loc}: character string (the default is "topleft"). Allows the location of the plot legend to be altered\cr
-\code{newmactual}: numeric vector or \code{NULL} (default). Enables the plotting of actual values out-of-sample in addition to the forecasts\cr
+\code{newmactual}: numeric vector or \code{NULL} (default). Enables the plotting of actual values out-of-sample in the mean in addition to the forecasts\cr
+\code{newvactual}: numeric vector or \code{NULL} (default). Enables the plotting of actual values out-of-sample in the variance addition to the forecasts\cr
 
 }
 
