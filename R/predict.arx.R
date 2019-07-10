@@ -79,7 +79,7 @@ function(object, spec=NULL, n.ahead=12,
     ##ar:
     arMax <- 0
     arIndx <- max(mconstIndx)
-    arCoefs <- NULL ##J-DOG CHANGE!!!
+    arCoefs <- NULL ##J-dog change
     if(!is.null(object$call$ar)){
       arEval <- eval(object$call$ar)
       arIndx <- 1:length(arEval) + max(mconstIndx)
@@ -125,7 +125,7 @@ function(object, spec=NULL, n.ahead=12,
       colnames(newmxreg) <- NULL
 
       ##mxreghat:
-      mxregIndx <- c(max(ewmaIndx)+1):length(coefs) ##J-DOG CHANGE!!!
+      mxregIndx <- c(max(ewmaIndx)+1):length(coefs) ##J-dog change
 
       mxreghat <-  newmxreg %*% as.numeric(coefs[mxregIndx])
       mxreghat <- c(rep(0,backcastMax),mxreghat)

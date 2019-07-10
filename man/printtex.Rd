@@ -3,7 +3,7 @@
 \title{Generate LaTeX code of an estimation result}
 
 \description{
-Convenience function that generates LaTeX-code of an estimation result (e.g. an arx-object, gets-object or isat-object). Can, in principle, be applied to any object for which \code{coef}, \code{vcov} and \code{logLik} methods exist
+Convenience function that generates LaTeX-code of an estimation result (e.g. an arx-object, gets-object or isat-object) in equation-form. Can, in principle, be applied to any object for which \code{coef}, \code{vcov} and \code{logLik} methods exist. Note: The generated LaTeX-code contains an \code{eqnarray} environment, which requires that the \code{amsmath} package is loaded in the preamble of the LaTeX document.
 }
 
 \usage{

@@ -3,15 +3,11 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
   LAPACK=FALSE, method=3, user.fun=NULL, user.options=NULL)
 {
 
-  ##to do number 1:
-  ## - in version 0.14: remove the method=0 option
-  ## - rename ols to estFun?
-  ## - merge user.fun and user.options into a single argument,
-  ## user.estimator, which is a list containing at least one
-  ## entry, name, i.e. the name of the estimator-function
-  ##
-  ##to do number 2:
-  ## - split estFun into two functions, estFun and vcovFun
+  ##outlook:
+  ## - remove the method=0 option (and therefore also the
+  ## user.fun argument)?
+  ## - rename ols to estFun? Split estFun into two functions,
+  ## estFun and vcovFun`?
 
   ##user-specified:
   if(method==0){
@@ -64,7 +60,7 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
     out$logl <- -out$n*log(2*out$sigma2*pi)/2 - out$rss/(2*out$sigma2)
   }
 
-  ##white vcov:
+  ##white (1980) vcov:
   if(method==4){
     out <- list()
     out$n <- length(y)
@@ -90,7 +86,7 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
     out$logl <- -out$n*log(2*out$sigma2*pi)/2 - out$rss/(2*out$sigma2)
   }
 
-  ##newey-west vcov:
+  ##newey-west(1987) vcov:
   if(method==5){
     out <- list()
     out$n <- length(y)

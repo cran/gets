@@ -3,8 +3,8 @@ function(x, fitted.name=NULL, xreg.names=NULL,
   digits=3, intercept=TRUE, gof=TRUE, diagnostics=TRUE)
 {
 
-  ##is class(x)="arx"?:
-  ##-------------------
+  ##is class(x)="arx"/"gets"/"isat"?:
+  ##---------------------------------
   
   xName <- deparse(substitute(x))
   xClass <- class(x)
@@ -12,8 +12,8 @@ function(x, fitted.name=NULL, xreg.names=NULL,
     yName <- ifelse(is.null(fitted.name), x$aux$y.name, fitted.name)
   }else{
     yName <- ifelse(is.null(fitted.name), "y", fitted.name)
-    message(paste0("\n '", xName, "'", " is not of class 'arx',",
-      "'gets' nor 'isat', code may contain errors:\n"))
+    message(paste0("\n '", xName, "'", " is not of class 'arx', ",
+      "'gets' or 'isat', LaTeX code may contain errors:\n"))
   }
   yName <- paste0("\\widehat{", yName, "}")
 
@@ -48,8 +48,7 @@ function(x, fitted.name=NULL, xreg.names=NULL,
   }
 
   txtAddEq <- ifelse(gof+diagnostics>0, " \\\\[2mm]", "")
-  eqtxt <- paste("  ", yName, " &=& ", eqtxt, "",
-    txtAddEq, " \n", sep="")
+  eqtxt <- paste0("  ", yName, " &=& ", eqtxt, "", txtAddEq, " \n")
 
   ##goodness of fit:
   ##----------------
@@ -57,16 +56,18 @@ function(x, fitted.name=NULL, xreg.names=NULL,
   goftxt <- NULL
   if(gof){
     goftxt <- "   &&"
+    iT <- ""
     if(xClass %in% c("arx","gets","isat") ){
       goftxt <- paste(goftxt, " R^2=",
         format(round(rsquared(x), digits=digits), nsmall=digits),
         " \\qquad \\widehat{\\sigma}=",
         format(round(sigma(x), digits=digits), nsmall=digits),
         sep="")
+      iT <- x$aux$y.n
     }
     goftxt <- paste(goftxt, " \\qquad LogL=",
       format(round(as.numeric(logLik(x)), digits=digits), nsmall=digits),
-      " \\nonumber \\\\ \n", sep="")
+        "\\qquad T = ", iT, " \\nonumber \\\\ \n", sep="")
   }
   
   ##diagnostics:
@@ -89,7 +90,7 @@ function(x, fitted.name=NULL, xreg.names=NULL,
       "\\qquad \\underset{[p-val]}{ Normality }:", "\\underset{[",
       format(round(dfDiags[3,3], digits=digits), nsmall=digits), "]}{",
       format(round(dfDiags[3,1], digits=digits), nsmall=digits), "}",
-      "\\nonumber \n", sep="")
+      " \\nonumber \n", sep="")
   }
   
   ##print code:

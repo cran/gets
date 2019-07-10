@@ -2,7 +2,7 @@
 {
   ##set start-up message:
   txt <- c("\n",
-    paste(sQuote("gets"), "version 0.18\n"),
+    paste(sQuote("gets"), "version 0.19\n"),
     "\n",
     paste("General-to-Specific (GETS) and indicator saturation methods, see", sQuote("help(gets)"), "for details"),
     "\n",
@@ -11,10 +11,10 @@
     "\n",
     paste("For automatic plotting, set plot=TRUE in options: options(plot = TRUE)"),
     "\n")
-
-  ##print message at startup:
+  
+  ##print message:
   if(interactive() || getOption("verbose")){
     packageStartupMessage(paste(strwrap(txt, indent = 2,
       exdent = 4), collapse = "\n"))
   }
-}
+} #close .onAttach

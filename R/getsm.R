@@ -571,7 +571,7 @@ if( gum.chk && delete.n>1 ){
       names(specific) <- colnames(mXadj)
       out$specific.spec <- specific
       out <- c(out,est)
-      ##solution to issue raised by THE J-dog?:
+      ##solution to issue raised by J-dog?:
 #      if(specific[1]==0){
 #        out$aux$mX <- out$aux$mXnames <- NULL
 #      }

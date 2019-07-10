@@ -37,29 +37,29 @@ function(object, n.ahead=12,
     }else{
       object.new$call$mxreg <- NULL
     }
-    
+
     ##if sis and tis terms retained need to adapt mxreg call ...
     if(!is.null(object$ISnames)) {
-    
+
       ##J-dog, add your code here??
       if(is.null(object$call$mxreg)) { #need to ensure predict.arx knows there are mx variables
         object.new$call$mxreg <- "mXis"
       }
-      
+
       ##... and need to specify newmxreg of right dimension:
       ##if we're here it means the isat call did not specify any mxregs
       ##hence what is in mX in the object are terms retained by isat
       ##we can automatically create isat terms into sample period (exception uis)
-      if(is.null(newmxreg)) { 
+      if(is.null(newmxreg)) {
         ##if no newmxreg specified we add iis/sis/tis from scratch
-        
+
         ##first check that there shouldn't be something in newmxreg...
         if(!is.null(object$call$mxreg)){ stop("'newmxreg' is NULL") }
-        
+
         ##assuming not, then we start from scratch adding the indicators...
-        newmxreg <- c() 
+        newmxreg <- c()
       }
-      
+
       if(any(regexpr("^iis",object$ISnames)>-1)){##isat retained some iis terms
         for(i in object$ISnames[grep("^iis",object$ISnames)]) {
           newmxreg <- cbind(newmxreg,rep(0,n.ahead))
@@ -76,7 +76,7 @@ function(object, n.ahead=12,
                             seq(1,n.ahead)+object$aux$mX[NROW(object$aux$mX),i])
         }
       }
-            
+
     }
 
   } else {
