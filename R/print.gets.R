@@ -15,9 +15,13 @@ function(x, ...)
 
   ##header - if mean:
   if(specType=="mean"){
-    cat("Variance-Covariance:", switch(x$aux$vcov.type,
-      ordinary = "Ordinary", white = "White (1980)",
-      "newey-west" = "Newey and West (1987)"), "\n")
+    vcovType <- "Unknown"
+    if( !is.null(x$aux$vcov.type) ){
+      vcovType <- switch(x$aux$vcov.type,
+        ordinary = "Ordinary", white = "White (1980)",
+        "newey-west" = "Newey and West (1987)")
+    }
+    cat("Variance-Covariance:", vcovType, "\n")
     if(!is.null(x$aux$y.n)){
       cat("No. of observations (mean eq.):", x$aux$y.n, "\n") }
   }

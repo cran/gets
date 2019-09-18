@@ -1,19 +1,15 @@
 ols <-
 function(y, x, untransformed.residuals=NULL, tol=1e-07,
-  LAPACK=FALSE, method=3, user.fun=NULL, user.options=NULL)
+  LAPACK=FALSE, method=3, ...)
 {
 
-  ##outlook:
-  ## - remove the method=0 option (and therefore also the
-  ## user.fun argument)?
+  ##for the future:
   ## - rename ols to estFun? Split estFun into two functions,
-  ## estFun and vcovFun`?
+  ## estFun and vcovFun?
 
   ##user-specified:
   if(method==0){
-    message("NOTE: method=0 will be deprecated in future versions")
-    user.options <- c(list(y = y, x = x), user.options)
-    out <- do.call(user.fun, user.options, envir = .GlobalEnv)
+    stop("method=0 has been deprecated")
   }
 
   ##fastest (usually only for estimates):

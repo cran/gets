@@ -62,6 +62,14 @@ function(object, t.pval=0.05, wald.pval=t.pval,
       plot <- FALSE
       message("  'plot' set to FALSE")
     }
+    ##make user-estimator argument:
+    if( is.null(object$aux$user.estimator$envir) ){
+      object$aux$user.estimator$envir <- .GlobalEnv
+    }
+    userEstArg <- object$aux$user.estimator
+    userEstArg$name <- NULL
+    userEstArg$envir <- NULL
+    if( length(userEstArg)==0 ){ userEstArg <- NULL }
   }
 
   ### INITIALISE ##########
@@ -103,8 +111,7 @@ function(object, t.pval=0.05, wald.pval=t.pval,
     estMethod <- which( vcov.type==c("none", "none", "ordinary",
       "white", "newey-west") )
     est <- ols(object$aux$y, mXadj, tol=object$aux$tol,
-      LAPACK=object$aux$LAPACK, method=estMethod,
-      user.fun=NULL, user.options=NULL)
+      LAPACK=object$aux$LAPACK, method=estMethod)
     est$std.residuals <- coredata(na.trim(object$std.residuals))
     est$logl <- object$logl
     if( !is.null(object$aux$loge2.n) ){
@@ -115,7 +122,9 @@ function(object, t.pval=0.05, wald.pval=t.pval,
 
     ##user-defined estimator:
     est <- do.call(object$aux$user.estimator$name,
-      list(object$aux$y, mXadj), envir=.GlobalEnv)
+      c(list(object$aux$y, mXadj),userEstArg),
+#      list(object$aux$y, mXadj), envir=.GlobalEnv)
+      envir=object$aux$user.estimator$envir)
     #delete?:
     if( is.null(est$vcov) && !is.null(est$vcov.mean) ){
       est$vcov <- est$vcov.mean
@@ -174,8 +183,11 @@ function(object, t.pval=0.05, wald.pval=t.pval,
       est <- ols(object$aux$y, mXndel, tol=object$aux$tol,
         LAPACK=object$aux$LAPACK, method=estMethod)
     }else{
+    ##user-defined estimator:
       est <- do.call(object$aux$user.estimator$name,
-        list(object$aux$y, mXndel), envir=.GlobalEnv)
+        c(list(object$aux$y,mXndel),userEstArg),
+#        list(object$aux$y, mXndel), envir=.GlobalEnv)
+        envir=object$aux$user.estimator$envir)
       #delete?:
       if( is.null(est$vcov) && !is.null(est$vcov.mean) ){
         est$vcov <- est$vcov.mean
@@ -291,12 +303,13 @@ if( gum.chk && delete.n>1 ){
         ## estimate model:
         if( is.null(object$aux$user.estimator) ){
           est <- ols(object$aux$y, mXadj, tol=object$aux$tol,
-            LAPACK=object$aux$LAPACK, method=estMethod,
-            user.fun=NULL, user.options=NULL)
+            LAPACK=object$aux$LAPACK, method=estMethod)
         }else{
           ##user-defined estimator:
           est <- do.call(object$aux$user.estimator$name,
-            list(object$aux$y, mXadj), envir=.GlobalEnv)
+            c(list(object$aux$y, mXadj),userEstArg),
+#            list(object$aux$y, mXadj), envir=.GlobalEnv)
+            envir=object$aux$user.estimator$envir)
           #delete?:
           if( is.null(est$vcov) && !is.null(est$vcov.mean) ){
             est$vcov <- est$vcov.mean
@@ -587,6 +600,7 @@ if( gum.chk && delete.n>1 ){
     out$aux$y.n <- object$aux$y.n
     out$aux$y.name <- object$aux$y.name
     out$aux$mXnames.gum <- object$aux$mXnames
+    out$aux$vXnames.gum <- object$aux$vXnames
     out$aux$call.gum <- object$call
     if(is.null(out$aux$vcov.type)){ out$aux$vcov.type <- vcov.type }
   }

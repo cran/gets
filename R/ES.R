@@ -3,8 +3,8 @@ function(object, level=0.99, type=7, ...)
 {
   ##check whether class is valid:
   classType <- class(object)
-  if( !classType %in% c("arx", "gets", "isat") ){
-    stop("object not of class 'arx', 'gets' nor 'isat'")
+  if( !classType %in% c("arx", "gets") ){
+    stop("object not of class 'arx' or 'gets'")
   }
 
   ##check the risk-levels:

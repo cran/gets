@@ -56,7 +56,7 @@ function(object, t.pval=0.05, wald.pval=t.pval,
   colnames(mX) <- object$aux$vXnames
   if( !(1 %in% keep) ){
     keep <- union(1,keep)
-    warning("Regressor 1 set to 'keep'")
+    warning("Regressor 1 included into 'keep'")
   }
 
   ##add gum results and diagnostics to out:

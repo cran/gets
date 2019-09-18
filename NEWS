@@ -1,3 +1,53 @@
+Version 0.20 (18 September 2019):
+=================================
+
+* predict.arx()/predict.gets()/predict.isat():
+
+- new arguments: probs, ci.levels and quantile.type. These arguments control the generation of probability forecasts and, more generally, the quantiles of the n.step ahead predictive distribution
+
+- innov argument: removed from predict.isat(); the standardised innovations used in the simulations are thus restricted to be standard normal
+
+- n.sim argument: the default changed to 5000 in predict.arx()/predict.gets() where the classical bootstrap is the default, and to 2000 in predict.isat() where rnorm() is used
+
+- plot.options arguments: several new arguments, one deprecated argument (legend.loc), while the argument keep is now restricted to be 1 or higher
+
+- predict.arx() and predict.gets(): can now be applied to arx-models where the ewma argument is not NULL, and spec="variance" is now possible
+
+- predict.isat(): the automated detection of indicators is deprecated (temporarily), so they need to specified manually when predict.isat() is invoked if any indicators are retained
+
+* diagnostics() function: the argument user.fun now accepts a list with an arbitrary number of entries. Also, the user-defined diagnostics function needs not reside in the global environment. The changes of the diagnostics() function carry over to the user.diagnostics arguments in the arx(), getsm(), getsv(), getsFun() and isat() functions, since they all invoke the diagnostics() function for the diagnostics
+ 
+* isat() function:
+
+- new arguments: user.estimator, gof.function and gof.method. This is to enable user-defined estimators and user-defined goodness-of-fit functions, as in getsFun() 
+
+* new function: regressorsMean(): creates the regressors of the mean equation of an arx-model
+
+* eqwma()/leqwma() functions: start argument deprecated, lag argument fixed and renamed to k, the as.vector argument in eqwma changed its default to FALSE, the order of the arguments changed, and the backcasting procedure changed. These changes carry over to arx() and isat() as well, since the eqwma() function is called whenever the ewma argument is not NULL in arx() and isat()
+
+* arx() function:
+
+- new argument: normality.JarqueB with default FALSE. If TRUE, then a Jarque-Bera test for non-normality in the standardised residuals is included in the diagnostics of the print
+
+- improvements related to the user.diagnostics and user.estimator arguments
+
+* minor changes:
+
+- rsquared(): new argument 'adjusted' with default FALSE
+
+- logLik.arx(): a warning is now returned if object$logl is NULL
+
+- print.isat(): less information is printed, minor style-changes
+
+- summary.arx/summary.gets/summary.isat(): now returns more info (same as summary.default())
+
+- ols() function: arguments user.fun and user.options deprecated
+
+- VaR(), ES(): not applicable to isat objects anymore
+
+- BugReports in DESCRIPTION file changed to https://github.com/gsucarrat/gets/issues
+
+
 Version 0.19 (10 July 2019):
 ============================
 
@@ -20,6 +70,7 @@ Version 0.19 (10 July 2019):
 * minor changes:
 
 - print.isat: now reports the outliertest automatically if iis=TRUE, also reports the corrected variance if isatvarcorrect is used
+
 - printtex: minor stylistic changes to the LaTeX-output and to the help-page
 
 

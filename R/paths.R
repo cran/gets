@@ -4,6 +4,6 @@ function(object, ...)
   if(class(object)=="gets" || class(object)=="isat"){
     return(object$paths)
   }else{
-    stop("The object does not belong to the 'gets' nor 'isat' class")
+    stop("object not of class 'gets' or 'isat' class")
   }
 }

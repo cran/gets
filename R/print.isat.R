@@ -1,8 +1,9 @@
 print.isat <-
 function(x, ...)
 {
-  ##specification type:
-  specType <- "mean"
+
+  ##messages from final gets:
+  #if(!is.null(x$messages)){ message(x$messages) }
   
   ##header:
   cat("\n")
@@ -33,56 +34,61 @@ function(x, ...)
     endAsChar <- as.character(indexTrimmed[length(indexTrimmed)])
   }
   cat("Sample:", startAsChar, "to", endAsChar, "\n")
-  
-  ##gum:
-  if(specType=="mean"){
-    cat("\n")
-    cat("GUM mean equation:\n")
-    cat("\n")
-    printCoefmat(x$gum.mean, dig.tst=0, tst.ind=c(1,2),
-                 signif.stars=FALSE, P.values=FALSE, has.Pvalue=FALSE)
-  }
-  if(!is.null(x$gum.variance)){
-    cat("\n")
-    cat("GUM log-variance equation:\n")
-    cat("\n")
-    printCoefmat(x$gum.variance, signif.stars=FALSE)
-  }
-  cat("\n")
-  cat("Diagnostics and fit:\n")
-  cat("\n")
-  printCoefmat(x$gum.diagnostics, dig.tst=0, tst.ind=2,
-               signif.stars=FALSE, P.values=FALSE, has.Pvalue=FALSE)
-  
-  ##paths:
-  cat("\n")
-  cat("Paths searched: \n")
-  cat("\n")
-  if(is.null(x$paths)){
-    print(NULL)
-  }else{
-    for(i in 1:length(x$paths)){
-      cat("path",i,":",x$paths[[i]],"\n")
-    }
-  } #end if(is.null(x$paths))
-  
-  ##terminal models and results:
-  if(!is.null(x$terminals)){
-    cat("\n")
-    cat("Terminal models: \n")
-    cat("\n")
-    for(i in 1:length(x$terminals)){
-      cat("spec",i,":",x$terminals[[i]],"\n")
-    }
-  }
-  if(!is.null(x$terminals.results)){
-    cat("\n")
-    printCoefmat(x$terminals.results, dig.tst=0, tst.ind=c(3,4),
-                 signif.stars=FALSE)
-  }
+
+####### START the part commented out 17 July 2019 by G-man:  
+#
+#  ##gum:
+#  if(specType=="mean"){
+#    cat("\n")
+#    cat("GUM mean equation:\n")
+#    cat("\n")
+#    printCoefmat(x$gum.mean, dig.tst=0, tst.ind=c(1,2),
+#                 signif.stars=FALSE, P.values=FALSE, has.Pvalue=FALSE)
+#  }
+#  if(!is.null(x$gum.variance)){
+#    cat("\n")
+#    cat("GUM log-variance equation:\n")
+#    cat("\n")
+#    printCoefmat(x$gum.variance, signif.stars=FALSE)
+#  }
+#  cat("\n")
+#  cat("Diagnostics and fit:\n")
+#  cat("\n")
+#  printCoefmat(x$gum.diagnostics, dig.tst=0, tst.ind=2,
+#               signif.stars=FALSE, P.values=FALSE, has.Pvalue=FALSE)
+#  
+#
+#  ##paths:
+#  cat("\n")
+#  cat("Paths searched: \n")
+#  cat("\n")
+#  if(is.null(x$paths)){
+#    print(NULL)
+#  }else{
+#    for(i in 1:length(x$paths)){
+#      cat("path",i,":",x$paths[[i]],"\n")
+#    }
+#  } #end if(is.null(x$paths))
+#  
+#  ##terminal models and results:
+#  if(!is.null(x$terminals)){
+#    cat("\n")
+#    cat("Terminal models: \n")
+#    cat("\n")
+#    for(i in 1:length(x$terminals)){
+#      cat("spec",i,":",x$terminals[[i]],"\n")
+#    }
+#  }
+#  if(!is.null(x$terminals.results)){
+#    cat("\n")
+#    printCoefmat(x$terminals.results, dig.tst=0, tst.ind=c(3,4),
+#                 signif.stars=FALSE)
+#  }
+#
+####### END the part commented out 17 July 2019 by G-man  
   
   ##specific model:
-  if(specType=="mean" && !is.null(x$specific.spec)){
+  if(!is.null(x$specific.spec)){
     cat("\n")
     cat("SPECIFIC mean equation:\n")
     cat("\n")
@@ -102,22 +108,22 @@ function(x, ...)
   }
   
   ##diagnostics and fit:
-  if(!is.null(x$specific.diagnostics)){
+  if(!is.null(x$diagnostics)){
     
     #fit-measures:
     mGOF <- matrix(NA, 3, 1)
     rownames(mGOF) <- c("SE of regression", "R-squared",
-                        paste("Log-lik.(n=", length(na.trim(x$std.residuals)), ")", sep=""))
+                        paste0("Log-lik.(n=", x$n, ")"))
     colnames(mGOF) <- ""
-    mGOF[1,1] <- sqrt(x$sigma2) #OLD: sigma.isat(x) #OLD: sqrt( RSS/(nobs-DFs) )
+    mGOF[1,1] <- sigma.isat(x) #OLD: sqrt(x$sigma2)
     mGOF[2,1] <- rsquared(x) #OLD: x$specific.diagnostics[4,1]
-    mGOF[3,1] <- x$logl #OLD: as.numeric(logLik.arx(x))
+    mGOF[3,1] <- as.numeric(logLik.isat(x)) #OLD: x$logl
     #mGOF[4,1] <- outliertest(x)$#x$logl #OLD: as.numeric(logLik.arx(x))
     
     cat("\n")
     cat("Diagnostics and fit:\n")
     cat("\n")
-    printCoefmat(x$specific.diagnostics, dig.tst=0, tst.ind=2,
+    printCoefmat(x$diagnostics, dig.tst=0, tst.ind=2,
                  signif.stars=FALSE)
     if(!is.null(x$call$iis)){
       if (x$call$iis==TRUE){
@@ -135,11 +141,5 @@ function(x, ...)
     printCoefmat(mGOF, digits=6, signif.stars=FALSE)
     
   }
-  
-  ##messages:
-  if(!is.null(x$messages)){
-    message("\n", appendLF=FALSE)
-    message(x$messages)
-  }
-  
+    
 }

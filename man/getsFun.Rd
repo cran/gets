@@ -7,21 +7,20 @@
 
 \usage{
 getsFun(y, x, untransformed.residuals=NULL,
-  user.estimator=list(name="ols", tol=1e-07, LAPACK=FALSE, method=3),
-  gum.result=NULL, t.pval=0.05, wald.pval=t.pval, do.pet=TRUE,
-  ar.LjungB=NULL, arch.LjungB=NULL, normality.JarqueB=NULL,
-  user.diagnostics=NULL, gof.function=list(name="infocrit", method="sc"),
+  user.estimator=list(name="ols"), gum.result=NULL, t.pval=0.05,
+  wald.pval=t.pval, do.pet=TRUE, ar.LjungB=NULL, arch.LjungB=NULL,
+  normality.JarqueB=NULL, user.diagnostics=NULL,
+  gof.function=list(name="infocrit", method="sc"),
   gof.method=c("min", "max"), keep=NULL, include.gum=FALSE,
   include.1cut=FALSE, include.empty=FALSE, max.paths=NULL, turbo=FALSE,
   tol=1e-07, LAPACK=FALSE, max.regs=NULL, print.searchinfo=TRUE,
   alarm=FALSE)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{y}{a numeric vector (with no missing values, i.e. no non-numeric 'holes')}
   \item{x}{a \code{matrix} with \code{NROW(x)} equal to \code{NROW(y)}, or \code{NULL} }
-  \item{untransformed.residuals}{\code{NULL}, the default, or - when \code{\link{ols}} is used with \code{method=6} - a numeric vector containing the untransformed residuals}
-  \item{user.estimator}{a \code{list}. The first item should be named \code{name} and contain the name (a character) of the estimation function. Additional items in the list \code{user.estimator} are passed on as arguments to the estimator. The value returned by the estimator should be a \code{list}, see details}
+  \item{untransformed.residuals}{\code{NULL} (default) or, when \code{\link{ols}} is used with \code{method=6}, a numeric vector containing the untransformed residuals}
+  \item{user.estimator}{a \code{list}. The first item should be named \code{name} and contain the name (a character) of the estimation function. Additional items, if any, in the list \code{user.estimator} are passed on as arguments to the estimator. The value returned by the estimator should be a \code{list}, see details}
   \item{gum.result}{a \code{list} with the estimation results of the General Unrestricted Model (GUM), or \code{NULL} (default). If the estimation results of the GUM are already available, then re-estimation of the GUM is skipped if the estimation results are provided via this argument}
   \item{t.pval}{numeric value between 0 and 1. The significance level used for the two-sided regressor significance t-tests}
   \item{wald.pval}{numeric value between 0 and 1. The significance level used for the Parsimonious Encompassing Tests (PETs). By default, it is the same as \code{t.pval}}

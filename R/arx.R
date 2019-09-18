@@ -3,8 +3,8 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   vc=FALSE, arch=NULL, asym=NULL, log.ewma=NULL, vxreg=NULL,
   zero.adj=0.1, vc.adj=TRUE,
   vcov.type=c("ordinary", "white", "newey-west"),
-  qstat.options=NULL, user.estimator=NULL, user.diagnostics=NULL,
-  tol=1e-07, LAPACK=FALSE, plot=NULL)
+  qstat.options=NULL, normality.JarqueB=FALSE, user.estimator=NULL,
+  user.diagnostics=NULL, tol=1e-07, LAPACK=FALSE, plot=NULL)
 {
   ### ARGUMENTS: ###########
 
@@ -47,6 +47,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   ##ewma term:
   if(!is.null(ewma)){
+    ewma$as.vector <- FALSE #force result to be a matrix
     tmp <- do.call(eqwma, c(list(y),ewma) )
     mXnames <- c(mXnames, colnames(tmp))
     colnames(tmp) <- NULL
@@ -130,7 +131,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     if(is.null(arch)){arch.lag <- 1}else{arch.lag <- max(arch)+1}
     qstat.options <- c(ar.lag, arch.lag)
   }
-
+  
   ##aux: info for getsm/getsv functions
   aux <- list()
   aux$y <- y
@@ -156,7 +157,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   ### INITIALISE ##########
 
   sysCall <- sys.call()
-  #for the future: make the following objects part of the out-list?
+  #for the future: make sure the following objects are part of the out-list?
   vcov.var <- NULL #make sure this object exists
   variance.results <- NULL #make sure this object exists
 
@@ -177,8 +178,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
 
     estMethod <- which(vcov.type==c("none", "none", "ordinary",
       "white", "newey-west"))
-    out <- ols(y, mX, tol=tol, LAPACK=LAPACK,
-      method=estMethod, user.fun=NULL, user.options=NULL)
+    out <- ols(y, mX, tol=tol, LAPACK=LAPACK, method=estMethod)
 
     ##delete unneeded entries:
     #out$n <- NULL #this might have to be changed in order to enable gum.result in getsFun
@@ -201,9 +201,17 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   }else{
 
+    ##make user-estimator argument:
+    if( is.null(user.estimator$envir) ){ user.estimator$envir <- .GlobalEnv }
+    userEstArg <- user.estimator
+    userEstArg$name <- NULL
+    userEstArg$envir <- NULL
+    if( length(userEstArg)==0 ){ userEstArg <- NULL }
+
     ##user-defined estimator:
-    out <- do.call(user.estimator$name, list(y, mX),
-      envir=.GlobalEnv)
+    out <- do.call(user.estimator$name,
+      c(list(y,mX), userEstArg), envir=user.estimator$envir)
+#      c(list(y=y,x=mX), userEstArg), envir=user.estimator$envir)
     #delete?:
     if( is.null(out$vcov) && !is.null(out$vcov.mean) ){
       out$vcov <- out$vcov.mean
@@ -233,7 +241,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     whereIs <- which(outNames=="fit")
     names(out)[whereIs] <- "mean.fit"
   }
-
+  
 
   #### VARIANCE #############
 
@@ -280,7 +288,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     ##log.ewma term:
     if(!is.null(log.ewma)){
       if(is.list(log.ewma)){
-        log.ewma$lag <- 1
+        log.ewma$k <- 1
       }else{
         log.ewma <- list(length=log.ewma)
       }
@@ -336,8 +344,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     aux$vxreg <- vxreg #note: NROW(vxreg)!=NROW(vX) is possible
 
     ##estimate, prepare results:
-    estVar <- ols(loge2, vX, tol=tol, LAPACK=LAPACK,
-      method=3)
+    estVar <- ols(loge2, vX, tol=tol, LAPACK=LAPACK, method=3)
     s.e. <- sqrt(as.vector(diag(estVar$vcov)))
     estVar$vcov <- as.matrix(estVar$vcov[-1,-1])
     colnames(estVar$vcov) <- vXnames[-1]
@@ -369,10 +376,24 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   ### OUTPUT: ######################
 
   ##diagnostics:
+  if( any( names(out) %in% c("residuals", "std.residuals") ) ){
+    ar.LjungBarg <- c(qstat.options[1],0)
+    arch.LjungBarg <- c(qstat.options[2],0)
+    if(identical(normality.JarqueB, FALSE)){
+      normality.JarqueBarg <- NULL
+    }else{
+      normality.JarqueBarg <- as.numeric(normality.JarqueB)
+    }
+  }else{
+    ar.LjungBarg <- NULL
+    arch.LjungBarg <- NULL
+    normality.JarqueBarg <- NULL
+  }
   out$diagnostics <- diagnostics(out,
-    ar.LjungB=c(qstat.options[1],0), arch.LjungB=c(qstat.options[2],0),
-      normality.JarqueB=0, user.fun=user.diagnostics, verbose=TRUE)
-
+    ar.LjungB=ar.LjungBarg, arch.LjungB=arch.LjungBarg,
+    normality.JarqueB=normality.JarqueBarg,
+    user.fun=user.diagnostics, verbose=TRUE)
+    
   ##add NAs to variance series:
   if( noVarianceSpec==FALSE ){
     NAs2add <- rep(NA,y.n-loge2.n)
@@ -382,8 +403,12 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   }
 
   ##add zoo-indices:
-  out$mean.fit <- zoo(out$mean.fit, order.by=y.index)
-  out$residuals <- zoo(out$residuals, order.by=y.index)
+  if(!is.null(out$mean.fit)){
+    out$mean.fit <- zoo(out$mean.fit, order.by=y.index)
+  }
+  if(!is.null(out$residuals)){
+    out$residuals <- zoo(out$residuals, order.by=y.index)
+  }
   if(!is.null(out$var.fit)){
     out$var.fit <- zoo(out$var.fit, order.by=y.index)
   }

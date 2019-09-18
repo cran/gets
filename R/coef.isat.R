@@ -1,5 +1,7 @@
 coef.isat <-
 function(object, ...)
 {
-  coef.arx(object, spec="mean")
+  result <- object$coefficients
+  if(!is.null(result)){ names(result) <- names(object$specific.spec) }
+  return(result)
 }

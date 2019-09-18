@@ -1,25 +1,31 @@
 getsFun <-
 function(y, x, untransformed.residuals=NULL,
-  user.estimator=list(name="ols", tol=1e-07, LAPACK=FALSE, method=3),
-  gum.result=NULL, t.pval=0.05, wald.pval=t.pval, do.pet=TRUE,
-  ar.LjungB=NULL, arch.LjungB=NULL, normality.JarqueB=NULL,
-  user.diagnostics=NULL, gof.function=list(name="infocrit", method="sc"),
+  user.estimator=list(name="ols"), gum.result=NULL, t.pval=0.05,
+  wald.pval=t.pval, do.pet=TRUE, ar.LjungB=NULL, arch.LjungB=NULL,
+  normality.JarqueB=NULL, user.diagnostics=NULL,
+  gof.function=list(name="infocrit", method="sc"),
   gof.method=c("min","max"), keep=NULL, include.gum=FALSE,
   include.1cut=FALSE, include.empty=FALSE, max.paths=NULL, turbo=FALSE,
   tol=1e-07, LAPACK=FALSE, max.regs=NULL, print.searchinfo=TRUE,
   alarm=FALSE)
 {
+  ## DO NOT:
+  ## - introduce a check of the type NROW(y)==NCOL(x), since this will
+  ##   invalidate situations where the x's contain coefficients rather
+  ##   than regressors (i.e. when models are non-linear in parameters)
   ## TO DO:
-  ## - rename turbo argument to estimation.turbo?
-  ## - turbo: replace length(regsDeleteList) with regsDeleteList.n?
-  ## - turbo: redefine regsFun function (careful!: setequal is delicate)
-  ## - add checks on y (e.g. is.vector) and x (e.g. is.matrix)?
+  ## - introduce check for is.vector(y)==TRUE?
+  ## - introduce check for is.matrix(x)==TRUE?
   ## - let out$specific.spec be equal to the GUM in the case where
   ##   all regressors are significant in the GUM?
+  ## - if gof.function is not default, e.g. adjusted R-squared, then
+  ##   it seems the value of logl is added to terminals.results
+  ##   unnecessarily. Look into?
+  ## - turbo: replace length(regsDeleteList) with regsDeleteList.n?
+  ## - turbo: redefine regsFun function (careful!: setequal is delicate)
 
   ### ARGUMENTS: ###########
 
-#  info.method <- match.arg(info.method)
   gof.method <- match.arg(gof.method)
 
   ##y, x, make auxiliary list:
@@ -90,7 +96,8 @@ function(y, x, untransformed.residuals=NULL,
   ##estimate GUM:
   if( is.null(gum.result) ){
     est <- do.call(user.estimator$name,
-      c(list(y=y,x=x), userEstArg), envir=user.estimator$envir)
+      c(list(y,x), userEstArg), envir=user.estimator$envir)
+#      c(list(y=y,x=x), userEstArg), envir=user.estimator$envir)
     out$no.of.estimations <- out$no.of.estimations + 1
   }else{ est <- gum.result }
 
@@ -127,7 +134,8 @@ function(y, x, untransformed.residuals=NULL,
 
       ##specification results
       gofValue <- do.call(gof.function$name,
-        c(list(x=est),gofFunArg), envir=user.estimator$envir)
+        c(list(est),gofFunArg), envir=gof.function$envir)
+#        c(list(x=est),gofFunArg), envir=user.estimator$envir)
       out$terminals.results <- rbind(out$terminals.results,
         c(gofValue, est$logl, est$n, est$k))
       row.labels <- c(row.labels, "spec 1 (gum):")
@@ -162,7 +170,8 @@ function(y, x, untransformed.residuals=NULL,
       ##estimate 1cut:
       mXadj <- cbind(x[,-insig.regs])
       est <- do.call(user.estimator$name,
-        c(list(y=y,x=mXadj), userEstArg), envir=user.estimator$envir)
+        c(list(y,mXadj), userEstArg), envir=user.estimator$envir)
+#        c(list(y=y,x=mXadj), userEstArg), envir=user.estimator$envir)
       out$no.of.estimations <- out$no.of.estimations + 1
 
       ##do diagnostics:
@@ -194,7 +203,8 @@ function(y, x, untransformed.residuals=NULL,
 
           ##specification results
           gofValue <- do.call(gof.function$name,
-            c(list(x=est),gofFunArg), envir=user.estimator$envir)
+            c(list(est),gofFunArg), envir=gof.function$envir)
+#            c(list(x=est),gofFunArg), envir=user.estimator$envir)
           out$terminals.results <- rbind(out$terminals.results,
             c(gofValue, est$logl, est$n, est$k))
           row.labels <- c(row.labels,
@@ -223,9 +233,8 @@ function(y, x, untransformed.residuals=NULL,
     ##empty equal to 1cut?:
     if( emptyEqualTo1cut ){
 
-        out$messages <- paste(out$messages,
-          "- The empty model is equal to the 1-cut model",
-          sep="")
+        out$messages <- paste0(out$messages,
+          "- The empty model is equal to the 1-cut model")
 
     }else{
 
@@ -234,7 +243,8 @@ function(y, x, untransformed.residuals=NULL,
       #OLD:
       #if( keep.n==0 ){ mXadj <- NULL }else{ mXadj <- cbind(x[,keep]) }
       est <- do.call(user.estimator$name,
-        c(list(y=y,x=mXadj), userEstArg), envir=user.estimator$envir)
+        c(list(y,mXadj), userEstArg), envir=user.estimator$envir)
+#        c(list(y=y,x=mXadj), userEstArg), envir=user.estimator$envir)
       out$no.of.estimations <- out$no.of.estimations + 1
 
       ##do diagnostics:
@@ -253,7 +263,8 @@ function(y, x, untransformed.residuals=NULL,
 
         ##specification results
         gofValue <- do.call(gof.function$name,
-          c(list(x=est),gofFunArg), envir=user.estimator$envir)
+          c(list(est),gofFunArg), envir=gof.function$envir)
+#          c(list(x=est),gofFunArg), envir=user.estimator$envir)
         out$terminals.results <- rbind(out$terminals.results,
           c(gofValue, est$logl, est$n, est$k))
         row.labels <- c(row.labels,
@@ -261,9 +272,8 @@ function(y, x, untransformed.residuals=NULL,
 
       }else{
 
-          out$messages <- paste(out$messages,
-            "- Empty model not included (it does not pass one or more diagnostics)",
-            sep="")
+          out$messages <- paste0(out$messages,
+            "- Empty model not included (it does not pass one or more diagnostics)")
 
       } #end if(empty passes diagnostics==TRUE){..}else{..}
 
@@ -400,7 +410,7 @@ if( gumDiagnosticsOK && delete.n>1 ){
         #regsAdj <- union(delete.adj, keep.adj)
         mXadj <- cbind(x[, union(delete.adj,keep.adj) ])
         est <- do.call(user.estimator$name,
-          c(list(y=y,x=mXadj), userEstArg), envir=user.estimator$envir)
+          c(list(y,mXadj), userEstArg), envir=user.estimator$envir)
         out$no.of.estimations <- out$no.of.estimations + 1
 
         ##do diagnostics:
@@ -499,7 +509,8 @@ if( gumDiagnosticsOK && delete.n>1 ){
         #add spec.adj to out$terminals:
         out$terminals[[ length(out$terminals)+1 ]] <- spec.adj
         gofValue <- do.call(gof.function$name,
-          c(list(x=est),gofFunArg), envir=user.estimator$envir)
+          c(list(est),gofFunArg), envir=gof.function$envir)
+#          c(list(x=est),gofFunArg), envir=user.estimator$envir)
         out$terminals.results <- rbind(out$terminals.results,
           c(gofValue, est$logl, est$n, est$k))
         row.labels <- c(row.labels, paste("spec ", length(out$terminals), ":", sep=""))

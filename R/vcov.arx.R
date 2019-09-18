@@ -3,6 +3,7 @@ function(object, spec=NULL, ...)
 {
 
   ##spec argument:
+  specOriginal <- spec
   if(is.null(spec)){
     if(!is.null(object$mean.results)){
       spec <- "mean"
@@ -17,12 +18,15 @@ function(object, spec=NULL, ...)
     spec <- spec.type[which.type]
   }
 
-  ##mean:
+  ##create result:
+  result <- NULL
+  
+  ##if mean:
   if(spec=="mean"){
     result <- object$vcov.mean
   }
 
-  ##variance:
+  ##if variance:
   if(spec=="variance"){
     result <- object$vcov.var
   }
@@ -30,8 +34,8 @@ function(object, spec=NULL, ...)
 #  ##check and change if 0 x 0?:
 #  if(all(dim(result)==0)){ result <- NULL }
 
-  ##check if user-specified estimator:
-  if( !is.null(object$aux$user.estimator) && is.null(result) ){
+  ##if user-specified estimator:
+  if( !is.null(object$aux$user.estimator) && is.null(specOriginal) ){
     result <- object$vcov
   }
   

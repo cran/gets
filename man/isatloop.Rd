@@ -4,7 +4,7 @@
 \title{Repeated Impulse Indicator Saturation}
 
 \description{
-  Runs \code{\link{isat}} repeatedly at pre-specified significance levels to yield multiple iterations used in
+  Runs \code{\link{isat}} repeatedly at pre-specified significance levels to yield multiple iterations used in\cr
   \code{\link{outlierscaletest}}.
 }
 

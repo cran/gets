@@ -3,6 +3,7 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
   normality.JarqueB=NULL, verbose=TRUE, user.fun=NULL, ...)
 {
   ##initiate:
+  ##---------
   if( is.null(x$std.residuals) ){
     zhat <- x$residuals
   }else{
@@ -10,7 +11,8 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
   }
   diagnosticsGood <- TRUE
 
-  ##serial correlation:
+  ##test for autocorrelation:
+  ##-------------------------
   if( !is.null(ar.LjungB) ){
     ar.LjungBox <- Box.test(zhat, lag=ar.LjungB[1], type="L")
     if( ar.LjungBox$p.value <= ar.LjungB[2] ){
@@ -19,7 +21,8 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
     }
   } #end serial correlation
 
-  ##arch:
+  ##test for arch:
+  ##--------------
   if( diagnosticsGood && !is.null(arch.LjungB) ){
     zhat2 <- zhat^2
     arch.LjungBox <- Box.test(zhat2, lag=arch.LjungB[1], type="L")
@@ -29,7 +32,9 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
     }
   } #end arch
 
-  ##normality:
+
+  ##test for normality:
+  ##-------------------
   if( diagnosticsGood && !is.null(normality.JarqueB)){
     n <- length(zhat)
     avgzhat <- mean(zhat) #do I really need this?
@@ -45,17 +50,34 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
     }
   } #end normality
 
-  ##user.fun:
+
+  ##user-defined test(s):
+  ##---------------------
   if( diagnosticsGood && !is.null(user.fun) ){
-    userVals <- do.call(user.fun$name, x, envir=.GlobalEnv)
+    ##make user.fun argument
+    if( is.null(user.fun$envir) ){ user.fun$envir <- .GlobalEnv }
+    userFunArg <- user.fun
+    userFunArg$name <- NULL
+    userFunArg$envir <- NULL
+    userFunArg$pval <- NULL
+    if( length(userFunArg)==0 ){ userFunArg <- NULL }
+    ##'do' user diagnostics:
+    userVals <- do.call(user.fun$name, c(list(x=x),userFunArg),
+      envir=user.fun$envir)
     userVals <- rbind(userVals)
-    if( length(user.fun)>=2 ){
+    if( !is.null(user.fun$pval) ){
       userFunPval <- as.numeric(userVals[,3])
-      if( any(userFunPval <= user.fun[[2]]) ){
+      if( any(userFunPval <= user.fun$pval) ){
         diagnosticsGood <- FALSE
       }
     }
-  }
+  } #end if(user.fun)
+
+  ##result:
+  ##-------
+
+  ##if(!verbose): return logical only
+  if(!verbose){ result <- diagnosticsGood }
 
   ##if(verbose): return diagnostics table
   if(verbose){
@@ -96,9 +118,6 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
       if(!is.null(user.fun)){ colnames(result)[1] <- "Statistic" }
     }
   } #end verbose
-
-  ##if(!verbose): return logical
-  if(!verbose){ result <- diagnosticsGood }
 
   ##return result:
   return(result)

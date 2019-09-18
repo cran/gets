@@ -6,11 +6,11 @@ function(x, spec=NULL, col=c("red","blue"),
   doPlot <- TRUE #default
   if( is.null(x$mean.results) && is.null(x$variance.results) ){
     doPlot <- FALSE
-    warning("No estimated model, so no plot produced")
+    message("No estimated model, so no plot produced")
   }
   if(doPlot && !is.null(x$aux$user.estimator) ){
     doPlot <- FALSE
-    warning("User defined estimation, so no plot produced")
+    message("User defined estimation, so no plot produced")
   }
 
   ##proceed with plotting:

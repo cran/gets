@@ -1,7 +1,7 @@
 fitted.isat <-
-function(object, spec=NULL, ...)
+function(object, ...)
 {
-  fitted.arx(object, spec=spec)
-  #OLD:
-  #fitted.arx(object, spec="mean")
+  result <- object$mean.fit
+  if(is.null(result)){ result <- object$fit }
+  return(result)
 }

@@ -5,7 +5,8 @@
 
 \description{
   Produces one or more samples from the specified multivariate normal distribution. Used
-  in \code{\link{outlierscaletest}}.
+  in\cr
+  \code{\link{outlierscaletest}}.
 }
 
 \usage{

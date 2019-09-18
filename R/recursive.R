@@ -83,8 +83,7 @@ function(object, spec=c("mean","variance"),
     mX <- dropvar(as.matrix(mX[1:compute.at[i], ]), tol=tol,
       LAPACK=LAPACK, silent=TRUE)
     if(NCOLmX==1){ colnames(mX) <- mXnames }
-    tmpEst <- ols(vY, mX, tol=tol, LAPACK=LAPACK,
-      method=olsMethod)
+    tmpEst <- ols(vY, mX, tol=tol, LAPACK=LAPACK, method=olsMethod)
     recursiveEstimates[compute.at[i],colnames(mX)] <- tmpEst$coefficients
     if(std.errors){
       recursiveStdErrs[compute.at[i],colnames(mX)] <- sqrt(diag(tmpEst$vcov))
