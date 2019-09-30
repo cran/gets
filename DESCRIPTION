@@ -2,8 +2,8 @@ Package: gets
 Type: Package
 Title: General-to-Specific (GETS) Modelling and Indicator Saturation
         Methods
-Version: 0.20
-Date: 2019-09-18
+Version: 0.21
+Date: 2019-09-30
 Author: Genaro Sucarrat [aut, cre], Felix Pretis [aut], James Reade [aut]
 Maintainer: Genaro Sucarrat <genaro.sucarrat@bi.no>
 Description: Automated General-to-Specific (GETS) modelling of the mean and variance of a regression, and indicator saturation methods for detecting and testing for structural breaks in the mean.
@@ -14,6 +14,6 @@ BugReports: https://github.com/gsucarrat/gets/issues
 URL: https://CRAN.R-project.org/package=gets,
         http://www.sucarrat.net/R/gets
 NeedsCompilation: no
-Packaged: 2019-09-18 12:27:21 UTC; sucarrat
+Packaged: 2019-09-30 19:57:02 UTC; sucarrat
 Repository: CRAN
-Date/Publication: 2019-09-18 12:50:02 UTC
+Date/Publication: 2019-09-30 20:20:02 UTC

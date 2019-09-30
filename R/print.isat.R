@@ -126,8 +126,9 @@ function(x, ...)
     printCoefmat(x$diagnostics, dig.tst=0, tst.ind=2,
                  signif.stars=FALSE)
     if(!is.null(x$call$iis)){
-      if (x$call$iis==TRUE){
-        outltest <- outliertest(x)
+#OLD:
+#      if (x$call$iis==TRUE){
+    if (x$call$iis==TRUE & !(any(x$call$sis, x$call$tis, x$call$uis) == TRUE)){        outltest <- outliertest(x)
         mOutl <- matrix(NA, 2, 2)
         colnames(mOutl) <- c("Stat.", "p-value")
         rownames(mOutl) <- c("Jiao-Pretis Prop.", "Jiao-Pretis Count")

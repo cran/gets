@@ -1,6 +1,6 @@
-273a8e4fa86e714ef4190ecef55b9a8a *DESCRIPTION
+4f27b7c6b02cb9c7edaa58c0bd925dcf *DESCRIPTION
 d4d9febd193924d7309e1b9aa2b9e361 *NAMESPACE
-ccc40f48cedc73227b8caa09df33b36c *NEWS
+44c3d2de5634764bf8f69e2a2f3f52ea *NEWS
 7a30380dc29c447d3d79344d3102dd43 *R/ES.R
 cf65ff7aabd008c4ca21f978d9130f86 *R/VaR.R
 aa167f9b36cabc9067c3697244381865 *R/arx.R
@@ -15,7 +15,7 @@ ae1c636e5246cb9055899a5ea8eb62b4 *R/eviews.R
 38fa45bb50402257de723dbb6e1b031c *R/fitted.arx.R
 b628e1a80015bacbc20a7c8f94b00bf2 *R/fitted.gets.R
 2460587877febe4b53878241f8698255 *R/fitted.isat.R
-65105efb4b14f239429057e3689f738a *R/gets-internal.R
+27abec0396e60ab9e84343e1079c9fe7 *R/gets-internal.R
 0754a2413b553b46d101a205d3d94fce *R/gets.R
 4c38db4f661e93adf0b487b411d5c43c *R/getsFun.R
 5480cf0975d69e4e3d2abfeb694e9b88 *R/getsm.R
@@ -23,7 +23,7 @@ cfb814e7069f8798865b228110c6bd6c *R/getsv.R
 47b56bdbfa6c5be4d4567be9a762157a *R/iim.R
 7cd5e1ec55256683f4eac3c8ff93551e *R/info.criterion.R
 bb81881c0dcee74a8dc0578cb6e9b2e8 *R/infocrit.R
-34cb203acee772ba76694590265837dd *R/isat.R
+f82bd80527ba4e7cd2008ffa93e4e49c *R/isat.R
 3fd6ea22b598f2cb5fd802762f817e9b *R/isatdates.R
 e8a7f95a225ffbc85eaf88296b6c69fd *R/isatloop.R
 353541e564f99f27646343fbc5d93536 *R/isattest.R
@@ -49,7 +49,7 @@ d0c1e8734c138b2c9e9325d2cee951b5 *R/predict.arx.R
 70969a03ccccb269a7a5ce9d2ca5460f *R/predict.isat.R
 d12f6a10d36e3256d2e837edee6e5ce2 *R/print.arx.R
 8ee82c1010a7cf3ea823a560dad32d63 *R/print.gets.R
-ae414a83e1dae29ecc90b76dacd13a69 *R/print.isat.R
+9f2484b42ad80b7576958d6f36c9b399 *R/print.isat.R
 118758cb4e3150b4b92abba3c614321a *R/printtex.R
 7ade2f4928a497305989d60b03fcce18 *R/recursive.R
 03159faaacec150c7fbccd77a5f782f0 *R/regressorsMean.R
@@ -86,7 +86,7 @@ e899081d567ff4b51cc456163ac2e96a *man/biascorr.Rd
 4e0afef2d649ef6dcb09a41fb12f8617 *man/dropvar.Rd
 3d3c923c62b1ce03fc4579d70f9ffb26 *man/eqwma.Rd
 37b2b7c9bfd0f64d83f82038fd33228b *man/eviews.Rd
-c82060f8faeb68a0e18e246a7d2d0000 *man/gets-package.Rd
+95c1e157c426c897b0730ab92a3ccb46 *man/gets-package.Rd
 6eef5ff709b184c1fe2ef1b539eda145 *man/gets.Rd
 3227a6115e018627b5a591995f2825ab *man/getsFun.Rd
 124efd321a10c5b18d441e3626a92f72 *man/getsm.Rd
