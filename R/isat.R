@@ -329,11 +329,11 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       ##print info:
       if(is.null(parallel.options)){
         if(print.searchinfo){
-          message("\n", appendLF=FALSE)
+          message("\\n", appendLF=FALSE)
           message(names(ISmatrices)[i],
             " block ", j, " of ", length(ISblocks[[i]]), ":",
             appendLF=TRUE)
-          #message("\n", appendLF=FALSE)
+          #message("\\n", appendLF=FALSE)
         }
       }
 
@@ -380,14 +380,14 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
       ##print info:
       if(print.searchinfo){
-        message("\n", appendLF=FALSE)
+        message("\\n", appendLF=FALSE)
         message("Preparing parallel computing...",
           appendLF=TRUE)
         message(names(ISmatrices)[i],
           " blocks to search in parallel: ", length(ISblocks[[i]]),
           appendLF=TRUE)
         message("Searching...", appendLF=TRUE)
-        #message("\n", appendLF=FALSE)
+        #message("\\n", appendLF=FALSE)
       }
 
       blocksClust <- makeCluster(clusterSpec, outfile="") #make cluster
@@ -410,7 +410,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
     ##print info:
     if(print.searchinfo){
-      message("\n", appendLF=FALSE)
+      message("\\n", appendLF=FALSE)
       message("GETS of union of retained ",
         names(ISmatrices)[i], " variables... ",
         appendLF=TRUE)
@@ -473,10 +473,10 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   
   ##some info:
   if(print.searchinfo){
-    message("\n", appendLF=FALSE)
+    message("\\n", appendLF=FALSE)
     message("GETS of union of ALL retained variables...",
       appendLF=TRUE)
-    #message("\n", appendLF=FALSE)
+    #message("\\n", appendLF=FALSE)
   }
 
   ##if final models estimated:

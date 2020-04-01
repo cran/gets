@@ -5,7 +5,7 @@ function(x, col=c("red","blue"),
 
 #  ##check if mean quation:
 #  if( is.null(x$mean.results) ){
-#    cat("No mean equation to plot\n")
+#    cat("No mean equation to plot\\n")
 #  }
 
   ##if fitted mean:
@@ -129,11 +129,11 @@ function(x, col=c("red","blue"),
 
 
       if(!is.null(as.list(x$call)$tis) && as.list(x$call)$tis==TRUE){
-        message("\n", appendLF=FALSE)
+        message("\\n", appendLF=FALSE)
         message("NB: Because TIS selected, coefficient standard errors invalid hence not plotted",
           appendLF=TRUE)
 #OLD:
-#        cat("\nNB: Because TIS selected, coefficient standard errors invalid hence not plotted\n", sep="")
+#        cat("\\nNB: Because TIS selected, coefficient standard errors invalid hence not plotted\\n", sep="")
         ylim.values <- range(coef.path.0)
         if(is.regular(coef.path.0)) {
           ylim.values <- range(coef.path.0)

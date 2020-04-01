@@ -41,12 +41,12 @@ function(object, file=NULL, print=TRUE,
   if(print && is.null(file)){
 
     ##Stata code to estimate the model:
-    message("Stata code to estimate the model:\n")
-    message(" ", out$regress, "\n")
+    message("Stata code to estimate the model:\\n")
+    message(" ", out$regress, "\\n")
 
     ##R code to export the data:
-    message("R code (example) to export the data of the model:\n")
-    message(paste("  stata(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
+    message("R code (example) to export the data of the model:\\n")
+    message(paste("  stata(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\\n", sep=""))
 
   } #close if(print && is.null(file))
 
@@ -55,10 +55,10 @@ function(object, file=NULL, print=TRUE,
     write.csv(out$data, file, row.names=FALSE)
     ##if print=TRUE:
     if(print){
-      message("Data saved in:\n")
-      message("  ", file, "\n", sep="")
-      message("Stata code to estimate the model:\n")
-      message(" ", out$regress, "\n")
+      message("Data saved in:\\n")
+      message("  ", file, "\\n", sep="")
+      message("Stata code to estimate the model:\\n")
+      message(" ", out$regress, "\\n")
     }
   } #end if(!is.null(file))
 

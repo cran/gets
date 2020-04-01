@@ -1,3 +1,17 @@
+Version 0.22 (1 April 2020):
+============================
+
+* fixes:
+
+- isat(): outliertest for iis impulses no longer induces crash when using uis (bug introduced in version 0.21)
+
+- print.isat(): outliertest for iis impulses now always reported when iis=TRUE
+
+* minor changes:
+
+- documentation of the ols() function
+
+
 Version 0.21 (30 September 2019):
 =================================
 

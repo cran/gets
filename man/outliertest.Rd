@@ -20,7 +20,7 @@
   \item{T}{integer, sample sized used in indicator saturation if no \code{\link{isat}} object is provided i.e. x=NULL}
   \item{m}{integer, number of iterations in variance computation, default=1}
   \item{infty}{logical, argument used for variance computation}
-  \item{alternative}{"two-sided", "less", "greater-than", alternative hypothesis of outlier test.}
+  \item{alternative}{"two-sided", "less", "greater", alternative hypothesis of outlier test.}
 }
 
 \details{The function computes the estimated proportion of outliers (gauge) based on impulse indicator saturation and constructs the proportion and count outlier test statistics from Jiao and Pretis (2019). The null hypothesis is that the proportion (or count) of outliers is not different than the proportion (or count) of outliers detected under the null hypothesis of no outliers. The first test compares the estimated proportion of outliers scaled by its estimated variance against a standard normal distribution. The second test compares the number of outliers against a Poisson distribution.
