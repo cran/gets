@@ -1,11 +1,12 @@
 printtex <-
 function(x, fitted.name=NULL, xreg.names=NULL,
-  digits=3, intercept=TRUE, gof=TRUE, diagnostics=TRUE)
+  digits=4, intercept=TRUE, gof=TRUE, diagnostics=TRUE, nonumber=FALSE,
+  nobs="T")
 {
 
   ##is class(x)="arx"/"gets"/"isat"?:
   ##---------------------------------
-  
+
   xName <- deparse(substitute(x))
   xClass <- class(x)
   if( xClass %in% c("arx","gets","isat") ){
@@ -20,6 +21,7 @@ function(x, fitted.name=NULL, xreg.names=NULL,
   ##equation:
   ##---------
 
+  ##coef names:
   coefs <- coef(x)
   if(is.null(xreg.names)){
     coefsNames <- names(coefs)
@@ -35,6 +37,7 @@ function(x, fitted.name=NULL, xreg.names=NULL,
   coefs <- as.numeric(coefs)
   stderrs <- as.numeric(sqrt(diag(vcov(x))))
 
+  ##equation (main part):
   eqtxt <- NULL
   if(length(coefs) > 0){
     for(i in 1:length(coefs) ){
@@ -47,8 +50,11 @@ function(x, fitted.name=NULL, xreg.names=NULL,
     }
   }
 
+  ##equation (put parts together):
+  txtAddNonumber <- ifelse(nonumber, " \\\\nonumber ", "")
   txtAddEq <- ifelse(gof+diagnostics>0, " \\\\\\\\[2mm]", "")
-  eqtxt <- paste0("  ", yName, " &=& ", eqtxt, "", txtAddEq, " \\n")
+  eqtxt <- paste0("  ", yName, " &=& ", eqtxt, "", txtAddNonumber,
+    txtAddEq, " \\n")
 
   ##goodness of fit:
   ##----------------
@@ -67,9 +73,9 @@ function(x, fitted.name=NULL, xreg.names=NULL,
     }
     goftxt <- paste(goftxt, " \\\\qquad LogL=",
       format(round(as.numeric(logLik(x)), digits=digits), nsmall=digits),
-        "\\\\qquad T = ", iT, " \\\\nonumber \\\\\\\\ \\n", sep="")
+        " \\\\qquad ", nobs, " = ", iT, " \\\\nonumber \\\\\\\\ \\n", sep="")
   }
-  
+
   ##diagnostics:
   ##------------
 
@@ -92,7 +98,7 @@ function(x, fitted.name=NULL, xreg.names=NULL,
       format(round(dfDiags[3,1], digits=digits), nsmall=digits), "}",
       " \\\\nonumber \\n", sep="")
   }
-  
+
   ##print code:
   ##-----------
 

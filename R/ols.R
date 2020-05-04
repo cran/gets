@@ -9,7 +9,7 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
 
   ##user-specified:
   if(method==0){
-    stop("method=0 has been deprecated")
+    stop("method = 0 has been deprecated")
   }
 
   ##fastest (usually only for estimates):

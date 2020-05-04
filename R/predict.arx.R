@@ -547,7 +547,7 @@ function(object, spec=NULL, n.ahead=12,
 
   ##check special case:
   if( plotArg && spec=="variance" && specVar==FALSE ){
-    message("Set 'vc=TRUE' to plot the variance predictions")
+    message("Set 'vc = TRUE' to enable a plot of the variance predictions")
     plotArg <- FALSE
   }
   

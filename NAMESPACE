@@ -1,12 +1,17 @@
 import(zoo)
+
 importFrom("stats", "poisson.test", "rnorm", "Box.test", "coef", "cycle",
   "deltat", "dnorm", "fitted", "frequency", "logLik", "pchisq", "pnorm",
   "printCoefmat", "pt", "qnorm", "qt", "quantile", "residuals", "runif",
   "sigma", "var", "vcov", "window")
+
 importFrom("graphics", "abline", "legend", "lines", "mtext", "par",
   "plot", "points", "polygon", "text", "title")
+
 importFrom("grDevices", "rgb")
-importFrom("utils", "tail", "write.csv")
+
+importFrom("utils", "tail", "toLatex", "write.csv")
+
 importFrom("parallel", "detectCores", "makeCluster", "clusterExport",
   "parLapply", "stopCluster")
 
@@ -24,13 +29,13 @@ export(
   ##arx functions:
   "arx", "coef.arx", "ES", "fitted.arx", "logLik.arx", "plot.arx",
   "predict.arx", "print.arx", "recursive",
-  "rsquared", "residuals.arx", "sigma.arx", "summary.arx", "VaR",
-  "vcov.arx",
+  "rsquared", "residuals.arx", "sigma.arx", "summary.arx", "toLatex.arx",
+  "VaR", "vcov.arx",
   
   ##gets functions:
   "getsm", "getsv", "coef.gets", "fitted.gets", "paths",
   "plot.gets", "predict.gets", "print.gets", "residuals.gets", "sigma.gets",
-  "summary.gets", "terminals", "vcov.gets",
+  "summary.gets", "terminals", "toLatex.gets", "vcov.gets",
   
   ##isat functions:
   "isat", "coef.isat", "fitted.isat", "logLik.isat", "plot.isat",
@@ -52,6 +57,7 @@ S3method("print", "arx")
 S3method("residuals", "arx")
 S3method("sigma", "arx")
 S3method("summary", "arx")
+S3method("toLatex", "arx")
 S3method("vcov", "arx")
 
 ##methods for class gets:
@@ -64,6 +70,7 @@ S3method("print", "gets")
 S3method("residuals", "gets")
 S3method("sigma", "gets")
 S3method("summary", "gets")
+S3method("toLatex", "gets")
 S3method("vcov", "gets")
 
 ##methods for class isat:

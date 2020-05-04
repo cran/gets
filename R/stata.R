@@ -41,7 +41,7 @@ function(object, file=NULL, print=TRUE,
   if(print && is.null(file)){
 
     ##Stata code to estimate the model:
-    message("Stata code to estimate the model:\\n")
+    message("STATA code to estimate the model:\\n")
     message(" ", out$regress, "\\n")
 
     ##R code to export the data:
@@ -57,7 +57,7 @@ function(object, file=NULL, print=TRUE,
     if(print){
       message("Data saved in:\\n")
       message("  ", file, "\\n", sep="")
-      message("Stata code to estimate the model:\\n")
+      message("STATA code to estimate the model:\\n")
       message(" ", out$regress, "\\n")
     }
   } #end if(!is.null(file))
