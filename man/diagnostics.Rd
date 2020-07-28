@@ -3,7 +3,7 @@
 
 \title{Diagnostics tests}
 
-\description{Auxiliary function (i.e. not intended for the average user) called by the \code{\link{arx}}, \code{\link{getsm}}, \code{\link{getsv}}, \code{\link{isat}} and \code{\link{getsFun}} functions. The \code{diagnostics} function undertakes tests for autocorrelation, ARCH and non-normality in a residual series, and user-defined diagnostics provided via the \code{user.fun} argument (see details). The autocorrelation and ARCH tests are conducted as Ljung and Box (1979) tests for autocorrelation in the residuals and squared residuals, respectively, whereas the test for non-normality is that of Jarque and Bera (1980).}
+\description{Auxiliary function (i.e. not intended for the average user) called by the \code{\link{arx}}, \code{\link{getsm}}, \code{\link{getsv}}, \code{\link{isat}}, \code{\link{getsFun}} and \code{\link{blocksFun}} functions. The \code{diagnostics} function undertakes tests for autocorrelation, ARCH and non-normality in a residual series, and user-defined diagnostics provided via the \code{user.fun} argument (see details). The autocorrelation and ARCH tests are conducted as Ljung and Box (1979) tests for autocorrelation in the residuals and squared residuals, respectively, whereas the test for non-normality is that of Jarque and Bera (1980).}
 
 \usage{
 diagnostics(x, ar.LjungB=c(1, 0.025), arch.LjungB=c(1, 0.025),
@@ -21,8 +21,9 @@ diagnostics(x, ar.LjungB=c(1, 0.025), arch.LjungB=c(1, 0.025),
 }
 
 \details{
-  The argument \code{user.fun} enables the user to specify additional diagnostics. To do this, the argument should be a \code{\link{list}} with at least one entry, \code{name} (of class \code{character}), that contains the name of the user-defined function. By default, the user-defined function is looked for in the global environment (\code{.GlobalEnv}). However, this can be changed by adding an entry named \code{envir} that indicates where the user-defined function resides. If the \code{verbose} argument is set to \code{FALSE}, then an entry named \code{pval} must be provided. This entry should contain the chosen significance level or levels, i.e. either a scalar or a vector of length equal to the number of p-values returned by the user-defined diagnostics function (see examples). Additional entries in the \code{list} are passed on as arguments to the user-defined function.
-  The user-defined function should refer to the named items of the estimation result \code{x} (see examples), and the value returned by the user-defined function should be a matrix of dimension m x 3. Here, m is the number of diagnostic tests performed by the user-defined function. For example, if only a single test is performed, then m=1 and so the returned value should be a 1 x 3 matrix (or a vector of length 3). The three columns of the m x 3 matrix should contain, in the following order, 1) the value(s) of the test-statistic(s), 2) the degrees of freedom(s) (or \code{NA} if there are none) of the tests, and 3) the p-value(s) of the test(s). When checking whether the model passes the diagnostics or not, the p-value(s) is(are) checked against the value(s) in the entry named \code{pval} in the \code{list} provided to \code{user.fun}.
+  The argument \code{user.fun} enables the user to specify additional diagnostics. To do this, the argument should be a \code{\link{list}} with at least one entry, \code{name} (of class \code{character}), that contains the name of the user-defined function. The call to this function is executed with \code{\link{do.call}}, whose default value on \code{envir} is \code{parent.frame()}. Usually, this will be the global environment (\code{.GlobalEnv}), but it can be changed by adding an entry named \code{envir} to the list that indicates where the user-defined function resides.  If the \code{verbose} argument is set to \code{FALSE}, then an entry named \code{pval} must be provided. This entry should contain the chosen significance level or levels, i.e. either a scalar or a vector of length equal to the number of \emph{p}-values returned by the user-defined diagnostics function (see examples). Additional entries in the \code{list} are passed on as arguments to the user-defined function.
+  
+  The user-defined function should refer to the named items of the estimation result \code{x} (see examples), and the value returned by the user-defined function should be a matrix of dimension \emph{m} x 3. Here, \emph{m} is the number of diagnostic tests performed by the user-defined function. For example, if only a single test is performed, then \emph{m} = 1 and so the returned value should be a 1 x 3 matrix (or a vector of length 3). The three columns of the \emph{m} x 3 matrix should contain, in the following order, 1) the value(s) of the test-statistic(s) (or \code{NA}), 2) the degree(s) of freedom(s) (or \code{NA}) of the tests, and 3) the \emph{p}-value(s) of the test(s). When checking whether the model passes the diagnostics or not, the \emph{p}-value(s) is(are) checked against the value(s) in the entry named \code{pval} in the \code{list} provided to \code{user.fun}.
 }
 
 \value{
@@ -41,7 +42,7 @@ G. Ljung and G. Box (1979): 'On a Measure of Lack of Fit in Time
 
 \author{Genaro Sucarrat, \url{http://www.sucarrat.net/} }
 
-\seealso{\code{\link{arx}}, \code{\link{getsm}}, \code{\link{getsv}}, \code{\link{isat}}, \code{\link{getsFun}} }
+\seealso{\code{\link{arx}}, \code{\link{getsm}}, \code{\link{getsv}}, \code{\link{isat}}, \code{\link{getsFun}}, \code{\link{blocksFun}} }
 
 \examples{
 ##generate some data:
@@ -72,4 +73,5 @@ diagnostics(est, user.fun=list(name="SWtest", pval=0.05), verbose=FALSE)
 \keyword{Statistical Models}
 \keyword{Time Series}
 \keyword{Econometrics}
+\keyword{Climate Econometrics}
 \keyword{Financial Econometrics}

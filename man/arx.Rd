@@ -32,14 +32,18 @@ arx(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL, vc=FALSE,
   \item{vcov.type}{character vector, "ordinary" (default), "white" or "newey-west". If "ordinary", then the ordinary variance-covariance matrix is used for inference. If "white", then the White (1980) heteroscedasticity-robust matrix is used. If "newey-west", then the Newey and West (1987) heteroscedasticity and autocorrelation-robust matrix is used}
   \item{qstat.options}{\code{NULL} (default) or an integer vector of length two, say, \code{c(1,1)}. The first value sets the lag-order of the AR diagnostic test, whereas the second value sets the lag-order of the ARCH diagnostic test. If \code{NULL}, then the two values of the vector are set automatically}
   \item{normality.JarqueB}{\code{FALSE} (default) or \code{TRUE}. If \code{TRUE}, then the results of the Jarque and Bera (1980) test for non-normality in the residuals are included in the estimation results. }
-  \item{user.estimator}{\code{NULL} (default) or a \code{\link{list}} with one entry, \code{name}, containing the name of the user-defined estimator }
+  \item{user.estimator}{\code{NULL} (default) or a \code{\link{list}} with one entry, \code{name}, containing the name of the user-defined estimator. Additional items, if any, are passed on as arguments to the estimator in question }
   \item{user.diagnostics}{\code{NULL} (default) or a \code{\link{list}} with two entries, \code{name} and \code{pval}, see the \code{user.fun} argument in \code{\link{diagnostics}} }
   \item{tol}{numeric value (\code{default = 1e-07}). The tolerance for detecting linear dependencies in the columns of the regressors (see \code{\link{qr}} function). Only used if \code{LAPACK} is \code{FALSE} (default) and \code{user.estimator} is \code{NULL}.}
   \item{LAPACK}{logical. If \code{TRUE}, then use LAPACK. If \code{FALSE} (default), then use LINPACK (see \code{\link{qr}} function). Only used if \code{user.estimator} is \code{NULL}.}
   \item{plot}{\code{NULL} or logical. If \code{TRUE}, then the fitted values and the residuals are plotted. If \code{NULL} (default), then the value set by \code{\link{options}} determines whether a plot is produced or not.}
 }
 
-\details{See Pretis, Reade and Sucarrat (2018)}
+\details{
+For an overview of the AR-X model with log-ARCH-X errors, see Pretis, Reade and Sucarrat (2018): \url{https://www.jstatsoft.org/article/view/v086i03}.
+
+The arguments \code{user.estimator} and \code{user.diagnostics} enables the specification of user-defined estimators and user-defined diagnostics. To this end, the principles of the same arguments in \code{\link{getsFun}} are followed, see its documentation under "Details", and Sucarrat (2019): \url{https://mpra.ub.uni-muenchen.de/96653/}.
+}
 
 \value{A list of class 'arx'}
 
@@ -47,6 +51,8 @@ arx(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL, vc=FALSE,
 C. Jarque and A. Bera (1980): 'Efficient Tests for Normality, Homoscedasticity and Serial Independence'. Economics Letters 6, pp. 255-259
 
 Pretis, Felix, Reade, James and Sucarrat, Genaro (2018): 'Automated General-to-Specific (GETS) Regression Modeling and Indicator Saturation for Outliers and Structural Breaks'. Journal of Statistical Software 86, Number 3, pp. 1-44
+
+Genaro Sucarrat (2019): 'User-Specified General-to-Specific and Indicator Saturation Methods'. \url{https://mpra.ub.uni-muenchen.de/96653/}
 
 Halbert White (1980): 'A Heteroskedasticity-Consistent Covariance Matrix Estimator and a Direct Test for Heteroskedasticity', Econometrica 48, pp. 817-838
 
@@ -100,7 +106,9 @@ arx(y, arch=1:4, asym=1, log.ewma=list(length=10), vxreg=log(xregs^2))
 arx(y, mc=TRUE, ar=1:2, mxreg=xregs, arch=1:4, asym=1,
   log.ewma=list(length=10), vxreg=log(xregs^2))
 }
+
 \keyword{Statistical Models}
 \keyword{Time Series}
 \keyword{Econometrics}
+\keyword{Climate Econometrics}
 \keyword{Financial Econometrics}

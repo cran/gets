@@ -37,6 +37,10 @@ function(object, spec=NULL, ...)
   ##if user-specified estimator:
   if( !is.null(object$aux$user.estimator) && is.null(specOriginal) ){
     result <- object$vcov
+    if( is.null(colnames(result)) ){
+      colnames(result) <- names(coef.arx(object))
+      rownames(result) <- colnames(result)
+    }
   }
   
   return(result)

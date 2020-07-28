@@ -1,3 +1,61 @@
+Version 0.24 (28 July 2020):
+============================
+
+* getsm() function:
+
+- new arguments: gof.function, gof.method, include.1cut, turbo
+
+- deprecated arguments: paths.method, max.regs, zero.adj, vc.adj, verbose, estimate.specific
+
+* getsv() function:
+
+- new arguments: gof.function, gof.method
+
+- new default: include.1cut=TRUE
+
+- deprecated arguments: max.regs, zero.adj, vc.adj, verbose, estimate.specific
+
+* arx()/isat() function:
+
+- mxreg argument: can now be a data.frame
+
+* regressorsMean() function:
+
+- mxreg argument: can now be a data.frame
+
+- new argument: na.omit
+
+* ols() function:
+
+- new argument: variance.spec
+
+* print.gets() function:
+
+- new argument: signif.stars
+
+* new functions:
+
+- blocksFun()
+
+- gets.arx()
+
+- regressorsVariance()
+
+- as.lm()
+
+* user-defined diagnostics and/or estimation: the default behaviour of the $envir argument has been made more general
+
+* fixes:
+
+- getsFun (the fixes carry over to the functions that call getsFun(): getsm(), getsv() and isat()):
+ . search is now undertaken if there is only one non-keep, insignificant variable in the gum.
+ . the entry $specific.spec in the returned list is now non-empty if all non-keep regressors are significant in the gum, or if all regressors are set to 'keep'
+
+- printing issues relating to double backslashes in cat() commands resolved
+
+- regressorsMean(): "" colnames in mxreg argument are now handled correctly
+
+
 Version 0.23 (4 May 2020):
 ==========================
 

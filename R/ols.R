@@ -1,18 +1,23 @@
 ols <-
 function(y, x, untransformed.residuals=NULL, tol=1e-07,
-  LAPACK=FALSE, method=3, ...)
+  LAPACK=FALSE, method=3, variance.spec=NULL, ...)
 {
 
   ##for the future:
+  ## - new argument: options=NULL (default), to control how the
+  ## Newey and West (1987) coefficient-covariance is computed,
+  ## amongst other
   ## - rename ols to estFun? Split estFun into two functions,
   ## estFun and vcovFun?
 
   ##user-specified:
+  ##---------------
   if(method==0){
     stop("method = 0 has been deprecated")
   }
 
-  ##fastest (usually only for estimates):
+  ##fastest, usually only for estimates:
+  ##------------------------------------
   if(method==1){
     out <- list()
     qx <- qr(x, tol, LAPACK=LAPACK)
@@ -21,6 +26,7 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
   }
 
   ##second fastest (slightly more output):
+  ##--------------------------------------
   if(method==2){
     out <- list()
     qx <- qr(x, tol, LAPACK=LAPACK) ## compute qr-decomposition of x
@@ -32,7 +38,10 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
   }
 
   ##ordinary vcov:
+  ##--------------
   if(method==3){
+
+    ##mean specification:
     out <- list()
     out$n <- length(y)
     if(is.null(x)){ out$k <- 0 }else{ out$k <- NCOL(x) }
@@ -54,10 +63,14 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
       out$vcov <- out$sigma2 * out$xtxinv
     }
     out$logl <- -out$n*log(2*out$sigma2*pi)/2 - out$rss/(2*out$sigma2)
-  }
 
-  ##white (1980) vcov:
+  } #close method=3
+
+  ##White (1980) vcov:
+  ##------------------
   if(method==4){
+
+    ##mean specification:
     out <- list()
     out$n <- length(y)
     if(is.null(x)){ out$k <- 0 }else{ out$k <- NCOL(x) }
@@ -80,10 +93,16 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
       out$vcov <- out$xtxinv %*% out$omegahat %*% out$xtxinv
     }
     out$logl <- -out$n*log(2*out$sigma2*pi)/2 - out$rss/(2*out$sigma2)
+
+    ##variance specification:
+    
   }
 
-  ##newey-west(1987) vcov:
+  ##Newey and West(1987) vcov:
+  ##--------------------------
   if(method==5){
+
+    ##mean specification:
     out <- list()
     out$n <- length(y)
     if(is.null(x)){ out$k <- 0 }else{ out$k <- NCOL(x) }
@@ -120,12 +139,17 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
       out$omegahat <- mS0 + mSum
       out$vcov <- out$xtxinv %*% out$omegahat %*% out$xtxinv
     } #end if(out$k>0)
-    
+
     out$logl <- -out$n*log(2*out$sigma2*pi)/2 - out$rss/(2*out$sigma2)
+
+    ##variance specification:
+    
   }
 
   ##log-variance w/ordinary vcov (note: y = log(e^2)):
+  ##--------------------------------------------------
   if(method==6){
+
     out <- list()
     out$n <- length(y)
     if(is.null(x)){ out$k <- 0 }else{ out$k <- NCOL(x) }
@@ -151,9 +175,46 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
     out$var.fit <- exp(out$fit - out$Elnz2)
     out$std.residuals <- untransformed.residuals/sqrt(out$var.fit)
     out$logl <- -out$n*log(2*pi)/2 - sum(log(out$var.fit))/2 - sum(untransformed.residuals^2/out$var.fit)/2
+
   }
 
-  ##result:
+  ##if variance specification:
+  ##--------------------------
+  if( !is.null(variance.spec) ){
+
+    if(method==6){ stop("not compatible with method=6") }
+    if( !is.null(variance.spec$vxreg) ){
+      if( length(y)!=NROW(variance.spec$vxreg) ){
+        stop("length(y) != NROW(vxreg)")
+      }
+      variance.spec$vxreg <- coredata(variance.spec$vxreg)
+    }
+    e <- out$residuals
+    variance.spec <- c(list(e=e), variance.spec)
+    variance.spec$return.regressand <- TRUE #some protection
+    variance.spec$return.as.zoo <- FALSE
+    variance.spec$na.trim <- TRUE #some protection
+    variance.spec$na.omit <- FALSE #--||--
+    tmp <- do.call("regressorsVariance", variance.spec)
+    loge2 <- tmp[,1]
+    vX <- cbind(tmp[,-1])
+    e <- e[c(length(e)-length(loge2)+1):length(e)]
+    estVar <- ols(loge2, vX, untransformed.residuals=e, tol=tol,
+      LAPACK=LAPACK, method=6)
+    out$regressorsVariance <- tmp
+    out$var.coefficients <- estVar$coefficients
+    out$Elnz2 <- estVar$Elnz2
+    out$vcov.var <- estVar$vcov
+    NAs2add <- rep(NA, length(y)-length(loge2))
+    out$var.fit <- c(NAs2add, estVar$var.fit)
+    out$std.residuals <- c(NAs2add, estVar$std.residuals)
+    out$ustar.residuals <- c(NAs2add, estVar$residuals)
+    out$logl <- estVar$logl
+
+  }
+
+  ##return result:
+  ##--------------
   return(out)
 
 }

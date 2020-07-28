@@ -36,9 +36,10 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
   ##test for normality:
   ##-------------------
   if( diagnosticsGood && !is.null(normality.JarqueB)){
-    n <- length(zhat)
-    avgzhat <- mean(zhat) #do I really need this?
-    zhat.avgzhat <- zhat-avgzhat #do I really need this?
+    zhatadj <- coredata(na.trim(zhat))
+    n <- length(zhatadj)
+    avgzhat <- mean(zhatadj) #do I really need this?
+    zhat.avgzhat <- zhatadj-avgzhat #do I really need this?
     zhat.avgzhat2 <- zhat.avgzhat^2
     K <- n*sum(zhat.avgzhat^4)/(sum(zhat.avgzhat2)^2)
     S <- (sum(zhat.avgzhat^3)/n)/(sum(zhat.avgzhat2)/n)^(3/2)
@@ -55,15 +56,20 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
   ##---------------------
   if( diagnosticsGood && !is.null(user.fun) ){
     ##make user.fun argument
-    if( is.null(user.fun$envir) ){ user.fun$envir <- .GlobalEnv }
+#OLD:
+#    if( is.null(user.fun$envir) ){ user.fun$envir <- .GlobalEnv }
     userFunArg <- user.fun
     userFunArg$name <- NULL
     userFunArg$envir <- NULL
     userFunArg$pval <- NULL
     if( length(userFunArg)==0 ){ userFunArg <- NULL }
     ##'do' user diagnostics:
-    userVals <- do.call(user.fun$name, c(list(x=x),userFunArg),
-      envir=user.fun$envir)
+    if( is.null(user.fun$envir) ){
+      userVals <- do.call(user.fun$name, c(list(x=x),userFunArg))
+    }else{
+      userVals <- do.call(user.fun$name, c(list(x=x),userFunArg),
+        envir=user.fun$envir)
+    }
     userVals <- rbind(userVals)
     if( !is.null(user.fun$pval) ){
       userFunPval <- as.numeric(userVals[,3])

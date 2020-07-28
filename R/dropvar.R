@@ -12,7 +12,7 @@ function(x, tol=1e-7, LAPACK=FALSE, silent=FALSE)
   if(!silent){ ## message the no. of dropped columns:
     message("regressor-matrix is column rank deficient, so dropping ",
       NCOL(x) - qr.X$rank, " regressors", appendLF=TRUE)
-    message("\\n", appendLF=FALSE)
+    message("\n", appendLF=FALSE)
   }
 #OLD:
 #    message(gettextf("regressor-matrix is column rank deficient, so dropping %d regressors",

@@ -3,18 +3,17 @@ function(object, t.pval=0.05, wald.pval=t.pval,
   do.pet=TRUE, ar.LjungB=list(lag=NULL, pval=0.025),
   arch.LjungB=list(lag=NULL, pval=0.025),
   normality.JarqueB=NULL, user.diagnostics=NULL,
-  info.method=c("sc", "aic", "hq"), keep=c(1), include.gum=FALSE,
-  include.1cut=FALSE, include.empty=FALSE, max.paths=NULL,
-  turbo=FALSE, max.regs=NULL, zero.adj=NULL, vc.adj=NULL,
-  print.searchinfo=TRUE, estimate.specific=TRUE, plot=NULL, alarm=FALSE)
+  info.method=c("sc", "aic", "aicc", "hq"),
+  gof.function=NULL, gof.method=NULL, keep=c(1),
+  include.gum=FALSE, include.1cut=TRUE, include.empty=FALSE,
+  max.paths=NULL, turbo=FALSE, print.searchinfo=TRUE,
+  plot=NULL, alarm=FALSE)
 {
   ### ARGUMENTS ###########
 
-  info.method <- match.arg(info.method)
-  vc=TRUE #obligatory
-  vcov.type <- "ordinary" #obligatory
-  tol <- object$aux$tol
-  LAPACK <- object$aux$LAPACK
+  ##obligatory:
+  vc=TRUE
+  vcov.type <- "ordinary"
 
   ##zoo and NA related:
   e <- object$residuals #should not contain NAs
@@ -34,15 +33,18 @@ function(object, t.pval=0.05, wald.pval=t.pval,
     arch.LjungB$lag <- object$aux$qstat.options[2]
   }
   arch.LjungB <- c(arch.LjungB$lag[1], arch.LjungB$pval[1])
-  if(is.null(max.regs)){ max.regs <- 10*object$aux$y.n }
+  #if(is.null(max.regs)){ max.regs <- 10*object$aux$y.n }
 
-  ##zero-handling:
-  if(is.null(zero.adj)){ zero.adj <- object$aux$zero.adj }
-  if(is.null(vc.adj)){ vc.adj <- object$aux$vc.adj }
-
-  ##tolerancy for non-invertibility of matrices:
-  if(is.null(tol)){ tol <- object$aux$tol }
-  if(is.null(LAPACK)){ LAPACK <- object$aux$LAPACK }
+  ##gof arguments:
+  if( is.null(gof.function) ){
+    ##determine info method:
+    infoTypes <- c("sc","aic","aicc","hq")
+    whichMethod <- charmatch(info.method[1], infoTypes)
+    info.method <- infoTypes[ whichMethod ]
+    ##make gof arguments:
+    gof.function <- list(name="infocrit", method=info.method)
+    gof.method <- "min"
+  }
 
 
   ### INITIALISE ##########
@@ -72,16 +74,16 @@ function(object, t.pval=0.05, wald.pval=t.pval,
   ### DO MULTI-PATH GETS ##########
 
   ##do the gets:
-  est <- getsFun(loge2, mX, user.estimator=list(name="ols",
-    untransformed.residuals=eadj, tol=tol, LAPACK=LAPACK, method=6),
+  est <- getsFun(loge2, mX,
+    user.estimator=list(name="ols", untransformed.residuals=eadj,
+    tol=object$aux$tol, LAPACK=object$aux$LAPACK, method=6),
     gum.result=NULL, t.pval=t.pval, wald.pval=wald.pval, do.pet=do.pet,
     ar.LjungB=ar.LjungB, arch.LjungB=arch.LjungB,
     normality.JarqueB=normality.JarqueB, user.diagnostics=user.diagnostics,
-    gof.function=list(name="infocrit", method=info.method),
-    gof.method="min", keep=keep, include.gum=include.gum,
-    include.1cut=include.1cut, include.empty=include.empty,
-    max.paths=max.paths, turbo=turbo, max.regs=max.regs,
-    print.searchinfo=print.searchinfo, alarm=alarm)
+    gof.function=gof.function, gof.method=gof.method, keep=keep,
+    include.gum=include.gum, include.1cut=include.1cut,
+    include.empty=include.empty, max.paths=max.paths, turbo=turbo,
+    max.regs=NULL, print.searchinfo=print.searchinfo, alarm=alarm)
   est$time.started <- NULL
   est$time.finished <- NULL
   est$call <- NULL
@@ -96,49 +98,48 @@ function(object, t.pval=0.05, wald.pval=t.pval,
 
   ### ESTIMATE SPECIFIC ################
 
-  if(estimate.specific){
+  ## prepare estimation:
+  e <- zoo(cbind(eadj), order.by=eadj.index)
+  colnames(e) <- "e"
+  specificadj <- setdiff(out$specific.spec, 1)
+  if(length(specificadj)==0){
+    vXadj <- NULL
+  }else{
+    vXadj <- cbind(object$aux$vX[,specificadj])
+    colnames(vXadj) <- object$aux$vXnames[specificadj]
+    vXadj <- zoo(vXadj, order.by=eadj.index)
+  }
+  if( is.null(ar.LjungB) ){ ar.LjungB <- object$aux$qstat.options[1] }
+  if( is.null(arch.LjungB) ){ arch.LjungB <- object$aux$qstat.options[2] }
+  if( is.null(normality.JarqueB) ){
+    normality.JarqueB <- FALSE
+  }else{
+    normality.JarqueB <- TRUE
+  }
 
-    ## prepare estimation:
-    e <- zoo(cbind(eadj), order.by=eadj.index)
-    colnames(e) <- "e"
-    specificadj <- setdiff(out$specific.spec, 1)
-    if(length(specificadj)==0){
-      vXadj <- NULL
-    }else{
-      vXadj <- cbind(object$aux$vX[,specificadj])
-      colnames(vXadj) <- object$aux$vXnames[specificadj]
-      vXadj <- zoo(vXadj, order.by=eadj.index)
-    }
-    if(is.null(ar.LjungB)){
-      ar.LjungB <- object$aux$qstat.options[1]
-    }
-    if(is.null(arch.LjungB)){
-      arch.LjungB <- object$aux$qstat.options[2]
-    }
+  ## estimate model:
+  est <- arx(e, vc=TRUE, vxreg=vXadj,
+    zero.adj=object$aux$zero.adj, vc.adj=object$aux$vc.adj,
+    qstat.options=c(ar.LjungB[1],arch.LjungB[1]),
+    normality.JarqueB=normality.JarqueB,
+    user.diagnostics=user.diagnostics, tol=object$aux$tol,
+    LAPACK=object$aux$LAPACK, plot=FALSE)
 
-    ## estimate model:
-    est <- arx(e, vc=TRUE, vxreg=vXadj,
-      zero.adj=object$aux$zero.adj, vc.adj=object$aux$vc.adj,
-      qstat.options=c(ar.LjungB[1],arch.LjungB[1]),
-      user.diagnostics=user.diagnostics, tol=object$aux$tol,
-      LAPACK=object$aux$LAPACK, plot=FALSE)
+  ## delete, rename and change various stuff:
+  est$call <- est$date <- NULL
+  where.diagnostics <- which(names(est)=="diagnostics")
+  if(length(where.diagnostics)>0){
+    names(est)[where.diagnostics] <- "specific.diagnostics"
+  }
+  est$mean.fit <- object$mean.fit[ index(object$mean.fit) %in% eadj.index ]
+  #est$mean.fit <- object$mean.fit[ eadj.index ] #should work, but doesn't!
+  est$vcov.mean <- NULL
+  est$aux$vxreg <- est$aux$vxreg.index <- NULL
+  est$aux$y.name <- "e"
 
-    ## delete, rename and change various stuff:
-    est$call <- est$date <- NULL
-    where.diagnostics <- which(names(est)=="diagnostics")
-    if(length(where.diagnostics)>0){
-      names(est)[where.diagnostics] <- "specific.diagnostics"
-    }
-    est$mean.fit <- object$mean.fit[ index(object$mean.fit) %in% eadj.index ]
-    #est$mean.fit <- object$mean.fit[ eadj.index ] #should work, but doesn't!
-    est$aux$vxreg <- est$aux$vxreg.index <- NULL
-    est$aux$y.name <- "e"
-
-    ## finalise:
-    est <- unclass(est)
-    out <- c(out,est)
-
-  } #end if(estimate.specific)
+  ## finalise:
+  est <- unclass(est)
+  out <- c(out,est)
 
   ### OUTPUT ########
 

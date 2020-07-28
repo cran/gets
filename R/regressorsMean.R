@@ -1,6 +1,7 @@
 regressorsMean <-
 function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
-  return.regressand=TRUE, return.as.zoo=TRUE, na.trim=TRUE)
+  return.regressand=TRUE, return.as.zoo=TRUE, na.trim=TRUE,
+  na.omit=FALSE)
 {
 
   ##regressand:
@@ -46,14 +47,14 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     mX <- cbind(mX, tmp)
   }
 
-  ##adjust for NAs:
+  ##trim for NAs:
   if(na.trim){
     tmp <- zoo(cbind(y,mX), order.by=y.index)
     tmp <- na.trim(tmp, sides="both", is.na="any")
     y.n <- NROW(tmp) #re-define y.n
     y.index <- index(tmp) #re-define y.index
-    t1 <- y.index[1]
-    t2 <- y.index[y.n]
+    t1 <- y.index[1] #re-define t1
+    t2 <- y.index[y.n] #re-define t2
     y <- coredata(tmp[,1]) #re-define y
     if(!is.null(mX)){ #re-define mX
       mX <- tmp[,2:NCOL(tmp)]
@@ -64,7 +65,9 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
   }
   
   ##mxreg:
-  if( !is.null(mxreg) && !identical(as.numeric(mxreg),0) ){
+  if( !is.null(mxreg) ){
+#OLD (until version 0.23):
+#  if( !is.null(mxreg) && !identical(as.numeric(mxreg),0) ){
     mxreg <- as.zoo(cbind(mxreg))
     mxreg.names <- colnames(mxreg)
     if(is.null(mxreg.names)){
@@ -73,7 +76,7 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     if(any(mxreg.names == "")){
       missing.colnames <- which(mxreg.names == "")
       for(i in 1:length(missing.colnames)){
-        mxreg.names[i] <- paste("mxreg", i, sep="")
+        mxreg.names[missing.colnames[i]] <- paste0("mxreg", i)
       }
     }
     #mxreg.names <- make.names(mxreg.names)
@@ -82,14 +85,14 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     mxreg <- cbind(coredata(mxreg))
     mX <- cbind(mX, mxreg)
 
-    ##re-adjust for NAs:
+    ##re-trim for NAs:
     if(na.trim){
       tmp <- zoo(cbind(y,mX), order.by=y.index)
       tmp <- na.trim(tmp, sides="both", is.na="any")
       y.n <- NROW(tmp) #re-define y.n
       y.index <- index(tmp) #re-define y.index
-      t1 <- y.index[1]
-      t2 <- y.index[y.n]
+      t1 <- y.index[1] #re-define t1
+      t2 <- y.index[y.n] #re-define t2
       y <- coredata(tmp[,1])
       mX <- tmp[,2:NCOL(tmp)]
       mX <- coredata(mX)
@@ -99,6 +102,22 @@ function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   } #end if(!is.null(mxreg))
 
+  ##remove rows with NAs:
+  if(na.omit){
+    tmp <- zoo(cbind(y,mX), order.by=y.index)
+    tmp <- na.omit(tmp)
+    y.n <- NROW(tmp) #re-define y.n
+    y.index <- index(tmp) #re-define y.index
+    t1 <- y.index[1] #re-define t1
+    t2 <- y.index[y.n] #re-define t2
+    y <- coredata(tmp[,1]) #re-define y
+    if(!is.null(mX)){ #re-define mX
+      mX <- tmp[,2:NCOL(tmp)]
+      mX <- coredata(mX)
+      mX <- cbind(mX)
+      colnames(mX) <- NULL
+    }
+  }
 
   ### OUTPUT: ######################
 

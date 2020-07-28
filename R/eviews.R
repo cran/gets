@@ -31,12 +31,12 @@ function(object, file=NULL, print=TRUE,
   if(print && is.null(file)){
 
     ##EViews code to estimate the model:
-    message("EViews code to estimate the model:\\n")
-    message("  ", out$equation, "\\n")
+    message("EViews code to estimate the model:\n")
+    message("  ", out$equation, "\n")
 
     ##R code to export the data:
-    message("R code (example) to export the data of the model:\\n")
-    message(paste("  eviews(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\\n", sep=""))
+    message("R code (example) to export the data of the model:\n")
+    message(paste("  eviews(", out$object.name, ", file='C:/Users/myname/Documents/getsdata.csv')\n", sep=""))
 
   } #close if(print)
 
@@ -45,10 +45,10 @@ function(object, file=NULL, print=TRUE,
     write.csv(out$data, file, row.names=FALSE)
     ##if print=TRUE:
     if(print){
-      message("Data saved in:\\n")
-      message("  ", file, "\\n", sep="")
-      message("EViews code to estimate the model:\\n")
-      message(" ", out$equation, "\\n")
+      message("Data saved in:\n")
+      message("  ", file, "\n", sep="")
+      message("EViews code to estimate the model:\n")
+      message(" ", out$equation, "\n")
     }
   } #end if(!is.null(file))
 

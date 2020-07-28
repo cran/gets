@@ -13,10 +13,10 @@ function(x, fitted.name=NULL, xreg.names=NULL,
     yName <- ifelse(is.null(fitted.name), x$aux$y.name, fitted.name)
   }else{
     yName <- ifelse(is.null(fitted.name), "y", fitted.name)
-    message(paste0("\\n '", xName, "'", " is not of class 'arx', ",
-      "'gets' or 'isat', LaTeX code may contain errors:\\n"))
+    message(paste0("\n '", xName, "'", " is not of class 'arx', ",
+      "'gets' or 'isat', LaTeX code may contain errors:\n"))
   }
-  yName <- paste0("\\\\widehat{", yName, "}")
+  yName <- paste0("\\widehat{", yName, "}")
 
   ##equation:
   ##---------
@@ -28,8 +28,8 @@ function(x, fitted.name=NULL, xreg.names=NULL,
   }else{
     coefsNames <- xreg.names
     if( length(coefs) != length(xreg.names) ){
-      message(paste0("\\n length of 'xreg.names' does not match",
-        " length of 'coef(x)'\\n"))
+      message(paste0("\n length of 'xreg.names' does not match",
+        " length of 'coef(x)'\n"))
     }
   }
   intercept <- as.numeric(intercept)
@@ -43,7 +43,7 @@ function(x, fitted.name=NULL, xreg.names=NULL,
     for(i in 1:length(coefs) ){
       ifpluss <- ifelse(i==1, "", " + ")
       eqtxt <- paste(eqtxt,
-        ifelse(coefs[i] < 0, " - ", ifpluss), "\\\\underset{(",
+        ifelse(coefs[i] < 0, " - ", ifpluss), "\\underset{(",
         format(round(stderrs[i], digits=digits), nsmall=digits), ")}{",
         format(round(abs(coefs[i]), digits=digits), nsmall=digits), "}",
         coefsNames[i], sep="")
@@ -51,10 +51,10 @@ function(x, fitted.name=NULL, xreg.names=NULL,
   }
 
   ##equation (put parts together):
-  txtAddNonumber <- ifelse(nonumber, " \\\\nonumber ", "")
-  txtAddEq <- ifelse(gof+diagnostics>0, " \\\\\\\\[2mm]", "")
+  txtAddNonumber <- ifelse(nonumber, " \\nonumber ", "")
+  txtAddEq <- ifelse(gof+diagnostics>0, " \\\\[2mm]", "")
   eqtxt <- paste0("  ", yName, " &=& ", eqtxt, "", txtAddNonumber,
-    txtAddEq, " \\n")
+    txtAddEq, " \n")
 
   ##goodness of fit:
   ##----------------
@@ -66,14 +66,14 @@ function(x, fitted.name=NULL, xreg.names=NULL,
     if(xClass %in% c("arx","gets","isat") ){
       goftxt <- paste(goftxt, " R^2=",
         format(round(rsquared(x), digits=digits), nsmall=digits),
-        " \\\\qquad \\\\widehat{\\\\sigma}=",
+        " \\qquad \\widehat{\\sigma}=",
         format(round(sigma(x), digits=digits), nsmall=digits),
         sep="")
       iT <- x$aux$y.n
     }
-    goftxt <- paste(goftxt, " \\\\qquad LogL=",
+    goftxt <- paste(goftxt, " \\qquad LogL=",
       format(round(as.numeric(logLik(x)), digits=digits), nsmall=digits),
-        " \\\\qquad ", nobs, " = ", iT, " \\\\nonumber \\\\\\\\ \\n", sep="")
+        " \\qquad ", nobs, " = ", iT, " \\nonumber \\\\ \n", sep="")
   }
 
   ##diagnostics:
@@ -85,27 +85,27 @@ function(x, fitted.name=NULL, xreg.names=NULL,
       ar.LjungB=c(ar.LjungB=x$aux$qstat.options[1],1),
       arch.LjungB=c(ar.LjungB=x$aux$qstat.options[2],1),
       normality.JarqueB=TRUE, verbose=TRUE)
-    diagtxt <- paste("  ", " && \\\\underset{[p-val]}{ AR(",
-      x$aux$qstat.options[1], ") }:", " \\\\underset{[",
+    diagtxt <- paste("  ", " && \\underset{[p-val]}{ AR(",
+      x$aux$qstat.options[1], ") }:", " \\underset{[",
       format(round(dfDiags[1,3], digits=digits), nsmall=digits), "]}{",
       format(round(dfDiags[1,1], digits=digits), nsmall=digits), "}",
-      "\\\\qquad \\\\underset{[p-val]}{ ARCH(",
-      x$aux$qstat.options[2], ")}:", "\\\\underset{[",
+      "\\qquad \\underset{[p-val]}{ ARCH(",
+      x$aux$qstat.options[2], ")}:", "\\underset{[",
       format(round(dfDiags[2,3], digits=digits), nsmall=digits), "]}{",
       format(round(dfDiags[2,1], digits=digits), nsmall=digits), "}",
-      "\\\\qquad \\\\underset{[p-val]}{ Normality }:", "\\\\underset{[",
+      "\\qquad \\underset{[p-val]}{ Normality }:", "\\underset{[",
       format(round(dfDiags[3,3], digits=digits), nsmall=digits), "]}{",
       format(round(dfDiags[3,1], digits=digits), nsmall=digits), "}",
-      " \\\\nonumber \\n", sep="")
+      " \\nonumber \n", sep="")
   }
 
   ##print code:
   ##-----------
 
-  cat("\\\\begin{eqnarray}\\n")
+  cat("\\begin{eqnarray}\n")
   cat(eqtxt)
   cat(goftxt)
   cat(diagtxt)
-  cat("\\\\end{eqnarray}\\n")
+  cat("\\end{eqnarray}\n")
 
 }
