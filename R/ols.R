@@ -32,7 +32,7 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
     qx <- qr(x, tol, LAPACK=LAPACK) ## compute qr-decomposition of x
     out <- c(out, qx)
     out$coefficients <- solve.qr(qx, y, tol=tol)
-    out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
+    out$xtxinv <- chol2inv(qx$qr) #(x'x)^-1
     out$fit <- as.vector(x %*% out$coefficients)
     out$residuals <- y - out$fit
   }
@@ -50,7 +50,7 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
       qx <- qr(x, tol, LAPACK=LAPACK) ## compute qr-decomposition of x
       out <- c(out, qx)
       out$coefficients <- solve.qr(qx, y, tol=tol)
-      out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
+      out$xtxinv <- chol2inv(qx$qr) #(x'x)^-1
       out$fit <- as.vector(x %*% out$coefficients)
     }else{
       out$fit <- rep(0, out$n)
@@ -79,7 +79,7 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
       qx <- qr(x, tol, LAPACK=LAPACK) ## compute qr-decomposition of x
       out <- c(out, qx)
       out$coefficients <- solve.qr(qx, y, tol=tol)
-      out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
+      out$xtxinv <- chol2inv(qx$qr) #(x'x)^-1
       out$fit <- as.vector(x %*% out$coefficients)
     }else{
       out$fit <- rep(0, out$n)
@@ -111,7 +111,7 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
       qx <- qr(x, tol, LAPACK=LAPACK) ## compute qr-decomposition of x
       out <- c(out, qx)
       out$coefficients <- solve.qr(qx, y, tol=tol)
-      out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
+      out$xtxinv <- chol2inv(qx$qr) #(x'x)^-1
       out$fit <- as.vector(x %*% out$coefficients)
     }else{
       out$fit <- rep(0, out$n)
@@ -158,7 +158,7 @@ function(y, x, untransformed.residuals=NULL, tol=1e-07,
       qx <- qr(x, tol, LAPACK=LAPACK) ## compute qr-decomposition of x
       out <- c(out, qx)
       out$coefficients <- solve.qr(qx, y, tol=tol)
-      out$xtxinv <- chol2inv(qx$qr, LINPACK=FALSE) #(x'x)^-1
+      out$xtxinv <- chol2inv(qx$qr) #(x'x)^-1
       out$fit <- as.vector(x %*% out$coefficients)
     }else{
       out$fit <- rep(0, out$n)

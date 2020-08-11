@@ -499,16 +499,17 @@ function(object, spec=NULL, n.ahead=12,
   ##in-sample:
   yInSample <- zoo(object$aux$y, order.by=object$aux$y.index)
 
-  #new index user-provided:
-  if(!is.null(newindex)){
+  #newindex user-provided:
+  if( !is.null(newindex) ){
     yAsRegular <- FALSE
     if( n.ahead!=length(newindex) ){
-      stop("length(newindex) must equal n.ahead")
+      stop("length(newindex) must equal 'n.ahead'")
     }
-  }
+    newindexInSample <- any( newindex %in% object$aux$y.index )
+  }else{ newindexInSample <- FALSE }
 
   #in-sample index regular:
-  if( is.null(newindex) && is.regular(yInSample, strict=TRUE) ){ #not user-provided, but index is regular
+  if( is.null(newindex) && is.regular(yInSample, strict=TRUE) ){
     endCycle <- cycle(yInSample)
     endCycle <- as.numeric(endCycle[length(endCycle)])
     endYear <- floor(as.numeric(object$aux$y.index[object$aux$y.n]))
@@ -529,7 +530,7 @@ function(object, spec=NULL, n.ahead=12,
   }
 
   ##neither user-provided nor regular:
-  if(is.null(newindex)){ newindex <- 1:n.ahead } #neither user-provided nor regular
+  if( is.null(newindex) ){ newindex <- 1:n.ahead }
 
   ##add index to results:
   if(!is.null(mZhat)){ mZhat <- zoo(mZhat, order.by=newindex) }
@@ -548,11 +549,25 @@ function(object, spec=NULL, n.ahead=12,
   ##check special case:
   if( plotArg && spec=="variance" && specVar==FALSE ){
     message("Set 'vc = TRUE' to enable a plot of the variance predictions")
-    plotArg <- FALSE
+    plotArg <- FALSE #change argument
+  }
+
+  ##check another special case (plot.zoo does not work if
+  ##the index is not unique):
+  if( plotArg && newindexInSample==TRUE ){
+    message("'newindex' not entirely out-of-sample, so no plot produced")
+    plotArg <- FALSE #change argument
   }
   
+  ##idea?: the special case where the out-of-sample index
+  ##is not of the same type as the in-sample index. for 
+  ##regular zoo-series, this can possibly be checked by checking
+  ##whether the numeric delta is the same both in-sample and
+  ##out-of-sample.
+  
+  ##way to check for this is 
   ##plot?:
-  if(plotArg){
+  if( plotArg ){
 
     ##some of the plot.options:
     ##-------------------------
@@ -561,30 +576,30 @@ function(object, spec=NULL, n.ahead=12,
     ##even though they do not appear below
                 
     ##how many in-sample observations to include in plot?:
-    if(is.null(plot.options$keep)){ plot.options$keep <- 12L }
+    if( is.null(plot.options$keep) ){ plot.options$keep <- 12L }
     if( plot.options$keep < 1 ){
       plot.options$keep <- 1L
       message("'plot.options$keep' changed to 1")
     }
     
     ##if "main" argument:
-    if(is.null(plot.options$main)){
+    if( is.null(plot.options$main) ){
       parMarVals <- c(2.1,3.1,0.6,0.6) #bottom,left,top,right
     }else{
       parMarVals <- c(2.1,3.1,1.5,0.6) #bottom,left,top,right
     }
         
     ##linetype (solid=1, dashed=2, etc.). Order: lty=c(Forecast,Actual)
-    if(is.null(plot.options$lty)){ plot.options$lty <- c(1,1) }
+    if( is.null(plot.options$lty )){ plot.options$lty <- c(1,1) }
 
-    ##linewidth:
-    if(is.null(plot.options$lwd)){ plot.options$lwd <- 1 }
+    ##linewidth. Order: lwd=c(Forecast,Actual)
+    if( is.null(plot.options$lwd) ){ plot.options$lwd <- c(1,1) }
     
-    ##the colours of forecast and actual:
-    if(is.null(plot.options$col)){ plot.options$col <- c("red","blue") }
+    ##colours. Order: col=c(Forecast,Actual)
+    if( is.null(plot.options$col) ){ plot.options$col <- c("red","blue") }
     
     ##text for legend:
-    if(is.null(plot.options$legend.text)){
+    if( is.null(plot.options$legend.text) ){
       if( spec == "variance" ){
         plot.options$legend.text <- c("Forecast", "Squared residuals")
       }else{
@@ -593,34 +608,46 @@ function(object, spec=NULL, n.ahead=12,
     }
     
     ##whether to include retained fitted or not:
-    if(is.null(plot.options$fitted)){ plot.options$fitted <- FALSE }
+    if( is.null(plot.options$fitted) ){ plot.options$fitted <- FALSE }
 
     ##should predictions start at origin?:
-    if(is.null(plot.options$start.at.origin)){
+    if( is.null(plot.options$start.at.origin) ){
       plot.options$start.at.origin <- TRUE
     }
 
     ##add dot at forecast origin?:
-    if(is.null(plot.options$dot.at.origin)){    
+    if( is.null(plot.options$dot.at.origin) ){    
       plot.options$dot.at.origin <- TRUE
     }
     
     ##add vertical line at forecast origin?:
-    if(is.null(plot.options$line.at.origin)){
+    if( is.null(plot.options$line.at.origin) ){
       plot.options$line.at.origin <- FALSE
     }
       
+    ##check if( !is.null(shades.of.grey) ):
+    if( !is.null(plot.options[["shades.of.grey"]]) ){
+      message(
+        "argument 'shades.of.grey' has changed name to 'shades',\n",
+        "'shades.of.grey' will be deprecated in future versions"
+      )
+      if( is.null(plot.options[["shades"]]) ){
+        plot.options[["shades"]] <- plot.options[["shades.of.grey"]]
+      }
+    }
+
+
     ##start preparing:
     ##----------------
     
     ##select the shades of grey for the ci's:
-    if(is.null(plot.options$shades.of.grey)){
+    if( is.null(plot.options$shades) ){
       shadesOfGrey <- 40:90 #1 to 100 is possible
       shadesOfGrey <- quantile(shadesOfGrey, probs=ciLevelsArg) 
       shadesOfGrey <- shadesOfGrey[length(shadesOfGrey):1] #invert, i.e. last to first
-      plot.options$shades.of.grey <- round(as.numeric(shadesOfGrey))
+      plot.options$shades <- round(as.numeric(shadesOfGrey))
     }
-    greySelection <- paste0("grey", plot.options$shades.of.grey)
+    greySelection <- paste0("grey", plot.options$shades)
     
     ##make dataForPlot:
     dataForPlot <- matrix(NA, n.ahead, 6)
@@ -695,7 +722,7 @@ function(object, spec=NULL, n.ahead=12,
       }
       
       ##y-axis (limits):
-      if(is.null(plot.options$ylim)){
+      if( is.null(plot.options$ylim) ){
 
         ylimArg <- c(coredata(mCiLowerValsMean[,1]),
           coredata(mCiUpperValsMean[,1]))
@@ -723,10 +750,10 @@ function(object, spec=NULL, n.ahead=12,
       ##margins:
       par(mar=parMarVals) 
   
-      ##plot the actual values:
+      ##plot actual values in white (i.e. create plot):
       plot.zoo(dataForPlot[,"MeanActual"], xlab="", ylab="",
         main=plot.options$main, lty=plot.options$lty[2],
-        col="white", lwd=plot.options$lwd, ylim=ylimArg)
+        col="white", lwd=plot.options$lwd[2], ylim=ylimArg)
 
       ##add start line?:
       if( plot.options$line.at.origin ){
@@ -751,30 +778,30 @@ function(object, spec=NULL, n.ahead=12,
 
       ##add prediction:
       lines(dataForPlot[,"MeanPrediction"], lty=plot.options$lty[1],
-        col=plot.options$col[1], lwd=plot.options$lwd)
+        col=plot.options$col[1], lwd=plot.options$lwd[1])
     
       ##add actual:
       lines(dataForPlot[,"MeanActual"], lty=plot.options$lty[2],
-        col=plot.options$col[2], lwd=plot.options$lwd, type="l")
+        col=plot.options$col[2], lwd=plot.options$lwd[2], type="l")
         
       ##add fitted (pre-prediction):
       if( plot.options$keep > 0 && plot.options$fitted ){
         lines(dataForPlot[,"MeanFitted"], lty=plot.options$lty[2],
-          col=plot.options$col[1], lwd=plot.options$lwd,
+          col=plot.options$col[1], lwd=plot.options$lwd[1],
           type="l")
       }
 
       ##add point at forecast origin?:
-      if(plot.options$dot.at.origin){
+      if( plot.options$dot.at.origin ){
         points(index(dataForPlot)[NROW(retainedData)],
           retainedData[NROW(retainedData),"MeanActual"],
-          pch=19, col=plot.options$col[2], lwd=plot.options$lwd)
+          pch=19, col=plot.options$col[2], lwd=plot.options$lwd[2])
       }
       
       ##add actual values out-of-sample:
       if( !is.null(plot.options$newmactual) ){
         lines(dataForPlot[,"MeanActual"], lty=plot.options$lty[2],
-          col=plot.options$col[2], lwd=plot.options$lwd,
+          col=plot.options$col[2], lwd=plot.options$lwd[2],
           type="l")
       }
 

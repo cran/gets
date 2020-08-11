@@ -18,6 +18,11 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   info.method <- match.arg(info.method)
   gof.method <- match.arg(gof.method)
   
+  ##check that any indicator method is selected
+  if(sis == FALSE && iis == FALSE && tis == FALSE && uis == FALSE){
+    stop("No Indicator Selection Method was selected. Either set iis, sis or tis as TRUE or specify uis.")
+  }
+  
   ##name of regressand:
   y.name <- deparse(substitute(y))
   if( y.name[1] == "" ){ y.name <- "y" }
@@ -198,7 +203,7 @@ function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     if(any(uis.names == "")){
       missing.colnames <- which(uis.names == "")
       for(i in 1:length(missing.colnames)){
-       uis.names[i] <- paste0("uisxreg", missing.colnames[i])
+       uis.names[missing.colnames[i]] <- paste0("uisxreg", missing.colnames[i])
       }
     }
 

@@ -1,6 +1,5 @@
 print.arx <-
 function(x, signif.stars=TRUE, ...)
-#print.arx <- function(x, signif.stars=FALSE, ...)
 {
   ##check if mean and variance have been fitted:
   xNames <- names(x)

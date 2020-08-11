@@ -1,5 +1,5 @@
 print.isat <-
-function(x, ...)
+function(x, signif.stars=TRUE, ...)
   {
     
     ##messages from final gets:
@@ -93,7 +93,10 @@ function(x, ...)
       cat("SPECIFIC mean equation:\n")
       cat("\n")
       if(!is.null(x$mean.results)){
-        print(x$mean.results)
+        #print(x$mean.results)
+        # NEW (from Moritz, July 2020) as this more simple command works as expected: 
+        printCoefmat(x$mean.results,signif.stars = signif.stars)
+        
         #OLD: DOES NOT WORK IN A PREDICTABLE WAY!
         #      printCoefmat(x$mean.results, signif.stars=FALSE,
         #        P.values=FALSE, has.Pvalues=FALSE)
@@ -124,7 +127,7 @@ function(x, ...)
       cat("Diagnostics and fit:\n")
       cat("\n")
       printCoefmat(x$diagnostics, dig.tst=0, tst.ind=2,
-                   signif.stars=FALSE)
+                   signif.stars=signif.stars)
       if(!is.null(x$call$iis)){
         #OLD:
         #      if (x$call$iis==TRUE){

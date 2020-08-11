@@ -4,7 +4,7 @@ function(object, t.pval=0.05, wald.pval=t.pval, vcov.type=NULL,
   arch.LjungB=list(lag=NULL, pval=0.025), normality.JarqueB=NULL,
   user.diagnostics=NULL, info.method=c("sc","aic","aicc","hq"),
   gof.function=NULL, gof.method=NULL, keep=NULL, include.gum=FALSE,
-  include.1cut=TRUE, include.empty=FALSE, max.paths=NULL,
+  include.1cut=TRUE, include.empty=FALSE, max.paths=NULL, tol=1e-07,
   turbo=FALSE, print.searchinfo=TRUE, plot=NULL, alarm=FALSE)
 {
   ## contents:
@@ -117,7 +117,7 @@ function(object, t.pval=0.05, wald.pval=t.pval, vcov.type=NULL,
     user.diagnostics=user.diagnostics, gof.function=gof.function,
     gof.method=gof.method, keep=keep, include.gum=include.gum,
     include.1cut=include.1cut, include.empty=include.empty,
-    max.paths=max.paths, turbo=turbo, max.regs=NULL,
+    max.paths=max.paths, turbo=turbo, tol=tol, max.regs=NULL,
     print.searchinfo=print.searchinfo, alarm=alarm)
   est$time.started <- NULL
   est$time.finished <- NULL

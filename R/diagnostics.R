@@ -19,7 +19,7 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
       diagnosticsGood <- FALSE
       diagnosticsGood <- as.logical(max(diagnosticsGood,verbose))
     }
-  } #end serial correlation
+  }
 
   ##test for arch:
   ##--------------
@@ -30,12 +30,12 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
       diagnosticsGood <- FALSE
       diagnosticsGood <- as.logical(max(diagnosticsGood,verbose))
     }
-  } #end arch
+  }
 
 
   ##test for normality:
   ##-------------------
-  if( diagnosticsGood && !is.null(normality.JarqueB)){
+  if( diagnosticsGood && !is.null(normality.JarqueB) ){
     zhatadj <- coredata(na.trim(zhat))
     n <- length(zhatadj)
     avgzhat <- mean(zhatadj) #do I really need this?
@@ -49,15 +49,12 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
         diagnosticsGood <- FALSE
         diagnosticsGood <- as.logical(max(diagnosticsGood,verbose))
     }
-  } #end normality
-
+  }
 
   ##user-defined test(s):
   ##---------------------
   if( diagnosticsGood && !is.null(user.fun) ){
-    ##make user.fun argument
-#OLD:
-#    if( is.null(user.fun$envir) ){ user.fun$envir <- .GlobalEnv }
+    ##make user.fun argument:
     userFunArg <- user.fun
     userFunArg$name <- NULL
     userFunArg$envir <- NULL
@@ -77,16 +74,16 @@ function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
         diagnosticsGood <- FALSE
       }
     }
-  } #end if(user.fun)
+  } #end if( user.fun )
 
   ##result:
   ##-------
 
   ##if(!verbose): return logical only
-  if(!verbose){ result <- diagnosticsGood }
+  if( !verbose ){ result <- diagnosticsGood }
 
   ##if(verbose): return diagnostics table
-  if(verbose){
+  if( verbose ){
     result <- NULL
     resultRowNames <- NULL
     if(exists("ar.LjungBox")){
