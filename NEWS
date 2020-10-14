@@ -1,3 +1,17 @@
+Version 0.26 (14 October 2020):
+===============================
+
+* new function: gmm()
+
+* vignette added: An introduction to the gets package
+
+* print.arx()/print.gets()/print.isat(): significance codes are now printed for the diagnostics if 'signif.stars = TRUE' (the default)
+
+* fixes:
+- print.gets() now prints properly when no search has been undertaken
+- predict.arx/predict.gets/predict.isat: improved length-determination of vertical line when line.at.origin=TRUE
+
+
 Version 0.25 (11 August 2020):
 ==============================
 
