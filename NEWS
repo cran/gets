@@ -1,10 +1,79 @@
+Version 0.35 (22 March 2022):
+=============================
+
+* New functions: distorttest(), distorttestboot(), print.distorttestboot()
+
+* isat.default(): minor changes to accommodate the new distortion test
+
+* New vignette: "User-Specified General-to-Specific (GETS) and Indicator Saturation (ISAT) Methods"
+
+* diagnostics(): new optional entry "reject.is.bad" in the 'user.fun' argument
+
+* dlogitx() changed name to logitx(), and the main class of the latter is now "logitx". Accordingly, the corresponding S3 methods changed their extension to .logitx. For backwards compatibility, dlogitx() and dlogitxSim() will still work due to the creation of aliases
+
+* logitx()/dlogitx():
+- new argument: singular.ok
+- new entry 'version' in the returned value
+
+* gets.logitx():
+- new argument: user.diagnostics
+
+* printtex()/toLatex.arx()/toLatex.gets():
+- new arguments: index, print.info
+- minor changes to the LaTeX print
+
+* arx()
+- new entry 'version' in the returned value
+
+* Changes to several manual files:
+- arx.Rd
+- diagnostics.Rd
+- gets.Rd
+- gets.lm.Rd
+- gets.logitx.Rd
+- gets-package.Rd
+- getsm.Rd
+- logitx.Rd
+- printtex.Rd
+
+Fixes:
+- predict.arx() now works correctly when 'mc' is set to 'T' or 'F' in arx(), thanks to mdwy62 (on Github) for identifying this error
+
+Version 0.34 (21 March 2022):
+=============================
+
+* unsubmitted by CRAN (some Debian checks were not passed)
+
+
+Version 0.33 (9 March 2022):
+============================
+
+* unsubmitted by CRAN (some Debian checks were not passed)
+
+
+Version 0.32 (1 March 2022):
+============================
+
+* unsubmitted by CRAN (some Debian checks were not passed)
+
+
+Version 0.31 (24 February 2022):
+================================
+
+* unsubmitted by CRAN (some Debian checks were not passed)
+
+
+Version 0.30 (23 February 2022):
+================================
+
+* unsubmitted by CRAN (some Debian checks were not passed)
+
+
 Version 0.29 (2 September 2021):
 ================================
 
-* note: version 0.28 was unsubmitted by CRAN, since it did not pass a Debian check 
-
 * arx():
-- new default 'mc = TRUE'; this necessitated changes (not visible to the user) in several other files, including predict.arx(), predict.gets(), isat.default() and predict.isat()
+- new default 'mc = TRUE'; this necessitated changes (not visible to the average user) in several other files, including predict.arx(), predict.gets(), isat.default() and predict.isat()
 - new argument: singular.ok
 - when 'user.estimator' is not NULL, column-names equal to the names of the regressors are added to the regressor matrix before it is passed on to the user-defined estimator
 
@@ -36,6 +105,12 @@ Fixes:
 - paths() and terminals() can now be applied more generally (i.e. not only objects of class "arx", "gets" and "isat")
 - the value (a list) returned by arx() when a log-variance specification has been specified, but not a mean specification, does not erroneously contain an item named 'vcov.mean' anymore
 - isat.Rd: the manual of "isat.default()" now correctly states that the value returned is of class "isat", and the extensions of the relevant functions in the "See also" field has been corrected to ".isat"
+
+
+Version 0.28 (1 September 2021):
+================================
+
+* unsubmitted by CRAN, since it did not pass a Debian check 
 
 
 Version 0.27 (20 February 2021):

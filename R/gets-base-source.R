@@ -168,35 +168,49 @@ diagnostics <- function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
   ##user-defined test(s):
   ##---------------------
   if( diagnosticsGood && !is.null(user.fun) ){
-    ##make user.fun argument:
+    ##prepare user-fun arguments:
     userFunArg <- user.fun
     userFunArg$name <- NULL
     userFunArg$envir <- NULL
     userFunArg$pval <- NULL
+    userFunArg$is.reject.bad <- NULL
     if( length(userFunArg)==0 ){ userFunArg <- NULL }
-    ##'do' user diagnostics:
+    ## 'do' user diagnostics:
     if( is.null(user.fun$envir) ){
       userVals <- do.call(user.fun$name, c(list(x=x),userFunArg))
     }else{
       userVals <- do.call(user.fun$name, c(list(x=x),userFunArg),
         envir=user.fun$envir)
     }
-    userVals <- rbind(userVals)
-    if( !is.null(user.fun$pval) ){
-      userFunPval <- as.numeric(userVals[,3])
-      if( any(userFunPval <= user.fun$pval) ){
+    ## ensure userVals is a matrix:
+    if( !is.null(userVals) ){ userVals <- rbind(userVals) }
+    ## !is.null(userVals) is due to J-bat's ivgets code:
+    if( !is.null(user.fun$pval) && !is.null(userVals) ){
+      ##create decision matrix:
+      tmp <- matrix(NA, NROW(userVals), 3)
+      colnames(tmp) <- c("userFunPval", "reject", "is.reject.bad")
+      tmp <- as.data.frame(tmp)
+      tmp[,"userFunPval"] <- as.numeric(userVals[,3])
+      tmp[,"reject"] <- tmp[,"userFunPval"] <= user.fun$pval     
+      if( is.null(user.fun$is.reject.bad) ){
+        tmp[,"is.reject.bad"] <- TRUE
+      }else{
+        tmp[,"is.reject.bad"] <- user.fun$is.reject.bad
+      }
+      if( any( tmp[,"reject"] == tmp[,"is.reject.bad"] ) ){
         diagnosticsGood <- FALSE
       }
+      diagnosticsGood <- as.logical(max(diagnosticsGood,verbose))
     }
   } #end if( user.fun )
 
   ##result:
   ##-------
 
-  ##if(!verbose): return logical only
+  ##if( !verbose ): return logical only
   if( !verbose ){ result <- diagnosticsGood }
 
-  ##if(verbose): return diagnostics table
+  ##if( verbose ): return diagnostics table
   if( verbose ){
     result <- NULL
     resultRowNames <- NULL
@@ -218,7 +232,9 @@ diagnostics <- function(x, ar.LjungB=c(1,0.025), arch.LjungB=c(1,0.025),
         paste("Jarque-Bera", sep=""))
       result <- rbind(result, tmp)
     }
-    if(exists("userVals")){
+#NOTE:
+#   !is.null(userVals) is due to J-bat's ivgets code
+    if( exists("userVals") && !is.null(userVals) ){
       result <- rbind(result, userVals)
       userValsNames <- rownames(userVals)
       if( identical(userValsNames, "userVals") ){
@@ -473,15 +489,11 @@ regressorsMean <- function(y, mc=FALSE, ar=NULL, ewma=NULL, mxreg=NULL,
     xregLabel <- paste0( prefix, "xreg" )
     if(is.null(mxreg.names)){
       mxreg.names <- paste(xregLabel, 1:NCOL(mxreg), sep="")
-#OLD:
-#      mxreg.names <- paste("mxreg", 1:NCOL(mxreg), sep="")
     }
     if( any(mxreg.names == "") ){
       missing.colnames <- which(mxreg.names == "")
       for(i in 1:length(missing.colnames)){
         mxreg.names[missing.colnames[i]] <- paste0(xregLabel, i)
-#OLD:
-#        mxreg.names[missing.colnames[i]] <- paste0("mxreg", i)
       }
     }
 ##for the future?:
@@ -2461,7 +2473,10 @@ arx <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   ## 5 finalise and return result
   ##-----------------------------------
 
-  out <- c(list(call=sysCall, date=date(), aux=aux), out)
+  versionTxt <- paste0("gets ", packageVersion("gets"), " under ",
+    version$version.string)
+  out <-
+    c(list(call=sysCall, date=date(), version=versionTxt, aux=aux), out)
   class(out) <- "arx"
 
   ##plot:
@@ -3038,7 +3053,8 @@ predict.arx <- function(object, spec=NULL, n.ahead=12,
 
   ##ci.levels argument:
   if( is.null(ci.levels) && plotArg==TRUE ){
-    if( class(object)=="isat" ){ ##if isat:
+    classObject <- class(object)
+    if( "isat" %in% classObject ){ ##if isat:
       ciLevelsArg <- c(0.68,0.95)
     }else{ ##if not isat:
       ciLevelsArg <- c(0.5,0.9)    
@@ -3297,10 +3313,8 @@ predict.arx <- function(object, spec=NULL, n.ahead=12,
       coefs <- coef.arx(object, spec="mean")
   
       ##mc:
-      ##NEW by M-orca:
-      if( is.null(object$call$mc) || isTRUE(object$call$mc) ){
-#      OLD:
-#      if(!is.null(object$call$mc)){
+      mcArg <- eval(object$call$mc)
+      if( is.null(mcArg) || isTRUE(mcArg) ){
         mconst <- as.numeric(coefs[1])
         mconstIndx <- 1
       }else{
@@ -4309,9 +4323,10 @@ sigma.arx <- function(object, ...)
 ## R-squared
 rsquared <- function(object, adjusted=FALSE, ...)
 {
-  classOK <- class(object) %in% c("arx", "gets", "isat")
+  classObject <- class(object)
+  classOK <- classObject %in% c("arx", "gets", "isat")
   if(!classOK){ message("object not of class 'arx', 'gets' or 'isat'") }
-  if( class(object) == "gets" ){
+  if( "gets" %in% classObject ){
     specType <- switch(as.character(object$call)[1],
       getsm="mean", getsv="variance")
   }
@@ -5052,8 +5067,6 @@ predict.gets <- function(object, spec=NULL, n.ahead=12,
       indxCounter <- indxCounter + 1
     }else{
       objectNew$call$mc <- FALSE
-#OLD:
-#      objectNew$call$mc <- NULL
     }
     
     ##ar argument:
@@ -5580,14 +5593,21 @@ stata <- function(object, file=NULL, print=TRUE,
 ##generate latex-code (equation form):
 printtex <- function(x, fitted.name=NULL, xreg.names=NULL,
   digits=4, intercept=TRUE, gof=TRUE, diagnostics=TRUE, nonumber=FALSE,
-  nobs="T")
+  nobs="T", index="t", print.info=TRUE)
 {
+  ##idea for the future:
+  ## - new argument: decimal.separator=NULL, "." or ","
 
-  ##is class(x)="arx"/"gets"/"isat"?:
-  ##---------------------------------
+  ##record class:
+  ##-------------
 
   xName <- deparse(substitute(x))
   xClass <- class(x)
+
+  ##variable names:
+  ##---------------
+
+  ##y name:
   if( xClass %in% c("arx","gets","isat") ){
     yName <- ifelse(is.null(fitted.name), x$aux$y.name, fitted.name)
   }else{
@@ -5596,23 +5616,44 @@ printtex <- function(x, fitted.name=NULL, xreg.names=NULL,
       "'gets' or 'isat', LaTeX code may contain errors:\n"))
   }
   yName <- paste0("\\widehat{", yName, "}")
-
-  ##equation:
-  ##---------
-
+  
   ##coef names:
   coefs <- coef(x)
-  if(is.null(xreg.names)){
-    coefsNames <- names(coefs)
-  }else{
+  coefsNames <- names(coefs)
+  arOrders <- as.list(x$call)$ar
+  if( xClass %in% c("arx","gets","isat") && !is.null(fitted.name) &&
+      !is.null(arOrders) ){    
+    arOrders <- eval(arOrders)      
+    arNames <- character(0)
+    tmpindx <- ifelse(is.null(index), "", index)
+    for(i in 1:length(arOrders)){
+      tmp <- paste0(yName, "_{", tmpindx, "-", arOrders[i], "}")
+      arNames <- c(arNames, tmp)
+    }
+    t1 <- which( coefsNames == paste0("ar", arOrders[1]) )
+    t2 <- which( coefsNames == paste0("ar", arOrders[length(arOrders)]) )
+    coefsNames[ t1:t2 ] <- arNames
+    tmpindx <- ifelse(is.null(index), "", paste0("_", index))
+    yName <- paste0(yName, tmpindx)
+  }
+  
+  ##coef names (modify, if user-specified)
+  if( !is.null(xreg.names) ){
     coefsNames <- xreg.names
     if( length(coefs) != length(xreg.names) ){
       message(paste0("\n length of 'xreg.names' does not match",
         " length of 'coef(x)'\n"))
     }
   }
+
+  ##intercept:
   intercept <- as.numeric(intercept)
   if( intercept > 0 ){ coefsNames[ intercept ] <- "" }
+
+  ##equation:
+  ##---------
+  
+  ##record estimates and standard errors
   coefs <- as.numeric(coefs)
   stderrs <- as.numeric(sqrt(diag(vcov(x))))
 
@@ -5681,6 +5722,14 @@ printtex <- function(x, fitted.name=NULL, xreg.names=NULL,
   ##print code:
   ##-----------
 
+  if( print.info ){
+    cat("% Date:", date(), "\n")
+    notetxt <- paste0("% LaTeX code generated in R ",
+      version$major, ".", version$minor, " by gets ",
+      packageVersion("gets"), " package\n")
+    cat(notetxt)
+    cat("% Note: The {eqnarray} environment requires the {amsmath} package\n")
+  }
   cat("\\begin{eqnarray}\n")
   cat(eqtxt)
   cat(goftxt)
