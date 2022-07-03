@@ -2178,6 +2178,9 @@ arx <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   ## 1 selected arguments
   ##-----------------------------------
 
+  ##record y name:
+  y.name <- deparse(substitute(y))
+  
   ##mc.warning about new default:
   mc.warning <- getOption("mc.warning")
   if(is.null(mc.warning)){
@@ -2194,9 +2197,12 @@ arx <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   }
 
   ##regressand, regressors:
+  #should be here instead of above/in the beginning?:
+  #y.name <- deparse(substitute(y))
   tmp <- regressorsMean(y, mc=mc, ar=ar, ewma=ewma, mxreg=mxreg,
     return.regressand=TRUE, return.as.zoo=TRUE,
     na.trim=TRUE, na.omit=FALSE)
+  #use y.name to set correct name on y in tmp?
 
   ##determine vcov:
   types <- c("ordinary", "white", "newey-west")
@@ -2227,7 +2233,9 @@ arx <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   aux <- list()
   aux$y <- coredata(tmp[,1])
   aux$y.n <- length(aux$y)
-  aux$y.name <- colnames(tmp)[1]
+  aux$y.name <- y.name #recorded above, in the beginning
+#  OLD (until version 0.35):
+#  aux$y.name <- colnames(tmp)[1]
   aux$y.index <- index(tmp)
   if( NCOL(tmp)>1 ){
     aux$mX <- cbind(coredata(tmp[,-1]))
@@ -4330,7 +4338,7 @@ rsquared <- function(object, adjusted=FALSE, ...)
     specType <- switch(as.character(object$call)[1],
       getsm="mean", getsv="variance")
   }
-  if( class(object) == "gets" && specType=="variance" ){
+  if( is(object,"gets") && specType=="variance" ){
     result <- NA
 #OLD:
 #    Rsquared <- NA
@@ -5593,11 +5601,8 @@ stata <- function(object, file=NULL, print=TRUE,
 ##generate latex-code (equation form):
 printtex <- function(x, fitted.name=NULL, xreg.names=NULL,
   digits=4, intercept=TRUE, gof=TRUE, diagnostics=TRUE, nonumber=FALSE,
-  nobs="T", index="t", print.info=TRUE)
+  nobs="T", index="t", dec=NULL, print.info=TRUE)
 {
-  ##idea for the future:
-  ## - new argument: decimal.separator=NULL, "." or ","
-
   ##record class:
   ##-------------
 
@@ -5719,14 +5724,22 @@ printtex <- function(x, fitted.name=NULL, xreg.names=NULL,
       " \\nonumber \n", sep="")
   }
 
+  ##change decimal operator?:
+  ##-------------------------
+  
+  if( !is.null(dec) ){
+    eqtxt <- gsub("[.]", dec, eqtxt)
+    goftxt <- gsub("[.]", dec, goftxt)
+    diagtxt <- gsub("[.]", dec, diagtxt)
+  }
+  
   ##print code:
   ##-----------
 
   if( print.info ){
     cat("% Date:", date(), "\n")
     notetxt <- paste0("% LaTeX code generated in R ",
-      version$major, ".", version$minor, " by gets ",
-      packageVersion("gets"), " package\n")
+      version$major, ".", version$minor, " by the gets package\n")
     cat(notetxt)
     cat("% Note: The {eqnarray} environment requires the {amsmath} package\n")
   }
