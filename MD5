@@ -1,10 +1,10 @@
-e18d83fef8c8eaaceb3a4beff53ce64e *DESCRIPTION
+43919c4dcdd2e2e67d521a0d0c6239b7 *DESCRIPTION
 ee8bb22b37ebe2a141a482a4470b84d3 *NAMESPACE
-0fa01f121801e600ede90c6867a1ca0f *NEWS
-34a3a5ed5088c755720626b887610283 *R/gets-base-source.R
-635e1ea813c423d4bdf07ee2ee229421 *R/gets-internal.R
-2bc631d2d0acbb8844393c222163128c *R/gets-isat-outlier-distortion-source.R
-e15fa32975b99594ce468bbb1d775acf *R/gets-isat-source.R
+9ed224bc4ec0a15d8292f580570e6722 *NEWS
+8a8a616a51f56bcb760e5baf9f45fdac *R/gets-base-source.R
+d151003c00f9c3d92c3f0dc7d5f603de *R/gets-internal.R
+54633e90459f3b094b735f84af5f9b86 *R/gets-isat-outlier-distortion-source.R
+123db40319051961fa1e48dd0f8c70fe *R/gets-isat-source.R
 0b1c4a87944b0e931147de67c72bdf34 *R/gets-lm-source.R
 401b21282fa746e3e7dfbec67fe23221 *R/gets-logitx-source.R
 f01682ffd9d5582c0d3b8a226f3c2b16 *build/partial.rdb
@@ -13,10 +13,10 @@ f01682ffd9d5582c0d3b8a226f3c2b16 *build/partial.rdb
 6857a889eb5baf480f58b08490c1524e *data/so2data.rda
 9c528ed3305d88c53197d1a8a0e2875a *data/sp500data.rda
 3f4675bd8850009724a5782ef544b777 *inst/CITATION
-7a0f1a033674638222681e1998a55eb3 *inst/doc/introduction.Rnw
-ab839281306eb1b92d5328e320e7bbd1 *inst/doc/introduction.pdf
+36c76fac2fbe035ed2841bc83dfc4bad *inst/doc/introduction.Rnw
+11a2b8a438e81778b32c1f0759bf8242 *inst/doc/introduction.pdf
 f5620088e5052910d1ca4419af252e9a *inst/doc/user-defined-gets-and-isat.Rnw
-7ec9bfbec1d48f450a2592a47064c49c *inst/doc/user-defined-gets-and-isat.pdf
+94ac2c7eb3c0075a04429061632c1b2d *inst/doc/user-defined-gets-and-isat.pdf
 f02748ca2c20c83857f503951c1a1be3 *man/ES.Rd
 938a375447db0466d057dea2b802f96b *man/arx.Rd
 6d03559e18185c31632eddb4069bdc65 *man/as.arx.lm.Rd
@@ -33,7 +33,7 @@ d82ef5fc2f954ed79b9108403fcfae2c *man/distorttestboot.Rd
 4e0afef2d649ef6dcb09a41fb12f8617 *man/dropvar.Rd
 3d3c923c62b1ce03fc4579d70f9ffb26 *man/eqwma.Rd
 37b2b7c9bfd0f64d83f82038fd33228b *man/eviews.Rd
-304899f5116ad67c22efc14d3694f547 *man/gets-package.Rd
+05a4c2dd4123e34369b11fa36fa842dc *man/gets-package.Rd
 77ec10e07043033b4c4688744f9817ea *man/gets.Rd
 47c08e85d2d6b2042f31c2b86f50c44e *man/gets.isat.Rd
 54c43db913ece6e777206ef58b6781fe *man/gets.lm.Rd
@@ -74,6 +74,6 @@ b7115c2cd71b29526370c185f78062d0 *man/vargaugeiis.Rd
 0e8621c67744f91bff49983bf795f519 *vignettes/fig_isat_performance_v2.pdf
 c6e28288e40c4d15271620b6712fd954 *vignettes/fig_sis_so2_2.pdf
 83593a8b0b8dfb7f48dba0337c23a2f2 *vignettes/fig_sis_test.pdf
-7a0f1a033674638222681e1998a55eb3 *vignettes/introduction.Rnw
+36c76fac2fbe035ed2841bc83dfc4bad *vignettes/introduction.Rnw
 12c50fe600196248215d3e8212c6afa5 *vignettes/step-shift.png
 f5620088e5052910d1ca4419af252e9a *vignettes/user-defined-gets-and-isat.Rnw

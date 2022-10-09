@@ -53,10 +53,54 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   info.method <- match.arg(info.method)
   gof.method <- match.arg(gof.method)
   
+  isat.args <- list(
+    mc = mc, 
+    ar = ar, 
+    ewma = ewma,
+    iis = iis, 
+    sis = sis, 
+    tis = tis, 
+    uis = uis,
+    uis.logical = if(is.null(uis) | identical(uis, FALSE)){FALSE} else {TRUE}, 
+    blocks = blocks,
+    ratio.threshold = ratio.threshold, 
+    max.block.size = max.block.size, 
+    t.pval = t.pval,
+    wald.pval = wald.pval,
+    vcov.type = vcov.type,
+    do.pet = do.pet, 
+    ar.LjungB = ar.LjungB, 
+    arch.LjungB = arch.LjungB,
+    normality.JarqueB = normality.JarqueB,
+    info.method = info.method,
+    user.diagnostics = user.diagnostics, 
+    user.estimator = user.estimator,
+    gof.function = gof.function,
+    gof.method = gof.method,
+    include.gum = include.gum,
+    include.1cut = include.1cut, 
+    include.empty = include.empty, 
+    max.paths = max.paths,
+    parallel.options = parallel.options, 
+    turbo = turbo, 
+    tol = tol, 
+    LAPACK = LAPACK,
+    max.regs = max.regs
+  )
+  
   ##check that any indicator method is selected
   if(sis == FALSE && iis == FALSE && tis == FALSE && identical(uis, FALSE)){
     stop("No Indicator Selection Method was selected. Either set iis, sis or tis as TRUE or specify uis.")
   }
+  
+  ##warn to use robust coefficient variances
+  # suggestion by M-orca 02/10/2022: no time to test this, but potentially useful addition
+  # if(vcov.type != "ordinary"){
+  #   warning("Using robust coefficient covariances is currently discouraged. Errors are likely and results are unlikely to be useful.\nReason is that robust estimators inflate p-values of indicators, leading to overidentification of indicators.\nRecommended to use 'ordinary' vcov type in isat and then to use robust estimators post-selection (i.e. to run arx() with vcov.type argument on the resulting isat object).")
+  # }
+
+  if(!is.null(ar) && identical(ar,0)){ar <- NULL}
+  if(!(is.numeric(ar) | is.null(ar))){stop("The 'ar' argument must be NULL or numeric.")}
   
   ##name of regressand:
   y.name <- deparse(substitute(y))
@@ -133,19 +177,19 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   } #end if(!is.null(parallel.options))
 
-#OLD:
-#  ##parallel.options argument:
-#  if(!is.null(parallel.options)){
-#    if(is.numeric(parallel.options)){
-#      clusterSpec <- parallel.options
-#    }
-#    OScores <- detectCores()
-#    if(parallel.options > OScores){
-#      stop("parallel.options > number of cores/threads")
-#    }
-#    #to do: enable exportCluster argument?
-#    #add: memory.limit()/memory.size() = max cores check?
-#  }
+  #OLD:
+  #  ##parallel.options argument:
+  #  if(!is.null(parallel.options)){
+  #    if(is.numeric(parallel.options)){
+  #      clusterSpec <- parallel.options
+  #    }
+  #    OScores <- detectCores()
+  #    if(parallel.options > OScores){
+  #      stop("parallel.options > number of cores/threads")
+  #    }
+  #    #to do: enable exportCluster argument?
+  #    #add: memory.limit()/memory.size() = max cores check?
+  #  }
 
   ##create regressors (no indicators), record info:
   mX <- regressorsMean(y, mc=mc, ar=ar, ewma=ewma, mxreg=mxreg,
@@ -225,9 +269,9 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
 
   ##user-defined indicators/variables:
   ##----------------------------------
-
-  #if uis is a matrix:
-  if(!is.list(uis) && !identical(as.numeric(uis),0)){
+  
+  #if uis is a matrix or a data.frame:
+  if(!is.list(uis) && !identical(as.numeric(uis),0) || is.data.frame(uis)){
 
     ##handle colnames:
     uis <- as.zoo(cbind(uis))
@@ -365,8 +409,12 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       }
 
       ##apply dropvar:
+      mXis.names <- colnames(mXis)
+      original.mxkeep.names <- mXis.names[mxkeep]
       mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK,
-        silent=!print.searchinfo)
+                      silent=!print.searchinfo)
+      mXis.names.afterdropvar <- colnames(mXis)
+      mxkeep.afterdropvar <- which(mXis.names.afterdropvar %in% original.mxkeep.names)
 
       ##print info:
       if(is.null(parallel.options)){
@@ -385,7 +433,7 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         wald.pval=wald.pval, do.pet=do.pet, ar.LjungB=arLjungB,
         arch.LjungB=archLjungB, normality.JarqueB=normality.JarqueB,
         user.diagnostics=user.diagnostics, gof.function=gofFunArg,
-        gof.method=gof.method, keep=mxkeep, include.gum=include.gum,
+        gof.method=gof.method, keep=mxkeep.afterdropvar, include.gum=include.gum,
         include.1cut=include.1cut, include.empty=include.empty,
         max.paths=max.paths, turbo=turbo, tol=tol, LAPACK=LAPACK,
         max.regs=max.regs, print.searchinfo=print.searchinfo,
@@ -401,10 +449,10 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         ISspecific.models <- NULL
       }else{
         ISspecific.models <- names(getsis$specific.spec)
-#For the future?:
-#        ISgums[[j]] <- getsis$gum.mean
-#        ISpaths[[j]] <- getsis$paths
-#        ISterminals.results[[j]] <- getsis$terminals.results
+        #For the future?:
+        #        ISgums[[j]] <- getsis$gum.mean
+        #        ISpaths[[j]] <- getsis$paths
+        #        ISterminals.results[[j]] <- getsis$terminals.results
       }
 
       ##return
@@ -444,7 +492,7 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         message("Searching...", appendLF=TRUE)
         #message("\n", appendLF=FALSE)
       }
-
+      
       blocksClust <- makeCluster(clusterSpec, outfile="") #make cluster
       clusterExport(blocksClust, clusterVarlist,
         envir=.GlobalEnv) #idea for the future?: envir=clusterEnvir
@@ -470,7 +518,7 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         names(ISmatrices)[i], " variables... ",
         appendLF=TRUE)
     }
-
+    
     ##if no indicators retained from the blocks:
     if(length(ISspecific.models) == 0){
       isNames <- NULL
@@ -498,15 +546,21 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
         mXisNames <- c(mXnames, isNames)
         mXis <- cbind(mX,ISmatrices[[i]][,isNames])
         colnames(mXis) <- mXisNames
+        
+        # apply dropvar
+        mXis.names <- colnames(mXis)
+        original.mxkeep.names <- mXis.names[mxkeep]
         mXis <- dropvar(mXis, tol=tol, LAPACK=LAPACK,
           silent=!print.searchinfo)
-
+        mXis.names.afterdropvar <- colnames(mXis)
+        mxkeep.afterdropvar <- which(mXis.names.afterdropvar %in% original.mxkeep.names)
+        
         getsis <- getsFun(y, mXis, untransformed.residuals=NULL,
           user.estimator=userEstArg, gum.result=NULL, t.pval=t.pval,
           wald.pval=wald.pval, do.pet=do.pet, ar.LjungB=arLjungB,
           arch.LjungB=archLjungB, normality.JarqueB=normality.JarqueB,
           user.diagnostics=user.diagnostics, gof.function=gofFunArg,
-          gof.method=gof.method, keep=mxkeep, include.gum=include.gum,
+          gof.method=gof.method, keep=mxkeep.afterdropvar, include.gum=include.gum,
           include.1cut=include.1cut, include.empty=include.empty,
           max.paths=max.paths, turbo=turbo, tol=tol, LAPACK=LAPACK,
           max.regs=max.regs, print.searchinfo=print.searchinfo,
@@ -564,8 +618,14 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
       }
     } #end for loop
 
+    # apply dropvar
+    mXis.names <- colnames(cbind(mX,mIS))
+    original.mxkeep.names <- mXis.names[mxkeep]
     mXis <- dropvar(cbind(mX,mIS), tol=tol, LAPACK=LAPACK,
       silent=!print.searchinfo)
+    mXis.names.afterdropvar <- colnames(mXis)
+    mxkeep.afterdropvar <- which(mXis.names.afterdropvar %in% original.mxkeep.names)
+    
 
   } #end if(length(ISfinalmodels)>0)
 
@@ -590,7 +650,7 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
     wald.pval=wald.pval, do.pet=do.pet, ar.LjungB=arLjungB,
     arch.LjungB=archLjungB, normality.JarqueB=normality.JarqueB,
     user.diagnostics=user.diagnostics, gof.function=gofFunArg,
-    gof.method=gof.method, keep=mxkeep, include.gum=include.gum,
+    gof.method=gof.method, keep=mxkeep.afterdropvar, include.gum=include.gum,
     include.1cut=include.1cut, include.empty=include.empty,
     max.paths=max.paths, turbo=turbo, tol=tol, LAPACK=LAPACK,
     max.regs=max.regs, print.searchinfo=print.searchinfo,
@@ -656,18 +716,26 @@ isat.default <- function(y, mc=TRUE, ar=NULL, ewma=NULL, mxreg=NULL,
   }
   if(plot){ plot.isat(getsis, coef.path=TRUE) }
   
-  ## Outlier Proportion and Distortion Test 
-  # Proportion Test was previously executed in the print.isat function
-  if(!is.null(getsis$call$iis) & isTRUE(eval(getsis$call$iis))){
-    if(!any(eval(getsis$call$sis), eval(getsis$call$tis), 
-##change suggested by J-bat (implemented by G-man 12 June 2022):
-            ifelse(is.logical(eval(getsis$call$uis)) & isTRUE(eval(getsis$call$uis)), TRUE, FALSE),
-            !identical(userEstArg$name, "ols"))){
-                  
-      getsis$outlier.proportion.test <- outliertest(getsis)
-      getsis$outlier.distortion.test <- distorttest(getsis)
-      }
-    }
+  getsis$aux$args <- isat.args
+  
+  if(isat.args$iis &&
+     identical(userEstArg$name, "ols") &&
+     !any(isat.args$sis, isat.args$tis, isat.args$uis.logical)){
+    
+    ## Outlier Proportion and Distortion Test 
+    # Proportion Test was previously executed in the print.isat function
+    #if(!is.null(getsis$call$iis) & isTRUE(eval(getsis$call$iis))){
+    #  if(!any(eval(getsis$call$sis), eval(getsis$call$tis), 
+    ##change suggested by J-bat (implemented by G-man 12 June 2022):
+    #          ifelse(is.logical(eval(getsis$call$uis)) & isTRUE(eval(getsis$call$uis)), TRUE, FALSE),
+    #          !identical(userEstArg$name, "ols"))){
+                
+    getsis$outlier.proportion.test <- outliertest(getsis)
+    getsis$outlier.distortion.test <- distorttest(getsis)
+    #  }
+  }
+  
+  
   
   return(getsis)
 
@@ -2719,7 +2787,7 @@ isatvarcorrect <- function(x,   mcor = 1){
   
   classx <- class(x)
   if (classx=="isat"){
-    if (!is.null(x$call$iis) & x$call$iis==TRUE) 
+    if (!is.null(x$aux$args$iis) & x$aux$args$iis==TRUE) 
     {
       x$vcov.mean <- x$vcov.mean * as.numeric(isvarcor(x$aux$t.pval, 1)[2]^2)
       rel_names <- x$aux$mXnames[!(x$aux$mXnames %in% x$ISnames)]
@@ -2804,7 +2872,7 @@ outliertest <- function(x=NULL, noutl=NULL, t.pval=NULL, T=NULL,  m=1, infty=FAL
         # if (any(x$call$sis, x$call$tis)==TRUE ){
         #   stop("Test only valid for iis")
         # } else {
-        if (  x$call$iis == TRUE){
+        if (  x$aux$args$iis == TRUE){
           ISnames <- c(x$ISnames[grep("iis", x$ISnames)])
           noutl= length(ISnames) 
           t.pval <- x$aux$t.pval
