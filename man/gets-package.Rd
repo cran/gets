@@ -14,8 +14,8 @@ The code of the package originated in relation with the research project G. Suca
 \details{
 
 \tabular{ll}{
-	Version: \tab 0.38\cr
-	Date: \tab 2024-07-11\cr
+	Version: \tab 0.40\cr
+	Date: \tab 2026-07-27\cr
 	Licence: \tab GPL-2\cr
 }
 
@@ -65,10 +65,10 @@ The code of the package originated in relation with the research project G. Suca
 \author{
 
 \tabular{lll}{
-	Jonas Kurle: \tab \tab \url{https://www.jonaskurle.com/}\cr
+	Jonas Kurle: \tab \tab \url{https://jonaskurle.com/}\cr
 	Felix Pretis: \tab \tab \url{https://felixpretis.climateeconometrics.org/}\cr
 	James Reade: \tab \tab \url{https://sites.google.com/site/jjamesreade/}\cr
-	Moritz Schwarz: \tab \tab  \url{https://www.inet.ox.ac.uk/people/moritz-schwarz}\cr
+	Moritz Schwarz: \tab \tab  \url{https://www.moritzschwarz.org/}\cr
 	Genaro Sucarrat: \tab \tab \url{https://www.sucarrat.net/}\cr
 }
 
@@ -83,7 +83,7 @@ Felix Pretis, James Reade and Genaro Sucarrat (2018): 'Automated General-to-Spec
 
 Carlos Santos, David F. Hendry and Soren Johansen (2007):  'Automatic selection of indicators in a fully saturated regression'. Computational Statistics, vol 23:1, pp.317-335. \doi{10.1007/s00180-007-0054-z}
 
-Genaro Sucarrat (2020): 'User-Specified General-to-Specific and Indicator Saturation Methods'. The R Journal 12:2, pages 388-401. \url{https://journal.r-project.org/archive/2021/RJ-2021-024/}
+Genaro Sucarrat (2021): 'User-Specified General-to-Specific and Indicator Saturation Methods'. The R Journal 12:2, pages 388-401. \url{https://journal.r-project.org/articles/RJ-2021-024/}
 
 Genaro Sucarrat and Alvaro Escribano (2012): 'Automated Financial Model Selection: General-to-Specific Modelling of the Mean and Volatility Specifications', Oxford Bulletin of Economics and Statistics 74, Issue 5 (October), pp. 716-735.
 

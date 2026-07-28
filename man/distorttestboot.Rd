@@ -33,13 +33,13 @@ parallel.options = NULL, quantiles = c(0.90, 0.95, 0.99), ...)
 \value{A list including an object of class \code{h-test}.}
 
 \references{
-Xiyu Jiao, Felix Pretis,and Moritz Schwarz. Testing for Coefficient Distortion due to Outliers with an Application to the Economic Impacts of Climate Change. Available at SSRN: \url{https://www.ssrn.com/abstract=3915040} or \doi{10.2139/ssrn.3915040}
+Xiyu Jiao, Felix Pretis,and Moritz Schwarz (2024): 'Testing for Coefficient Distortion due to Outliers with an Application to the Economic Impacts of Climate Change', Journal of Econometrics 239, \doi{10.1016/j.jeconom.2023.105547}
 }
 
 \author{
   Xiyu Jiao \url{https://sites.google.com/view/xiyujiao}\cr\cr
   Felix Pretis \url{https://felixpretis.climateeconometrics.org/} \cr\cr
-  Moritz Schwarz \url{https://moritzschwarz.org}\cr\cr
+  Moritz Schwarz \url{https://www.moritzschwarz.org}\cr\cr
 }
 
 \seealso{

@@ -48,6 +48,10 @@ export(
   "isvarcor", "isvareffcor", "iim", "sim", "tim", "isatdates",
   "isatloop", "isatvarcorrect", "mvrnormsim", "outlierscaletest",
   "outliertest", "vargaugeiis", "gets.isat", "isat.lm", "isat.arx",
+  "as.arx.isat",
+  "as.isat",
+  # isat helper functions (not exported in NAMESPACE)
+  #"create.ISmatrices", "ISMatricesLoop", "ISadditionalblocksearch", "ISblocksFun",
 
   ##larch-class functions:
   "larchEstfun", "larch", "coef.larch", "fitted.larch", "gets.larch",
@@ -114,6 +118,7 @@ S3method("residuals", "isat")
 S3method("sigma", "isat")
 S3method("summary", "isat")
 S3method("vcov", "isat")
+S3method("as.arx", "isat")
 
 ##methods for class larch:
 S3method("coef", "larch")
